@@ -1,0 +1,66 @@
+@if (isSystem()) {
+  <div class="message-system" role="status">
+    <mat-icon aria-hidden="true">info</mat-icon>
+    <span>{{ message().content }}</span>
+    <time [attr.datetime]="message().createdAt">
+      {{ message().createdAt | date: 'HH:mm' }}
+    </time>
+  </div>
+} @else {
+  <article
+    class="message"
+    [class.message--user]="isUser()"
+    [class.message--assistant]="isAssistant()"
+    [attr.aria-label]="'Message de ' + authorLabel()"
+  >
+    @if (isAssistant()) {
+      <span class="message__avatar message__avatar--assistant" aria-hidden="true">
+        <mat-icon>smart_toy</mat-icon>
+      </span>
+    }
+
+    <div class="message__content">
+      <div class="message__meta">
+        <span class="message__author">{{ authorLabel() }}</span>
+        <time [attr.datetime]="message().createdAt">
+          {{ message().createdAt | date: 'dd/MM/yyyy à HH:mm' }}
+        </time>
+      </div>
+      <div class="message__bubble">
+        <p class="message__text">{{ message().content }}</p>
+      </div>
+
+      @if (isAssistant()) {
+        @if (sources().length > 0) {
+          <details class="sources" open>
+            <summary class="sources__summary">
+              <mat-icon aria-hidden="true">menu_book</mat-icon>
+              Sources utilisées ({{ sources().length }})
+            </summary>
+            <ul class="sources__list">
+              @for (source of sources(); track source.chunkId) {
+                <li class="source">
+                  <div class="source__head">
+                    <span class="source__title">{{ source.title }}</span>
+                    <span class="source__score">
+                      Similarité : {{ formatScore(source.score) }} %
+                    </span>
+                  </div>
+                  <p class="source__meta">
+                    {{ categoryLabel(source.category) }} · version
+                    {{ source.documentVersion }}
+                  </p>
+                  @if (source.excerpt) {
+                    <p class="source__excerpt">{{ source.excerpt }}</p>
+                  }
+                </li>
+              }
+            </ul>
+          </details>
+        } @else {
+          <p class="message__no-source">Aucune source pertinente trouvée.</p>
+        }
+      }
+    </div>
+  </article>
+}

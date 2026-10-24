@@ -1,0 +1,107 @@
+@if (conversation(); as current) {
+<section class="chat" aria-labelledby="chat-title">
+  <header class="chat__head">
+    <button
+      mat-icon-button
+      type="button"
+      class="chat__back"
+      (click)="back.emit()"
+      aria-label="Revenir à la liste des conversations"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div class="chat__heading">
+      <h2 id="chat-title" class="chat__title">{{ current.title }}</h2>
+      <p class="chat__meta">
+        {{ messageCount() }} message{{ messageCount() > 1 ? 's' : '' }} ·
+        conversation privée
+      </p>
+    </div>
+
+    <div class="chat__actions">
+      <button
+        mat-icon-button
+        type="button"
+        (click)="requestRename()"
+        matTooltip="Renommer la conversation"
+        aria-label="Renommer la conversation"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        type="button"
+        class="chat__delete"
+        (click)="requestDelete()"
+        matTooltip="Supprimer la conversation"
+        aria-label="Supprimer la conversation"
+      >
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+  <div class="chat__banner" role="alert">
+    <mat-icon aria-hidden="true">error_outline</mat-icon>
+    <span>{{ errorMessage() }}</span>
+  </div>
+  }
+
+  <div
+    class="chat__messages"
+    aria-live="polite"
+    aria-label="Historique des messages"
+  >
+    @if (loading()) {
+    <app-loading-spinner
+      message="Chargement des messages…"
+      [diameter]="36"
+    />
+    } @else if (messages().length === 0) {
+    <app-empty-state
+      icon="smart_toy"
+      title="Posez votre première question à l'Assistant RH."
+      message="L'Assistant recherche les documents RH pertinents et affiche les sources utilisées. Aucune décision de recrutement n'est prise automatiquement."
+    />
+    } @else {
+    @for (message of messages(); track message.id) {
+    <app-message-bubble [message]="message" />
+    }
+    }
+
+    @if (sending()) {
+    <div class="chat__typing" role="status" aria-live="polite">
+      <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+      <span>L’Assistant RH prépare une réponse…</span>
+    </div>
+    }
+
+    <div #messagesEnd aria-hidden="true"></div>
+  </div>
+
+  <footer class="chat__composer">
+    <app-message-composer
+      [disabled]="false"
+      [sending]="sending()"
+      [resetToken]="resetToken()"
+      (send)="send.emit($event)"
+    />
+  </footer>
+</section>
+} @else {
+<section class="chat chat--empty" aria-label="Assistant RH">
+  <app-empty-state
+    icon="forum"
+    title="Sélectionnez une conversation"
+    message="Choisissez une conversation existante ou créez-en une nouvelle pour interroger l'Assistant RH."
+  >
+    <button mat-flat-button type="button" (click)="create.emit()">
+      <mat-icon aria-hidden="true">add_comment</mat-icon>
+      Nouvelle conversation
+    </button>
+  </app-empty-state>
+</section>
+}

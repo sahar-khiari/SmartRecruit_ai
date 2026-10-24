@@ -1,0 +1,67 @@
+<header class="public-navbar">
+  <div class="container public-navbar__inner">
+    <a routerLink="/" class="brand" aria-label="SmartRecruit AI, retour à l'accueil">
+      <span class="brand__mark" aria-hidden="true">
+        <mat-icon>work</mat-icon>
+      </span>
+      <span class="brand__name">SmartRecruit <strong>AI</strong></span>
+    </a>
+
+    <nav class="public-navbar__links" aria-label="Navigation principale">
+      <a routerLink="/" fragment="accueil">Accueil</a>
+      <a routerLink="/" fragment="fonctionnalites">Fonctionnalités</a>
+      <a routerLink="/" fragment="espaces">Espaces</a>
+    </nav>
+
+    <div class="public-navbar__actions">
+      @if (authService.isLoggedIn()) {
+        <a mat-flat-button [routerLink]="homePath()">
+          <mat-icon>space_dashboard</mat-icon>
+          Mon espace
+        </a>
+      } @else {
+        <a mat-button routerLink="/login" class="login-link">Se connecter</a>
+        <a mat-flat-button routerLink="/signup">Créer un compte</a>
+      }
+    </div>
+
+    <button
+      mat-icon-button
+      class="public-navbar__menu-button"
+      [matMenuTriggerFor]="mobileMenu"
+      aria-label="Ouvrir le menu de navigation"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <mat-menu #mobileMenu="matMenu">
+      <a mat-menu-item routerLink="/" fragment="accueil">
+        <mat-icon>home</mat-icon>
+        <span>Accueil</span>
+      </a>
+      <a mat-menu-item routerLink="/" fragment="fonctionnalites">
+        <mat-icon>auto_awesome</mat-icon>
+        <span>Fonctionnalités</span>
+      </a>
+      <a mat-menu-item routerLink="/" fragment="espaces">
+        <mat-icon>groups</mat-icon>
+        <span>Espaces</span>
+      </a>
+      @if (authService.isLoggedIn()) {
+        <a mat-menu-item [routerLink]="homePath()">
+          <mat-icon>space_dashboard</mat-icon>
+          <span>Mon espace</span>
+        </a>
+      } @else {
+        <a mat-menu-item routerLink="/login">
+          <mat-icon>login</mat-icon>
+          <span>Se connecter</span>
+        </a>
+        <a mat-menu-item routerLink="/signup">
+          <mat-icon>person_add</mat-icon>
+          <span>Créer un compte</span>
+        </a>
+      }
+    </mat-menu>
+  </div>
+</header>

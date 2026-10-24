@@ -1,0 +1,20 @@
+@use 'variables' as v;
+
+.confirm__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.confirm__title mat-icon {
+  color: v.$color-primary;
+}
+
+.confirm__icon--danger {
+  color: v.$color-danger !important;
+}
+
+.confirm__message {
+  color: v.$color-text-muted;
+  line-height: 1.55;
+}

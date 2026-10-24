@@ -1,0 +1,106 @@
+@use 'variables' as v;
+
+.not-found {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 32px 20px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(13, 148, 136, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(30, 58, 138, 0.12), transparent 42%),
+    v.$color-bg;
+}
+
+.not-found__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: v.$color-primary-strong;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+}
+
+.not-found__brand strong {
+  color: v.$color-secondary-strong;
+}
+
+.not-found__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, v.$color-primary, #2563eb);
+  color: #ffffff;
+}
+
+.not-found__mark mat-icon {
+  font-size: 21px;
+  width: 21px;
+  height: 21px;
+}
+
+.not-found__card {
+  width: min(100%, 520px);
+  padding: 38px 32px;
+  text-align: center;
+  background: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-xl;
+  box-shadow: v.$shadow-md;
+}
+
+.not-found__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 14px;
+  border-radius: 22px;
+  background: v.$color-primary-soft;
+  color: v.$color-primary;
+}
+
+.not-found__icon mat-icon {
+  font-size: 34px;
+  width: 34px;
+  height: 34px;
+}
+
+.not-found__code {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: v.$color-text-subtle;
+  margin-bottom: 4px;
+}
+
+.not-found__title {
+  font-size: 1.7rem;
+  margin-bottom: 10px;
+}
+
+.not-found__text {
+  color: v.$color-text-muted;
+  margin-bottom: 24px;
+}
+
+.not-found__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+@media (max-width: 479.98px) {
+  .not-found__card {
+    padding: 28px 20px;
+  }
+}

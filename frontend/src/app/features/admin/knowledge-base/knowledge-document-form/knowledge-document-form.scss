@@ -1,0 +1,39 @@
+@use 'variables' as v;
+
+.form-card {
+  max-width: 1060px;
+}
+
+.form-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0 10px;
+  padding: 9px 11px;
+  border-radius: v.$radius-sm;
+  background: v.$color-primary-soft;
+  color: v.$color-primary-strong;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.form-note mat-icon {
+  flex: 0 0 auto;
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.form-actions {
+  align-items: center;
+}
+
+.form-actions button mat-progress-spinner {
+  margin-right: 7px;
+}
+
+@media (max-width: 719.98px) {
+  .form-card {
+    padding: 18px 14px;
+  }
+}

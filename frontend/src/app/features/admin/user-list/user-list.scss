@@ -1,0 +1,139 @@
+@use 'variables' as v;
+
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.table-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px 16px;
+}
+
+.table-card__title {
+  font-size: 1.05rem;
+  margin-bottom: 2px;
+}
+
+.table-card__subtitle {
+  color: v.$color-text-muted;
+  font-size: 0.85rem;
+}
+
+.table-card__hint {
+  font-size: 0.76rem;
+  color: v.$color-text-subtle;
+  background: v.$color-surface-muted;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-pill;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.table-card__banner {
+  padding: 0 24px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.users-table {
+  width: 100%;
+  min-width: 1040px;
+  background: transparent;
+}
+
+.users-table th.mat-mdc-header-cell {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: v.$color-text-subtle;
+  background: v.$color-surface-muted;
+  border-bottom: 1px solid v.$color-border;
+  padding: 12px 14px;
+}
+
+.users-table td.mat-mdc-cell {
+  font-size: 0.87rem;
+  color: v.$color-text;
+  border-bottom-color: v.$color-border;
+  padding: 12px 14px;
+}
+
+.users-table tr.mat-mdc-row:hover {
+  background: #f8fafc;
+}
+
+.users-table tr.mat-mdc-row:last-child td.mat-mdc-cell {
+  border-bottom: none;
+}
+
+.users-table .actions-head {
+  text-align: right;
+}
+
+.id-cell {
+  color: v.$color-text-subtle !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.email-cell {
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.date-cell {
+  white-space: nowrap;
+}
+
+.role-field {
+  width: 170px;
+  font-size: 0.85rem;
+  --mat-form-field-container-height: 44px;
+  --mat-form-field-container-vertical-padding: 10px;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.row-actions a,
+.row-actions button {
+  color: v.$color-text-muted;
+}
+
+.row-actions .danger-action {
+  color: v.$color-danger;
+}
+
+mat-paginator {
+  border-top: 1px solid v.$color-border;
+  background: transparent;
+}
+
+@media (max-width: 719.98px) {
+  .table-card__head {
+    flex-direction: column;
+    padding: 18px 16px 12px;
+  }
+
+  .table-card__hint {
+    display: none;
+  }
+
+  .table-card__banner {
+    padding: 0 16px;
+  }
+}

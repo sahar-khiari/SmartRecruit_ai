@@ -1,0 +1,63 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+}
+
+.composer {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.composer__field {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.composer__send {
+  flex: 0 0 auto;
+  height: 48px;
+  margin-top: 4px;
+  padding-inline: 16px;
+}
+
+.composer__send mat-progress-spinner {
+  margin-right: 6px;
+  --mat-progress-spinner-active-indicator-color: currentColor;
+}
+
+.composer__send mat-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+  margin-right: 2px;
+}
+
+.composer__notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: v.$color-text-subtle;
+  font-size: 0.76rem;
+}
+
+.composer__notice mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-width: 639.98px) {
+  .composer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .composer__send {
+    align-self: flex-end;
+    margin-top: 0;
+  }
+}

@@ -1,0 +1,20 @@
+<div class="denied">
+  <span class="denied__icon" aria-hidden="true">
+    <mat-icon>shield</mat-icon>
+  </span>
+  <p class="denied__code">Erreur 403</p>
+  <h1 class="denied__title">Accès refusé</h1>
+  <p class="denied__message">
+    Votre compte ne dispose pas des droits nécessaires pour consulter cette page.
+    Si vous pensez qu'il s'agit d'une erreur, contactez un administrateur.
+  </p>
+  <div class="denied__actions">
+    <a mat-flat-button [routerLink]="homePath()">
+      <mat-icon>arrow_back</mat-icon>
+      {{ authService.isLoggedIn() ? 'Retour à mon espace' : 'Se connecter' }}
+    </a>
+    @if (authService.isLoggedIn()) {
+      <a mat-stroked-button [routerLink]="profilePath()">Voir mon profil</a>
+    }
+  </div>
+</div>

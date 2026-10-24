@@ -1,0 +1,121 @@
+<div class="page">
+  <app-page-header
+    [title]="isEdit ? 'Modifier la ressource RH' : 'Ajouter une ressource RH'"
+    subtitle="Les ressources actives sont utilisées par l'Assistant RH dans le front-office. La base documentaire reste indépendante du futur pipeline RAG."
+  >
+    <a mat-stroked-button routerLink="/admin/knowledge-base">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Retour à la liste
+    </a>
+  </app-page-header>
+
+  @if (loading()) {
+    <app-loading-spinner message="Chargement de la ressource…" />
+  } @else if (errorMessage() && !document() && isEdit) {
+    <section class="surface-card">
+      <app-empty-state
+        icon="description_off"
+        title="Ressource indisponible"
+        [message]="errorMessage() ?? ''"
+      >
+        <button mat-flat-button type="button" (click)="loadDocument()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          Réessayer
+        </button>
+        <a mat-stroked-button routerLink="/admin/knowledge-base">Retour à la liste</a>
+      </app-empty-state>
+    </section>
+  } @else {
+    <section class="surface-card form-card">
+      <form [formGroup]="form" (submit)="$event.preventDefault(); submit()" novalidate>
+        @if (errorMessage()) {
+          <div class="form-banner form-banner--error" role="alert">
+            <mat-icon aria-hidden="true">error_outline</mat-icon>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field--full">
+            <mat-label>Titre de la ressource</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="title"
+              [attr.maxlength]="maxTitleLength"
+              autocomplete="off"
+              placeholder="Ex. Comment préparer un entretien Java ?"
+            />
+            <mat-hint align="end">
+              {{ form.controls.title.value.length }}/{{ maxTitleLength }}
+            </mat-hint>
+            @if (form.controls.title.hasError('required')) {
+              <mat-error>Le titre est obligatoire et ne peut pas être vide.</mat-error>
+            } @else if (form.controls.title.hasError('maxlength')) {
+              <mat-error>
+                Le titre ne doit pas dépasser {{ maxTitleLength }} caractères.
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Catégorie</mat-label>
+            <mat-select formControlName="category" placeholder="Sélectionner une catégorie">
+              @for (category of categoryOptions; track category.value) {
+                <mat-option [value]="category.value">{{ category.label }}</mat-option>
+              }
+            </mat-select>
+            @if (form.controls.category.hasError('required')) {
+              <mat-error>La catégorie est obligatoire.</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="form-note">
+            <mat-icon aria-hidden="true">info</mat-icon>
+            <p>
+              Toute nouvelle ressource est créée active. Son statut pourra être modifié
+              depuis le détail ou la liste.
+            </p>
+          </div>
+
+          <mat-form-field appearance="outline" class="form-field--full">
+            <mat-label>Contenu complet</mat-label>
+            <textarea
+              matInput
+              rows="14"
+              formControlName="content"
+              [attr.maxlength]="maxContentLength"
+              placeholder="Rédigez le contenu de la ressource RH…"
+            ></textarea>
+            <mat-hint align="end">
+              {{ form.controls.content.value.length }}/{{ maxContentLength }}
+            </mat-hint>
+            @if (form.controls.content.hasError('required')) {
+              <mat-error>Le contenu est obligatoire et ne peut pas être vide.</mat-error>
+            } @else if (form.controls.content.hasError('maxlength')) {
+              <mat-error>
+                Le contenu ne doit pas dépasser {{ maxContentLength }} caractères.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-flat-button type="submit" [disabled]="saving()">
+            @if (saving()) {
+              <mat-progress-spinner
+                diameter="18"
+                mode="indeterminate"
+                aria-hidden="true"
+              />
+            } @else {
+              <mat-icon aria-hidden="true">save</mat-icon>
+            }
+            {{ saving() ? 'Enregistrement…' : isEdit ? 'Enregistrer' : 'Créer la ressource' }}
+          </button>
+          <a mat-stroked-button routerLink="/admin/knowledge-base">Annuler</a>
+        </div>
+      </form>
+    </section>
+  }
+</div>

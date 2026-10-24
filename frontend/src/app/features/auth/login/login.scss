@@ -1,0 +1,9 @@
+@use 'auth';
+
+:host {
+  display: block;
+}
+
+section {
+  min-height: 60vh;
+}

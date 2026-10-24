@@ -1,0 +1,23 @@
+<footer class="fo-footer">
+  <div class="fo-footer__inner">
+    <div class="fo-footer__brand">
+      <a [routerLink]="homePath()" class="fo-footer__brand-link">
+        <span class="fo-footer__mark" aria-hidden="true">
+          <mat-icon>work</mat-icon>
+        </span>
+        <span>SmartRecruit <strong>AI</strong></span>
+      </a>
+      <p>Votre espace personnel de recrutement intelligent.</p>
+    </div>
+
+    <nav class="fo-footer__links" aria-label="Liens du pied de page">
+      <a [routerLink]="homePath()">Mon espace</a>
+      <a [routerLink]="profilePath()">Mon profil</a>
+      <a routerLink="/">Accueil public</a>
+    </nav>
+
+    <p class="fo-footer__meta">
+      © {{ currentYear }} SmartRecruit AI · Module User / Auth
+    </p>
+  </div>
+</footer>

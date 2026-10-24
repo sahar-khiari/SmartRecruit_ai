@@ -1,0 +1,32 @@
+<div class="not-found">
+  <a routerLink="/" class="not-found__brand">
+    <span class="not-found__mark" aria-hidden="true">
+      <mat-icon>work</mat-icon>
+    </span>
+    <span>SmartRecruit <strong>AI</strong></span>
+  </a>
+
+  <section class="not-found__card">
+    <span class="not-found__icon" aria-hidden="true">
+      <mat-icon>search_off</mat-icon>
+    </span>
+    <p class="not-found__code">Erreur 404</p>
+    <h1 class="not-found__title">Page introuvable</h1>
+    <p class="not-found__text">
+      La page demandée n’existe pas ou a été déplacée. Vérifiez l’adresse ou revenez à
+      l’accueil de la plateforme.
+    </p>
+
+    <div class="not-found__actions">
+      @if (authService.isLoggedIn()) {
+        <a mat-flat-button [routerLink]="homePath()">
+          <mat-icon aria-hidden="true">space_dashboard</mat-icon>
+          Retour à mon espace
+        </a>
+      } @else {
+        <a mat-flat-button routerLink="/">Retour à l’accueil</a>
+        <a mat-stroked-button routerLink="/login">Se connecter</a>
+      }
+    </div>
+  </section>
+</div>

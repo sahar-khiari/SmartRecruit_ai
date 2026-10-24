@@ -1,0 +1,10 @@
+@use 'variables' as v;
+
+.form-card {
+  max-width: 840px;
+}
+
+.form-card__loading {
+  color: v.$color-text-muted;
+  margin-bottom: 16px;
+}

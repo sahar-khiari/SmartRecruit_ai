@@ -1,0 +1,113 @@
+<div class="page">
+  <app-page-header
+    title="Mon profil"
+    subtitle="Consultez les informations enregistrées par le backend pour votre compte."
+  >
+    <a mat-stroked-button [routerLink]="editPath()">
+      <mat-icon aria-hidden="true">edit</mat-icon>
+      Modifier le profil
+    </a>
+    <a mat-flat-button [routerLink]="passwordPath()">
+      <mat-icon aria-hidden="true">key</mat-icon>
+      Changer le mot de passe
+    </a>
+  </app-page-header>
+
+  @if (loading()) {
+    <app-loading-spinner message="Chargement de votre profil…" />
+  } @else if (errorMessage()) {
+    <section class="surface-card">
+      <app-empty-state
+        icon="cloud_off"
+        title="Profil indisponible"
+        [message]="errorMessage() ?? ''"
+      >
+        <button mat-flat-button type="button" (click)="loadProfile()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          Réessayer
+        </button>
+        <a mat-stroked-button [routerLink]="homePath()">Retour à mon espace</a>
+      </app-empty-state>
+    </section>
+  } @else if (user(); as profile) {
+    <section class="surface-card profile-card">
+      <header class="profile-card__head">
+        <span class="profile-card__avatar" aria-hidden="true">{{ initials() }}</span>
+        <div class="profile-card__identity">
+          <h2 class="profile-card__name">{{ profile.firstName }} {{ profile.lastName }}</h2>
+          <p class="profile-card__email">{{ profile.email }}</p>
+          <div class="profile-card__badges">
+            <span class="badge badge--role">
+              <mat-icon aria-hidden="true">badge</mat-icon>
+              {{ profile.role | roleLabel }}
+            </span>
+            @if (profile.enabled) {
+              <span class="badge badge--success">
+                <mat-icon aria-hidden="true">check_circle</mat-icon>
+                Compte actif
+              </span>
+            } @else {
+              <span class="badge badge--danger">
+                <mat-icon aria-hidden="true">block</mat-icon>
+                Compte désactivé
+              </span>
+            }
+          </div>
+        </div>
+      </header>
+
+      <dl class="profile-details">
+        <div class="profile-details__item">
+          <dt>Identifiant</dt>
+          <dd>#{{ profile.id }}</dd>
+        </div>
+        <div class="profile-details__item">
+          <dt>Prénom</dt>
+          <dd>{{ profile.firstName }}</dd>
+        </div>
+        <div class="profile-details__item">
+          <dt>Nom</dt>
+          <dd>{{ profile.lastName }}</dd>
+        </div>
+        <div class="profile-details__item">
+          <dt>Adresse email</dt>
+          <dd>{{ profile.email }}</dd>
+        </div>
+        <div class="profile-details__item">
+          <dt>Rôle</dt>
+          <dd>{{ profile.role | roleLabel }}</dd>
+        </div>
+        <div class="profile-details__item">
+          <dt>Statut</dt>
+          <dd>{{ profile.enabled ? 'Actif' : 'Désactivé' }}</dd>
+        </div>
+        <div class="profile-details__item">
+          <dt>Date de création</dt>
+          <dd>
+            @if (profile.createdAt) {
+              {{ profile.createdAt | date: 'dd/MM/yyyy à HH:mm' }}
+            } @else {
+              Non renseignée
+            }
+          </dd>
+        </div>
+        <div class="profile-details__item">
+          <dt>Dernière modification</dt>
+          <dd>
+            @if (profile.updatedAt) {
+              {{ profile.updatedAt | date: 'dd/MM/yyyy à HH:mm' }}
+            } @else {
+              Non renseignée
+            }
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <p class="profile-note">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      Ces données proviennent de l’API <code>GET /api/users/me</code>. Le mot de passe
+      et son hash ne sont jamais exposés par le backend.
+    </p>
+  }
+</div>

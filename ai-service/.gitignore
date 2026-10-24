@@ -1,0 +1,25 @@
+# Environnement Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+
+# Configuration locale et secrets
+.env
+.env.*
+!.env.example
+
+# Données locales, index Chroma et journaux
+data/chroma/
+data/tmp/
+logs/
+*.log
+
+# Modèles téléchargés localement
+models/
+.cache/

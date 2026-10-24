@@ -1,0 +1,44 @@
+@use 'variables' as v;
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 56px 24px;
+}
+
+.empty-state__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: v.$color-primary-soft;
+  color: v.$color-primary;
+}
+
+.empty-state__icon mat-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+}
+
+.empty-state__title {
+  font-size: 1.12rem;
+  margin-bottom: 6px;
+}
+
+.empty-state__message {
+  color: v.$color-text-muted;
+  max-width: 420px;
+  font-size: 0.93rem;
+}
+
+.empty-state__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}

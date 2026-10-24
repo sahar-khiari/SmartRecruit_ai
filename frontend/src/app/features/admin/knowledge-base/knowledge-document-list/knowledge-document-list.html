@@ -1,0 +1,342 @@
+<div class="page">
+  <app-page-header
+    title="Base de connaissances RH"
+    subtitle="Gérez les ressources documentaires utilisées par l'Assistant RH. Seules les ressources actives sont visibles dans le front-office."
+  >
+    <a mat-flat-button routerLink="/admin/knowledge-base/new">
+      <mat-icon aria-hidden="true">add</mat-icon>
+      Ajouter une ressource
+    </a>
+    <a mat-stroked-button routerLink="/admin/knowledge-base/semantic-search">
+      <mat-icon aria-hidden="true">manage_search</mat-icon>
+      Recherche sémantique
+    </a>
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="reindexAll()"
+      [disabled]="loading() || reindexingAll() || busyId() !== null"
+    >
+      @if (reindexingAll()) {
+        <mat-progress-spinner diameter="18" mode="indeterminate" aria-hidden="true" />
+      } @else {
+        <mat-icon aria-hidden="true">sync</mat-icon>
+      }
+      Réindexer tout
+    </button>
+    <button mat-stroked-button type="button" (click)="loadDocuments()" [disabled]="loading()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>
+      Actualiser
+    </button>
+  </app-page-header>
+
+  <section class="surface-card filters" aria-labelledby="filters-title">
+    <div class="filters__head">
+      <h2 id="filters-title" class="filters__title">Filtrer les ressources</h2>
+      @if (hasFilters()) {
+        <button mat-button type="button" (click)="clearFilters()">
+          <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+          Réinitialiser
+        </button>
+      }
+    </div>
+
+    <div class="filters__grid">
+      <mat-form-field appearance="outline" class="filters__search">
+        <mat-label>Rechercher par titre</mat-label>
+        <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+        <input
+          matInput
+          type="search"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          (keyup.enter)="applyFilters()"
+          placeholder="Ex. préparation entretien"
+          aria-label="Rechercher une ressource par titre"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Catégorie</mat-label>
+        <mat-select
+          [value]="categoryFilter()"
+          (selectionChange)="onCategoryChange($event)"
+          aria-label="Filtrer par catégorie"
+        >
+          <mat-option value="">Toutes les catégories</mat-option>
+          @for (category of categoryOptions; track category.value) {
+            <mat-option [value]="category.value">{{ category.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Statut</mat-label>
+        <mat-select
+          [value]="statusFilter()"
+          (selectionChange)="onStatusChange($event)"
+          aria-label="Filtrer par statut"
+        >
+          <mat-option value="all">Tous les statuts</mat-option>
+          <mat-option value="active">Actives</mat-option>
+          <mat-option value="inactive">Inactives</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        type="button"
+        class="filters__apply"
+        (click)="applyFilters()"
+        [disabled]="loading()"
+      >
+        <mat-icon aria-hidden="true">search</mat-icon>
+        Appliquer
+      </button>
+    </div>
+  </section>
+
+  <section class="surface-card table-card" aria-labelledby="documents-title">
+    <div class="table-card__head">
+      <div>
+        <h2 id="documents-title" class="table-card__title">Ressources documentaires</h2>
+        <p class="table-card__subtitle">
+          {{ totalElements() }} ressource{{ totalElements() > 1 ? 's' : '' }} enregistrée{{
+            totalElements() > 1 ? 's' : ''
+          }}
+        </p>
+      </div>
+      <span class="table-card__hint">Pagination, tri et filtres côté backend</span>
+    </div>
+
+    @if (loading() && documents().length > 0) {
+      <mat-progress-bar mode="indeterminate" aria-label="Actualisation des ressources" />
+    }
+
+    @if (errorMessage()) {
+      <div class="table-card__banner" role="alert">
+        <div class="form-banner form-banner--error">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      </div>
+    }
+
+    @if (loading() && documents().length === 0) {
+      <app-loading-spinner message="Chargement de la base de connaissances…" />
+    } @else if (documents().length === 0) {
+      <app-empty-state
+        icon="menu_book"
+        title="Aucune ressource trouvée"
+        [message]="
+          hasFilters()
+            ? 'Aucune ressource ne correspond aux filtres sélectionnés.'
+            : 'La base de connaissances RH est vide. Ajoutez une première ressource.'
+        "
+      >
+        @if (hasFilters()) {
+          <button mat-stroked-button type="button" (click)="clearFilters()">
+            <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+            Effacer les filtres
+          </button>
+        } @else {
+          <a mat-flat-button routerLink="/admin/knowledge-base/new">
+            <mat-icon aria-hidden="true">add</mat-icon>
+            Ajouter une ressource
+          </a>
+        }
+      </app-empty-state>
+    } @else {
+      <div class="table-scroll">
+        <table
+          mat-table
+          [dataSource]="documents()"
+          matSort
+          [matSortActive]="sortActive()"
+          [matSortDirection]="sortDirection()"
+          matSortDisableClear
+          (matSortChange)="onSort($event)"
+          class="documents-table"
+          aria-label="Liste des ressources de la base de connaissances"
+        >
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="id">ID</th>
+            <td mat-cell *matCellDef="let document" class="id-cell">#{{ document.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="title">Titre</th>
+            <td mat-cell *matCellDef="let document">
+              <a
+                class="title-link"
+                [routerLink]="['/admin/knowledge-base', document.id]"
+                [attr.aria-label]="'Consulter la ressource ' + document.title"
+              >
+                {{ document.title }}
+              </a>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="category">Catégorie</th>
+            <td mat-cell *matCellDef="let document">
+              <span class="badge badge--secondary">
+                {{ document.category | knowledgeCategory }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="active">Statut</th>
+            <td mat-cell *matCellDef="let document">
+              @if (document.active) {
+                <span class="badge badge--success">
+                  <mat-icon aria-hidden="true">check_circle</mat-icon>
+                  Active
+                </span>
+              } @else {
+                <span class="badge badge--neutral">
+                  <mat-icon aria-hidden="true">block</mat-icon>
+                  Inactive
+                </span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="indexingStatus">
+            <th mat-header-cell *matHeaderCellDef>Index vectoriel</th>
+            <td mat-cell *matCellDef="let document">
+              <div class="indexing-cell">
+                <span [class]="'badge ' + indexingBadgeClass(document.indexingStatus)">
+                  <mat-icon aria-hidden="true">
+                    {{ indexingStatusIcon(document.indexingStatus) }}
+                  </mat-icon>
+                  {{ indexingStatusLabel(document.indexingStatus) }}
+                </span>
+                @if (document.indexedAt) {
+                  <span class="indexing-date">
+                    {{ document.indexedAt | date: 'dd/MM/yyyy HH:mm' }}
+                  </span>
+                }
+                @if (document.indexingError) {
+                  <span
+                    class="indexing-error"
+                    [matTooltip]="document.indexingError"
+                    matTooltipClass="tooltip-multiline"
+                  >
+                    {{ document.indexingError }}
+                  </span>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="updatedAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="updatedAt">
+              Modifiée le
+            </th>
+            <td mat-cell *matCellDef="let document" class="date-cell">
+              @if (document.updatedAt) {
+                {{ document.updatedAt | date: 'dd/MM/yyyy à HH:mm' }}
+              } @else {
+                —
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdById">
+            <th mat-header-cell *matHeaderCellDef>Créateur</th>
+            <td mat-cell *matCellDef="let document" class="id-cell">
+              {{ document.createdById ? '#' + document.createdById : '—' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="actions-head">Actions</th>
+            <td mat-cell *matCellDef="let document">
+              <div class="row-actions">
+                <a
+                  mat-icon-button
+                  [routerLink]="['/admin/knowledge-base', document.id]"
+                  matTooltip="Consulter la ressource"
+                  [attr.aria-label]="'Consulter la ressource ' + document.title"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </a>
+                <a
+                  mat-icon-button
+                  [routerLink]="['/admin/knowledge-base', document.id, 'edit']"
+                  matTooltip="Modifier la ressource"
+                  [attr.aria-label]="'Modifier la ressource ' + document.title"
+                >
+                  <mat-icon>edit</mat-icon>
+                </a>
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="reindexDocument(document)"
+                  [disabled]="busyId() === document.id || reindexingAll()"
+                  [matTooltip]="
+                    document.active
+                      ? 'Réindexer la ressource'
+                      : 'La ressource est inactive : la réindexation la retirera de l’index'
+                  "
+                  [attr.aria-label]="'Réindexer la ressource ' + document.title"
+                >
+                  @if (busyId() === document.id) {
+                    <mat-progress-spinner
+                      diameter="18"
+                      mode="indeterminate"
+                      aria-hidden="true"
+                    />
+                  } @else {
+                    <mat-icon>sync</mat-icon>
+                  }
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="toggleStatus(document)"
+                  [disabled]="busyId() === document.id || reindexingAll()"
+                  [matTooltip]="
+                    document.active ? 'Désactiver la ressource' : 'Activer la ressource'
+                  "
+                  [attr.aria-label]="
+                    (document.active ? 'Désactiver la ressource ' : 'Activer la ressource ') +
+                    document.title
+                  "
+                >
+                  <mat-icon>{{ document.active ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="danger-action"
+                  (click)="deleteDocument(document)"
+                  [disabled]="busyId() === document.id || reindexingAll()"
+                  matTooltip="Supprimer la ressource"
+                  [attr.aria-label]="'Supprimer la ressource ' + document.title"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        [length]="totalElements()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        [showFirstLastButtons]="true"
+        (page)="onPage($event)"
+        aria-label="Pagination des ressources RH"
+      />
+    }
+  </section>
+</div>

@@ -1,0 +1,131 @@
+@use 'variables' as v;
+
+.details-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.65fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.document-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.document-card__head {
+  padding: 24px 24px 20px;
+}
+
+.document-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.document-card__title {
+  font-size: clamp(1.25rem, 2.3vw, 1.6rem);
+  margin-bottom: 4px;
+  overflow-wrap: anywhere;
+}
+
+.document-card__meta {
+  color: v.$color-text-subtle;
+  font-size: 0.79rem;
+}
+
+.document-content {
+  padding: 22px 24px 28px;
+}
+
+.document-content__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: v.$color-text-subtle;
+  margin-bottom: 10px;
+}
+
+.document-content__text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: v.$color-text;
+  font-size: 0.94rem;
+  line-height: 1.7;
+}
+
+.side-card__title {
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+.meta-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 12px;
+}
+
+.meta-list__item {
+  padding: 10px 0;
+  border-bottom: 1px solid v.$color-border;
+}
+
+.meta-list__item:last-child {
+  border-bottom: none;
+}
+
+.meta-list__item dt {
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: v.$color-text-subtle;
+  margin-bottom: 2px;
+}
+
+.meta-list__item dd {
+  margin: 0;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
+.side-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 18px 0 12px;
+}
+
+.indexing-error-text {
+  color: v.$color-danger;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.side-actions button {
+  justify-content: flex-start;
+}
+
+.side-actions mat-progress-spinner {
+  margin-right: 6px;
+}
+
+.side-card__note {
+  color: v.$color-text-subtle;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 1099.98px) {
+  .details-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .document-card__head,
+  .document-content {
+    padding-inline: 16px;
+  }
+}

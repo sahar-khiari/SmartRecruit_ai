@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smartrecruit-ai-service"
+version = "1.1.0"
+description = "Microservice FastAPI RAG local avec Ollama, embeddings locaux et ChromaDB"
+requires-python = ">=3.11,<3.13"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "real_embedding: test d'intégration avec le vrai modèle sentence-transformers",
+    "real_ollama: test d'intégration avec le vrai modèle qwen3:4b via Ollama",
+]

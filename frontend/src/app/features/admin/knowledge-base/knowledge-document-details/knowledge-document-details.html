@@ -1,0 +1,182 @@
+<div class="page">
+  <app-page-header
+    title="Détail de la ressource RH"
+    subtitle="Consultez le document, son statut et les actions disponibles."
+  >
+    <a mat-stroked-button routerLink="/admin/knowledge-base">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Retour à la liste
+    </a>
+    @if (document(); as current) {
+      <a mat-flat-button [routerLink]="['/admin/knowledge-base', current.id, 'edit']">
+        <mat-icon aria-hidden="true">edit</mat-icon>
+        Modifier
+      </a>
+    }
+  </app-page-header>
+
+  @if (loading()) {
+    <app-loading-spinner message="Chargement de la ressource…" />
+  } @else if (errorMessage()) {
+    <section class="surface-card">
+      <app-empty-state
+        icon="description_off"
+        title="Ressource indisponible"
+        [message]="errorMessage() ?? ''"
+      >
+        <button mat-flat-button type="button" (click)="loadDocument()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          Réessayer
+        </button>
+        <a mat-stroked-button routerLink="/admin/knowledge-base">Retour à la liste</a>
+      </app-empty-state>
+    </section>
+  } @else if (document(); as current) {
+    <div class="details-layout">
+      <section class="surface-card document-card">
+        <header class="document-card__head">
+          <div>
+            <div class="document-card__badges">
+              <span class="badge badge--secondary">
+                {{ current.category | knowledgeCategory }}
+              </span>
+              @if (current.active) {
+                <span class="badge badge--success">
+                  <mat-icon aria-hidden="true">check_circle</mat-icon>
+                  Active
+                </span>
+              } @else {
+                <span class="badge badge--neutral">
+                  <mat-icon aria-hidden="true">block</mat-icon>
+                  Inactive
+                </span>
+              }
+              <span [class]="'badge ' + indexingBadgeClass(current.indexingStatus)">
+                <mat-icon aria-hidden="true">
+                  {{ indexingStatusIcon(current.indexingStatus) }}
+                </mat-icon>
+                {{ indexingStatusLabel(current.indexingStatus) }}
+              </span>
+            </div>
+            <h2 class="document-card__title">{{ current.title }}</h2>
+            <p class="document-card__meta">
+              Ressource #{{ current.id }} · version {{ current.version }}
+            </p>
+          </div>
+        </header>
+
+        <mat-divider />
+
+        <div class="document-content">
+          <h3 class="document-content__title">Contenu</h3>
+          <p class="document-content__text">{{ current.content }}</p>
+        </div>
+      </section>
+
+      <aside class="surface-card side-card">
+        <h2 class="side-card__title">Informations</h2>
+        <dl class="meta-list">
+          <div class="meta-list__item">
+            <dt>Statut</dt>
+            <dd>{{ current.active ? 'Visible dans le front-office' : 'Masquée aux utilisateurs' }}</dd>
+          </div>
+          <div class="meta-list__item">
+            <dt>Créée le</dt>
+            <dd>{{ current.createdAt | date: 'dd/MM/yyyy à HH:mm' }}</dd>
+          </div>
+          <div class="meta-list__item">
+            <dt>Dernière modification</dt>
+            <dd>{{ current.updatedAt | date: 'dd/MM/yyyy à HH:mm' }}</dd>
+          </div>
+          <div class="meta-list__item">
+            <dt>Créateur</dt>
+            <dd>{{ current.createdById ? 'Administrateur #' + current.createdById : 'Non renseigné' }}</dd>
+          </div>
+          <div class="meta-list__item">
+            <dt>Index vectoriel</dt>
+            <dd>{{ indexingStatusLabel(current.indexingStatus) }}</dd>
+          </div>
+          <div class="meta-list__item">
+            <dt>Dernière indexation</dt>
+            <dd>
+              @if (current.indexedAt) {
+                {{ current.indexedAt | date: 'dd/MM/yyyy à HH:mm' }}
+              } @else {
+                Non indexée
+              }
+            </dd>
+          </div>
+          @if (current.indexingError) {
+            <div class="meta-list__item">
+              <dt>Erreur d’indexation</dt>
+              <dd class="indexing-error-text">{{ current.indexingError }}</dd>
+            </div>
+          }
+        </dl>
+
+        <mat-divider />
+
+        <div class="side-actions">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="reindexDocument()"
+            [disabled]="busy() || !current.active"
+            [matTooltip]="
+              current.active
+                ? 'Relancer le nettoyage, le découpage et les embeddings locaux'
+                : 'Réactivez la ressource avant de l’indexer'
+            "
+          >
+            @if (busy()) {
+              <mat-progress-spinner
+                diameter="18"
+                mode="indeterminate"
+                aria-hidden="true"
+              />
+            } @else {
+              <mat-icon aria-hidden="true">sync</mat-icon>
+            }
+            Réindexer la ressource
+          </button>
+
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="toggleStatus()"
+            [disabled]="busy()"
+          >
+            @if (busy()) {
+              <mat-progress-spinner
+                diameter="18"
+                mode="indeterminate"
+                aria-hidden="true"
+              />
+            } @else {
+              <mat-icon aria-hidden="true">
+                {{ current.active ? 'toggle_off' : 'toggle_on' }}
+              </mat-icon>
+            }
+            {{ current.active ? 'Désactiver la ressource' : 'Activer la ressource' }}
+          </button>
+
+          <button
+            mat-flat-button
+            type="button"
+            color="warn"
+            (click)="deleteDocument()"
+            [disabled]="busy()"
+          >
+            <mat-icon aria-hidden="true">delete</mat-icon>
+            Supprimer la ressource
+          </button>
+        </div>
+
+        <p class="side-card__note">
+          La réindexation relance uniquement le nettoyage, l’anonymisation, le découpage
+          et les embeddings locaux. MariaDB reste la source de vérité. Aucun LLM n’est appelé.
+        </p>
+      </aside>
+    </div>
+  }
+</div>

@@ -1,0 +1,56 @@
+@use 'variables' as v;
+
+.denied {
+  max-width: 560px;
+  margin: 32px auto;
+  padding: 40px 32px;
+  text-align: center;
+  background: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-sm;
+}
+
+.denied__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 16px;
+  border-radius: 22px;
+  background: v.$color-danger-soft;
+  color: v.$color-danger;
+}
+
+.denied__icon mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.denied__code {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: v.$color-danger;
+  margin-bottom: 6px;
+}
+
+.denied__title {
+  font-size: 1.7rem;
+  margin-bottom: 10px;
+}
+
+.denied__message {
+  color: v.$color-text-muted;
+  margin-bottom: 24px;
+}
+
+.denied__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}

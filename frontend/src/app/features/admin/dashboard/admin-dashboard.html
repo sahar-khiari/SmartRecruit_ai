@@ -1,0 +1,143 @@
+<div class="page">
+  <section class="welcome">
+    <div class="welcome__content">
+      <p class="welcome__eyebrow">Administration SmartRecruit AI</p>
+      <h1 class="welcome__title">Tableau de bord administratif</h1>
+      <p class="welcome__text">
+        Bienvenue, {{ authService.displayName() }}. Pilotez les comptes utilisateurs,
+        les rôles et l’accès au back-office depuis cet espace réservé aux
+        administrateurs.
+      </p>
+
+      <div class="welcome__meta">
+        <span class="welcome__badge welcome__badge--admin">
+          <mat-icon aria-hidden="true">admin_panel_settings</mat-icon>
+          Compte administrateur
+        </span>
+
+        @if (authService.currentUser()?.enabled) {
+          <span class="welcome__badge welcome__badge--success">
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            Compte actif
+          </span>
+        } @else {
+          <span class="welcome__badge welcome__badge--danger">
+            <mat-icon aria-hidden="true">block</mat-icon>
+            Compte désactivé
+          </span>
+        }
+
+        @if (authService.currentUser()?.createdAt; as createdAt) {
+          <span class="welcome__badge">
+            <mat-icon aria-hidden="true">calendar_today</mat-icon>
+            Membre depuis le {{ createdAt | date: 'dd/MM/yyyy' }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="welcome__avatar" aria-hidden="true">{{ initials() }}</div>
+  </section>
+
+  <div class="dashboard-grid">
+    <section class="surface-card summary">
+      <header class="card-head">
+        <div>
+          <h2 class="card-head__title">Compte administrateur</h2>
+          <p class="card-head__subtitle">Informations de votre compte de gestion.</p>
+        </div>
+        <a mat-stroked-button routerLink="/admin/profile">Voir mon profil</a>
+      </header>
+
+      <dl class="summary__list">
+        <div class="summary__row">
+          <dt>Nom complet</dt>
+          <dd>{{ authService.displayName() }}</dd>
+        </div>
+        <div class="summary__row">
+          <dt>Adresse email</dt>
+          <dd>{{ authService.currentUser()?.email }}</dd>
+        </div>
+        <div class="summary__row">
+          <dt>Rôle</dt>
+          <dd>{{ authService.currentUser()?.role | roleLabel }}</dd>
+        </div>
+        <div class="summary__row">
+          <dt>Statut du compte</dt>
+          <dd>
+            @if (authService.currentUser()?.enabled) {
+              <span class="badge badge--success">
+                <mat-icon aria-hidden="true">check_circle</mat-icon>
+                Actif
+              </span>
+            } @else {
+              <span class="badge badge--danger">
+                <mat-icon aria-hidden="true">block</mat-icon>
+                Désactivé
+              </span>
+            }
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="surface-card quick">
+      <h2 class="card-head__title">Actions d’administration</h2>
+      <p class="card-head__subtitle">Accédez directement aux outils de gestion.</p>
+
+      <nav class="quick__list" aria-label="Actions d’administration">
+        <a routerLink="/admin/users" class="quick__link quick__link--primary">
+          <span class="quick__icon" aria-hidden="true">
+            <mat-icon>manage_accounts</mat-icon>
+          </span>
+          <span class="quick__text">
+            <span class="quick__title">Gestion des utilisateurs</span>
+            <span class="quick__subtitle">Rôles, statuts et suppressions</span>
+          </span>
+          <mat-icon class="quick__arrow" aria-hidden="true">chevron_right</mat-icon>
+        </a>
+
+        <a routerLink="/admin/profile" class="quick__link">
+          <span class="quick__icon" aria-hidden="true"><mat-icon>person</mat-icon></span>
+          <span class="quick__text">
+            <span class="quick__title">Consulter mon profil</span>
+            <span class="quick__subtitle">Voir mes informations personnelles</span>
+          </span>
+          <mat-icon class="quick__arrow" aria-hidden="true">chevron_right</mat-icon>
+        </a>
+
+        <a routerLink="/admin/profile/edit" class="quick__link">
+          <span class="quick__icon" aria-hidden="true"><mat-icon>edit</mat-icon></span>
+          <span class="quick__text">
+            <span class="quick__title">Modifier mes informations</span>
+            <span class="quick__subtitle">Prénom, nom et adresse email</span>
+          </span>
+          <mat-icon class="quick__arrow" aria-hidden="true">chevron_right</mat-icon>
+        </a>
+
+        <a routerLink="/admin/profile/change-password" class="quick__link">
+          <span class="quick__icon" aria-hidden="true"><mat-icon>key</mat-icon></span>
+          <span class="quick__text">
+            <span class="quick__title">Changer mon mot de passe</span>
+            <span class="quick__subtitle">Renforcer la sécurité du compte</span>
+          </span>
+          <mat-icon class="quick__arrow" aria-hidden="true">chevron_right</mat-icon>
+        </a>
+      </nav>
+    </section>
+  </div>
+
+  <section class="surface-card admin-note">
+    <span class="admin-note__icon" aria-hidden="true">
+      <mat-icon>security</mat-icon>
+    </span>
+    <div>
+      <h2 class="admin-note__title">Périmètre du back-office</h2>
+      <p class="admin-note__text">
+        Ce layout avec navigation latérale est strictement réservé au rôle ADMIN.
+        Les espaces candidat et recruteur utilisent une interface front-office
+        distincte, sans accès à la gestion des utilisateurs.
+      </p>
+    </div>
+  </section>
+</div>
