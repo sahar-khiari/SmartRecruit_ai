@@ -4,9 +4,12 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from app.api import chat, health, knowledge, retrieval
+from app.api import chat, health, knowledge, retrieval, tech_assessment
 from app.core.config import get_settings
 from app.core.logging_config import configure_logging
+import app.db.models.tech_assessment  # noqa: F401 (Enregistre les tables pour SQLAlchemy)
+from app.db.base import Base
+from app.db.session import engine
 from app.services.ollama_client import (
     OllamaOutputError,
     OllamaTimeoutError,
@@ -16,20 +19,11 @@ from app.services.ollama_client import (
 logger = logging.getLogger(__name__)
 
 DESCRIPTION = """
-Service interne RAG local pour la base de connaissances RH de SmartRecruit AI.
+Service interne IA pour SmartRecruit AI.
 
 **Périmètre**
-- Recherche par embeddings locaux dans ChromaDB.
-- Génération fondée sur les chunks récupérés avec qwen3:4b via Ollama local.
-- Sortie JSON structurée validée par Pydantic, sources reconstruites depuis le retrieval.
-- MariaDB reste la source de vérité documentaire ; ChromaDB n'est qu'un index reconstructible.
-- Angular ne doit jamais appeler ce service directement :
-  `Angular → Spring Boot → FastAPI → Ollama`.
-
-**Sécurité**
-Les endpoints `/api/v1/**` exigent le header `X-AI-Service-Key`.
-`/health` reste public pour la supervision locale et n'expose aucun secret.
-Aucun service cloud ni clé API externe n'est utilisé.
+- Module 1 : Recherche RAG locale pour la base RH (ChromaDB + Ollama).
+- Module 4 : Tests techniques dynamiques, évaluation automatique et feuille de route IA.
 """
 
 
@@ -39,13 +33,17 @@ def create_app() -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
-        # Aucun chargement de modèle au démarrage : /health et la première
-        # indexation déclenchent un chargement paresseux.
+        # Initialisation de la BDD pour le Module 4 (SQLite par défaut)
+        try:
+            Base.metadata.create_all(bind=engine)
+            logger.info("Tables BDD Module 4 créées ou vérifiées avec succès.")
+        except Exception as exc:
+            logger.warning("Initialisation BDD Module 4 : %s", exc)
         yield
 
     application = FastAPI(
         title="SmartRecruit AI Service",
-        version="1.1.0",
+        version="1.2.0",
         description=DESCRIPTION,
         docs_url="/docs",
         redoc_url="/redoc",
@@ -53,10 +51,14 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # Routes Module 1 (RAG / Connaissances RH)
     application.include_router(health.router)
     application.include_router(knowledge.router)
     application.include_router(retrieval.router)
     application.include_router(chat.router)
+
+    # Routes Module 4 (Tests techniques / Aziz)
+    application.include_router(tech_assessment.router)
 
     @application.exception_handler(ValueError)
     async def value_error_handler(_: Request, exc: ValueError) -> JSONResponse:
