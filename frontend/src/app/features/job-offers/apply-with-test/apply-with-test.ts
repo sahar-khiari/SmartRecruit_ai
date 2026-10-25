@@ -107,10 +107,19 @@ export class ApplyWithTest implements OnInit {
     this.loadingMessage.set('L\'IA analyse l\'offre et génère un test technique personnalisé...');
     this.errorMessage.set(null);
 
+    const desc = (offre.description && offre.description.trim().length >= 10)
+      ? offre.description.trim()
+      : `${offre.titrePoste} - ${offre.description || 'Description du poste'} (Niveau: ${offre.niveauRequis || 'Intermédiaire'})`;
+
+    let skillsToSend = this.skills;
+    if (!skillsToSend || skillsToSend.length === 0) {
+      skillsToSend = [{ skill: 'Génie Logiciel & Développement', level: 'intermédiaire' }];
+    }
+
     const request: GenerateTestRequest = {
-      job_title: this.jobTitle,
-      job_description: offre.description,
-      competences_manquantes: this.skills,
+      job_title: this.jobTitle || offre.titrePoste,
+      job_description: desc,
+      competences_manquantes: skillsToSend,
       candidate_id: candidateId,
     };
 
@@ -125,9 +134,14 @@ export class ApplyWithTest implements OnInit {
       error: (err) => {
         this.loading.set(false);
         this.currentStep.set('detail');
-        const detail =
-          err.error?.detail ||
-          'Impossible de générer le test IA. Vérifiez que le service IA est disponible.';
+        let detail = 'Impossible de générer le test IA. Vérifiez que le service IA est disponible.';
+        if (typeof err.error?.detail === 'string') {
+          detail = err.error.detail;
+        } else if (Array.isArray(err.error?.detail)) {
+          detail = err.error.detail.map((e: any) => `${e.loc?.join('.')}: ${e.msg}`).join(' | ');
+        } else if (err.error?.detail) {
+          detail = JSON.stringify(err.error.detail);
+        }
         this.errorMessage.set(detail);
       },
     });

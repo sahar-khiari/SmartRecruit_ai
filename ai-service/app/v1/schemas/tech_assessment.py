@@ -49,7 +49,7 @@ class CompetenceManquante(BaseModel):
 class GenerateTestRequest(BaseModel):
     """Corps de la requête POST /api/v1/tests/generate."""
     job_title: Annotated[str, Field(min_length=2, max_length=200, description="Intitulé du poste")]
-    job_description: Annotated[str, Field(min_length=10, max_length=3000, description="Description de l'offre d'emploi")]
+    job_description: Annotated[str, Field(min_length=1, max_length=5000, description="Description de l'offre d'emploi")]
     competences_manquantes: Annotated[
         list[CompetenceManquante],
         Field(min_length=1, max_length=20, description="Compétences à tester (issues du module 2)")
