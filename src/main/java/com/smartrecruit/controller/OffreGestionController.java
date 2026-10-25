@@ -42,12 +42,10 @@ public class OffreGestionController {
             @RequestParam(required = false) String localisation,
             @RequestParam(required = false) String typeContrat,
             @RequestParam(required = false) String niveauRequis,
-            @RequestParam(required = false) String modeTravail,
             @RequestParam(required = false) String competence,
-            @RequestParam(required = false) Integer salaireMin,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         OffreRechercheCriteres criteres = new OffreRechercheCriteres(
-                q, localisation, typeContrat, niveauRequis, modeTravail, competence, salaireMin, null, null);
+                q, localisation, typeContrat, niveauRequis, competence, null);
         return ResponseEntity.ok(PageResponse.from(
                 offreGestionService.rechercherOffresPubliees(criteres, pageable), Function.identity()));
     }
@@ -60,7 +58,7 @@ public class OffreGestionController {
             @RequestParam(required = false) StatutOffre statut,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         OffreRechercheCriteres criteres = new OffreRechercheCriteres(
-                q, null, null, null, null, null, null, statut, null);
+                q, null, null, null, null, statut);
         return ResponseEntity.ok(PageResponse.from(
                 offreGestionService.rechercherMesOffres(criteres, currentUserService.getCurrentUser(), pageable),
                 Function.identity()));

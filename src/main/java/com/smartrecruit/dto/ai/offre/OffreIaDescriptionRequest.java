@@ -11,8 +11,6 @@ public record OffreIaDescriptionRequest(
         @Size(max = 100) String niveauRequis,
         @Size(max = 50) String typeContrat,
         @Size(max = 200) String localisation,
-        @Size(max = 30) String modeTravail,
-        @Size(max = 200) String entreprise,
         @Size(max = 1000) String competences,
         @Size(max = 2000) String notes
 ) {

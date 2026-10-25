@@ -27,12 +27,6 @@ public class OffreEmploiMapper {
                 offre.getCreatedAt(),
                 offre.getUpdatedAt(),
                 offre.getStatut(),
-                offre.getEntreprise(),
-                offre.getModeTravail(),
-                offre.getExperienceMinAnnees(),
-                offre.getSalaireMin(),
-                offre.getSalaireMax(),
-                offre.getDateLimite(),
                 offre.getMotsCles(),
                 offre.getDatePublication()
         );

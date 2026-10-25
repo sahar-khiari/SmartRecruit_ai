@@ -26,8 +26,6 @@ DESCRIPTION_USER = """Rédige l'offre à partir de ces informations :
 - Niveau : {niveau_requis}
 - Type de contrat : {type_contrat}
 - Lieu : {localisation}
-- Mode de travail : {mode_travail}
-- Entreprise : {entreprise}
 - Compétences déjà connues : {competences}
 - Notes du recruteur : {notes}"""
 

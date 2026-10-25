@@ -31,13 +31,6 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field appearance="outline">
-      <mat-label>Mode de travail</mat-label>
-      <mat-select name="modeTravail" [(ngModel)]="filtres.modeTravail">
-        <mat-option value="">Tous</mat-option>
-        @for (m of modes; track m[0]) { <mat-option [value]="m[0]">{{ m[1] }}</mat-option> }
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="outline">
       <mat-label>Niveau</mat-label>
       <mat-select name="niveauRequis" [(ngModel)]="filtres.niveauRequis">
         <mat-option value="">Tous</mat-option>
@@ -47,10 +40,6 @@
     <mat-form-field appearance="outline">
       <mat-label>Compétence</mat-label>
       <input matInput name="competence" [(ngModel)]="filtres.competence" placeholder="Spring Boot" />
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <mat-label>Salaire min. (TND)</mat-label>
-      <input matInput type="number" min="0" name="salaireMin" [(ngModel)]="filtres.salaireMin" />
     </mat-form-field>
     <div class="search-actions">
       <button mat-raised-button color="primary" type="submit"><mat-icon>search</mat-icon> Rechercher</button>
@@ -91,7 +80,7 @@
           <mat-card-header>
             <mat-icon mat-card-avatar class="card-icon">business_center</mat-icon>
             <mat-card-title>{{ offre.titrePoste }}</mat-card-title>
-            <mat-card-subtitle>{{ offre.entreprise || offre.recruteurNom }}</mat-card-subtitle>
+            <mat-card-subtitle>{{ offre.recruteurNom }}</mat-card-subtitle>
           </mat-card-header>
 
           <mat-card-content>
@@ -106,16 +95,6 @@
               <span class="badge badge-location">
                 <mat-icon>place</mat-icon> {{ offre.localisation }}
               </span>
-              @if (offre.modeTravail) {
-                <span class="badge badge-location">
-                  <mat-icon>laptop</mat-icon> {{ modeLabels[offre.modeTravail] }}
-                </span>
-              }
-              @if (salaire(offre); as s) {
-                <span class="badge badge-contract">
-                  <mat-icon>payments</mat-icon> {{ s }}
-                </span>
-              }
               <span class="badge badge-duration">
                 <mat-icon>timer</mat-icon> Test : {{ offre.dureeTestMinutes }} min
               </span>
@@ -138,9 +117,6 @@
             <p class="offer-date">
               <mat-icon>calendar_today</mat-icon>
               Publié le {{ (offre.datePublication || offre.createdAt) | date: 'dd/MM/yyyy' }}
-              @if (offre.dateLimite) {
-                &bull; Candidature avant le {{ offre.dateLimite | date: 'dd/MM/yyyy' }}
-              }
             </p>
           </mat-card-content>
 

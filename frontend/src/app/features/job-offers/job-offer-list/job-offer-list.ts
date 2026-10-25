@@ -14,8 +14,6 @@ import { JobOfferService } from '../../../core/services/job-offer.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Candidature, OffreEmploi, PagedResponse } from '../../../core/models/job-offer.model';
 import {
-  MODE_TRAVAIL_LABELS,
-  ModeTravail,
   OffreDetaillee,
   OffreRechercheFiltres,
 } from '../../../core/models/offre-gestion.model';
@@ -59,8 +57,6 @@ export class JobOfferList implements OnInit {
   // Module 2 : recherche multicritère
   protected readonly niveaux = ['Junior', 'Intermédiaire', 'Senior', 'Expert'];
   protected readonly contrats = ['CDI', 'CDD', 'Freelance', 'Stage', 'Alternance'];
-  protected readonly modes = Object.entries(MODE_TRAVAIL_LABELS) as [ModeTravail, string][];
-  protected readonly modeLabels = MODE_TRAVAIL_LABELS;
   protected filtres: OffreRechercheFiltres = this.filtresVides();
 
   ngOnInit(): void {
@@ -108,15 +104,8 @@ export class JobOfferList implements OnInit {
     this.rechercher();
   }
 
-  protected salaire(offre: OffreDetaillee): string | null {
-    if (offre.salaireMin && offre.salaireMax) return `${offre.salaireMin} – ${offre.salaireMax} TND`;
-    if (offre.salaireMin) return `À partir de ${offre.salaireMin} TND`;
-    if (offre.salaireMax) return `Jusqu'à ${offre.salaireMax} TND`;
-    return null;
-  }
-
   private filtresVides(): OffreRechercheFiltres {
-    return { q: '', localisation: '', typeContrat: '', niveauRequis: '', modeTravail: '', competence: '', salaireMin: null };
+    return { q: '', localisation: '', typeContrat: '', niveauRequis: '', competence: '' };
   }
 
   protected getCandidatureForOffer(offreId: number): Candidature | undefined {

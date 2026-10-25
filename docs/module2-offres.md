@@ -8,9 +8,9 @@ Aucune modification de l'espace admin.
 
 | Bloc | Contenu |
 |---|---|
-| CRUD | Créer, consulter, modifier, supprimer une offre, avec champs enrichis : entreprise, mode de travail, expérience, salaire, date limite, mots-clés |
+| CRUD | Créer, consulter, modifier, supprimer une offre (+ mots-clés) |
 | Cycle de vie | `BROUILLON → PUBLIEE → CLOTUREE → ARCHIVEE` (remplace l'ancien interrupteur actif/inactif, `active` reste synchronisé) |
-| Recherche | Multicritère : mot-clé, lieu, contrat, mode de travail, niveau, compétence, salaire minimum, pagination |
+| Recherche | Multicritère : mot-clé, lieu, contrat, niveau, compétence, pagination |
 | IA (Cohere) | 1) Génération de la description · 2) Suggestion des compétences (embeddings + LLM) · 3) Détection des mots-clés |
 
 ### Règles de droits
@@ -28,9 +28,9 @@ Aucune modification de l'espace admin.
 
 | Page | Ajouts du Module 2 |
 |---|---|
-| `job-offer-list` (`/app/offres`) | Barre de recherche multicritère, badges mode de travail / salaire, date limite |
+| `job-offer-list` (`/app/offres`) | Barre de recherche multicritère |
 | `my-offers` (`/app/recruteur/offres`) | Recherche + filtre par statut, badge de statut, boutons Publier / Clôturer / Archiver |
-| `create-offer` (`/app/recruteur/offres/new`, `/:id/edit`) | Champs enrichis, 3 boutons IA, compétences et mots-clés en chips, « Enregistrer en brouillon » / « Publier » |
+| `create-offer` (`/app/recruteur/offres/new`, `/:id/edit`) | 3 boutons IA, compétences et mots-clés en chips, « Enregistrer en brouillon » / « Publier » |
 
 Inchangées : `apply-with-test`, `offer-applications` (Aziz). Les routes et menus ne sont pas modifiés.
 
@@ -55,7 +55,7 @@ Cohere API v2 : chat (command-r-08-2024) + embed (embed-multilingual-v3.0)
 
 | Méthode | Chemin | Rôle |
 |---|---|---|
-| GET | `/api/offres/recherche?q&localisation&typeContrat&niveauRequis&modeTravail&competence&salaireMin&page&size` | tous (offres publiées non expirées) |
+| GET | `/api/offres/recherche?q&localisation&typeContrat&niveauRequis&competence&page&size` | tous (offres publiées) |
 | GET | `/api/offres/{id}` | tous (offre non publiée visible seulement par l'auteur/admin) |
 | POST | `/api/offres` (`publier: false` = brouillon, absent = publication directe) | RECRUITER |
 | PUT | `/api/offres/{id}` | RECRUITER auteur |

@@ -84,17 +84,6 @@ class OffreGestionIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void salairesIncoherentsRefuses() throws Exception {
-        String recruteur = recruteurToken("rec.salaire@test.local");
-        Map<String, Object> body = offre("Salaire incohérent", true);
-        body.put("salaireMin", 3000);
-        body.put("salaireMax", 1000);
-        mockMvc.perform(post("/api/offres").header("Authorization", bearer(recruteur))
-                        .contentType(MediaType.APPLICATION_JSON).content(json(body)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void offreClotureeInvisibleEtAdminPeutSupprimer() throws Exception {
         String recruteur = recruteurToken("rec.admin@test.local");
         String candidat = createCandidateAndGetToken("cand.admin@test.local");
@@ -153,9 +142,6 @@ class OffreGestionIntegrationTest extends AbstractIntegrationTest {
         body.put("competencesRequises", "Java, Spring Boot, SQL");
         body.put("localisation", "Tunis");
         body.put("typeContrat", "CDI");
-        body.put("modeTravail", "HYBRIDE");
-        body.put("salaireMin", 1500);
-        body.put("salaireMax", 2200);
         body.put("publier", publier);
         return body;
     }

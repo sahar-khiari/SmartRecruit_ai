@@ -5,8 +5,6 @@ import com.smartrecruit.entity.StatutOffre;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
-
 /**
  * Critères de recherche multicritère des offres (Module 2).
  * Chaque méthode renvoie {@code null} quand le filtre est vide : Spring l'ignore alors.
@@ -16,7 +14,7 @@ public final class OffreEmploiSpecifications {
     private OffreEmploiSpecifications() {
     }
 
-    /** Mot-clé recherché dans le titre, la description, les compétences, les mots-clés et l'entreprise. */
+    /** Mot-clé recherché dans le titre, la description, les compétences et les mots-clés. */
     public static Specification<OffreEmploi> motCle(String q) {
         if (!StringUtils.hasText(q)) {
             return null;
@@ -26,8 +24,7 @@ public final class OffreEmploiSpecifications {
                 cb.like(cb.lower(root.get("titrePoste")), like),
                 cb.like(cb.lower(root.get("description")), like),
                 cb.like(cb.lower(root.get("competencesRequises")), like),
-                cb.like(cb.lower(root.get("motsCles")), like),
-                cb.like(cb.lower(root.get("entreprise")), like)
+                cb.like(cb.lower(root.get("motsCles")), like)
         );
     }
 
@@ -54,15 +51,6 @@ public final class OffreEmploiSpecifications {
         return (root, query, cb) -> cb.like(cb.lower(root.get("competencesRequises")), like);
     }
 
-    /** Offres dont le salaire maximum (ou minimum à défaut) atteint le salaire souhaité. */
-    public static Specification<OffreEmploi> salaireMin(Integer salaire) {
-        if (salaire == null) {
-            return null;
-        }
-        return (root, query, cb) -> cb.greaterThanOrEqualTo(
-                cb.coalesce(root.<Integer>get("salaireMax"), root.<Integer>get("salaireMin")), salaire);
-    }
-
     public static Specification<OffreEmploi> statut(StatutOffre statut) {
         if (statut == null) {
             return null;
@@ -77,12 +65,8 @@ public final class OffreEmploiSpecifications {
         return (root, query, cb) -> cb.equal(root.get("recruteur").get("id"), recruteurId);
     }
 
-    /** Offres visibles par les candidats : publiées et dont la date limite n'est pas dépassée. */
+    /** Offres visibles par les candidats : uniquement les offres publiées. */
     public static Specification<OffreEmploi> visiblesCandidats() {
-        return (root, query, cb) -> cb.and(
-                cb.equal(root.get("statut"), StatutOffre.PUBLIEE),
-                cb.or(cb.isNull(root.get("dateLimite")),
-                        cb.greaterThanOrEqualTo(root.get("dateLimite"), LocalDate.now()))
-        );
+        return (root, query, cb) -> cb.equal(root.get("statut"), StatutOffre.PUBLIEE);
     }
 }

@@ -68,8 +68,6 @@ class OffresIaService:
             "niveau_requis": self._anon(req.niveau_requis),
             "type_contrat": self._anon(req.type_contrat),
             "localisation": self._anon(req.localisation),
-            "mode_travail": self._anon(req.mode_travail),
-            "entreprise": self._anon(req.entreprise),
             "competences": self._anon(req.competences),
             "notes": self._anon(req.notes),
         }

@@ -12,8 +12,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   CompetenceSuggeree,
-  MODE_TRAVAIL_LABELS,
-  ModeTravail,
   OffreFormPayload,
   STATUT_LABELS,
   StatutOffre,
@@ -62,8 +60,7 @@ export class CreateOffer implements OnInit {
   protected readonly niveaux = ['Junior', 'Intermédiaire', 'Senior', 'Expert'];
   protected readonly contrats = ['CDI', 'CDD', 'Freelance', 'Stage', 'Alternance'];
 
-  // --- Module 2 : champs enrichis, statut et assistant IA (Cohere) ---
-  protected readonly modes = Object.entries(MODE_TRAVAIL_LABELS) as [ModeTravail, string][];
+  // --- Module 2 : statut et assistant IA (Cohere) ---
   protected readonly statutLabels = STATUT_LABELS;
   protected readonly statut = signal<StatutOffre | null>(null);
   protected readonly iaEnCours = signal<IaAction | null>(null);
@@ -71,12 +68,6 @@ export class CreateOffer implements OnInit {
   protected readonly suggestions = signal<CompetenceSuggeree[]>([]);
   protected readonly baseline = signal<string[]>([]);
 
-  protected entreprise = '';
-  protected modeTravail: ModeTravail | '' = 'HYBRIDE';
-  protected experienceMinAnnees: number | null = null;
-  protected salaireMin: number | null = null;
-  protected salaireMax: number | null = null;
-  protected dateLimite = '';
   protected notesIa = '';
   protected competences: string[] = [];
   protected nouvelleCompetence = '';
@@ -105,12 +96,6 @@ export class CreateOffer implements OnInit {
         this.localisation = offre.localisation;
         this.competences = splitListe(offre.competencesRequises);
         this.dureeTestMinutes = offre.dureeTestMinutes;
-        this.entreprise = offre.entreprise ?? '';
-        this.modeTravail = offre.modeTravail ?? '';
-        this.experienceMinAnnees = offre.experienceMinAnnees;
-        this.salaireMin = offre.salaireMin;
-        this.salaireMax = offre.salaireMax;
-        this.dateLimite = offre.dateLimite ?? '';
         this.motsCles = splitListe(offre.motsCles);
         this.statut.set(offre.statut);
         this.loading.set(false);
@@ -173,8 +158,6 @@ export class CreateOffer implements OnInit {
         niveauRequis: this.niveauRequis,
         typeContrat: this.typeContrat,
         localisation: this.localisation,
-        modeTravail: this.modeTravail ? MODE_TRAVAIL_LABELS[this.modeTravail] : undefined,
-        entreprise: this.entreprise,
         competences: this.competences.join(', '),
         notes: this.notesIa,
       })
@@ -249,9 +232,6 @@ export class CreateOffer implements OnInit {
     if (!this.titrePoste.trim() || !this.description.trim() || this.competences.length === 0) {
       return 'Veuillez remplir tous les champs obligatoires (intitulé, description, au moins une compétence).';
     }
-    if (this.salaireMin !== null && this.salaireMax !== null && this.salaireMin > this.salaireMax) {
-      return 'Le salaire minimum doit être inférieur ou égal au salaire maximum.';
-    }
     return null;
   }
 
@@ -264,12 +244,6 @@ export class CreateOffer implements OnInit {
       localisation: this.localisation.trim(),
       competencesRequises: this.competences.join(', '),
       dureeTestMinutes: this.dureeTestMinutes,
-      entreprise: this.entreprise.trim() || null,
-      modeTravail: this.modeTravail || null,
-      experienceMinAnnees: this.experienceMinAnnees,
-      salaireMin: this.salaireMin,
-      salaireMax: this.salaireMax,
-      dateLimite: this.dateLimite || null,
       motsCles: this.motsCles.length ? this.motsCles.join(', ') : null,
     };
   }

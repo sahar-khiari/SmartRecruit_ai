@@ -17,8 +17,6 @@ class DescriptionRequest(_CamelModel):
     niveau_requis: str | None = Field(default=None, alias="niveauRequis", max_length=100)
     type_contrat: str | None = Field(default=None, alias="typeContrat", max_length=50)
     localisation: str | None = Field(default=None, max_length=200)
-    mode_travail: str | None = Field(default=None, alias="modeTravail", max_length=30)
-    entreprise: str | None = Field(default=None, max_length=200)
     competences: str | None = Field(default=None, max_length=1000)
     notes: str | None = Field(default=None, max_length=2000)
 

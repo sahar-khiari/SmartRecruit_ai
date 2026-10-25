@@ -10,10 +10,7 @@ public record OffreRechercheCriteres(
         String localisation,
         String typeContrat,
         String niveauRequis,
-        String modeTravail,
         String competence,
-        Integer salaireMin,
-        StatutOffre statut,
-        Long recruteurId
+        StatutOffre statut
 ) {
 }

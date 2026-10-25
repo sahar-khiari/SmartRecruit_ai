@@ -53,12 +53,6 @@
             />
           </mat-form-field>
 
-          <!-- Entreprise -->
-          <mat-form-field appearance="outline">
-            <mat-label>Entreprise</mat-label>
-            <input matInput [(ngModel)]="entreprise" name="entreprise" maxlength="200" />
-          </mat-form-field>
-
           <!-- Localisation -->
           <mat-form-field appearance="outline">
             <mat-label>Localisation</mat-label>
@@ -88,39 +82,6 @@
                 <mat-option [value]="contrat">{{ contrat }}</mat-option>
               }
             </mat-select>
-          </mat-form-field>
-
-          <!-- Mode de travail -->
-          <mat-form-field appearance="outline">
-            <mat-label>Mode de travail</mat-label>
-            <mat-select [(ngModel)]="modeTravail" name="modeTravail">
-              <mat-option value="">Non précisé</mat-option>
-              @for (m of modes; track m[0]) {
-                <mat-option [value]="m[0]">{{ m[1] }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <!-- Expérience minimum -->
-          <mat-form-field appearance="outline">
-            <mat-label>Expérience minimum (années)</mat-label>
-            <input matInput type="number" min="0" max="40" [(ngModel)]="experienceMinAnnees" name="experienceMinAnnees" />
-          </mat-form-field>
-
-          <!-- Salaire -->
-          <mat-form-field appearance="outline">
-            <mat-label>Salaire min. (TND)</mat-label>
-            <input matInput type="number" min="0" [(ngModel)]="salaireMin" name="salaireMin" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Salaire max. (TND)</mat-label>
-            <input matInput type="number" min="0" [(ngModel)]="salaireMax" name="salaireMax" />
-          </mat-form-field>
-
-          <!-- Date limite -->
-          <mat-form-field appearance="outline">
-            <mat-label>Date limite de candidature</mat-label>
-            <input matInput type="date" [(ngModel)]="dateLimite" name="dateLimite" />
           </mat-form-field>
 
           <!-- Durée du test IA -->

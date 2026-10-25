@@ -48,7 +48,6 @@ public class OffreEmploiServiceImpl implements OffreEmploiService {
     @Override
     @Transactional
     public OffreEmploiResponse create(OffreEmploiCreateRequest request, User recruteur) {
-        verifierSalaires(request);
         OffreEmploi offre = OffreEmploi.builder()
                 .recruteur(recruteur)
                 .build();
@@ -67,7 +66,6 @@ public class OffreEmploiServiceImpl implements OffreEmploiService {
         if (offre.getStatut() == StatutOffre.ARCHIVEE) {
             throw new IllegalStateException("Une offre archivée ne peut plus être modifiée");
         }
-        verifierSalaires(request);
         appliquerChamps(offre, request);
         return offreEmploiMapper.toResponse(offreEmploiRepository.save(offre));
     }
@@ -112,20 +110,7 @@ public class OffreEmploiServiceImpl implements OffreEmploiService {
         offre.setLocalisation(request.getLocalisation());
         offre.setTypeContrat(request.getTypeContrat());
         offre.setDureeTestMinutes(request.getDureeTestMinutes());
-        offre.setEntreprise(request.getEntreprise());
-        offre.setModeTravail(request.getModeTravail());
-        offre.setExperienceMinAnnees(request.getExperienceMinAnnees());
-        offre.setSalaireMin(request.getSalaireMin());
-        offre.setSalaireMax(request.getSalaireMax());
-        offre.setDateLimite(request.getDateLimite());
         offre.setMotsCles(request.getMotsCles());
-    }
-
-    private void verifierSalaires(OffreEmploiCreateRequest request) {
-        if (request.getSalaireMin() != null && request.getSalaireMax() != null
-                && request.getSalaireMin() > request.getSalaireMax()) {
-            throw new IllegalArgumentException("Le salaire minimum doit être inférieur ou égal au salaire maximum");
-        }
     }
 
     /** Seul l'auteur de l'offre peut en modifier le contenu, même un administrateur ne le peut pas. */

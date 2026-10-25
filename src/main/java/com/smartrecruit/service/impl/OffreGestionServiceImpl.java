@@ -18,7 +18,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -27,7 +26,6 @@ import static com.smartrecruit.repository.OffreEmploiSpecifications.competence;
 import static com.smartrecruit.repository.OffreEmploiSpecifications.localisation;
 import static com.smartrecruit.repository.OffreEmploiSpecifications.motCle;
 import static com.smartrecruit.repository.OffreEmploiSpecifications.recruteur;
-import static com.smartrecruit.repository.OffreEmploiSpecifications.salaireMin;
 import static com.smartrecruit.repository.OffreEmploiSpecifications.statut;
 import static com.smartrecruit.repository.OffreEmploiSpecifications.visiblesCandidats;
 
@@ -78,9 +76,6 @@ public class OffreGestionServiceImpl implements OffreGestionService {
     public OffreEmploiResponse publier(Long id, User recruteurConnecte) {
         OffreEmploi offre = findProprietaire(id, recruteurConnecte);
         verifierStatut(offre, EnumSet.of(StatutOffre.BROUILLON, StatutOffre.CLOTUREE), "publiée");
-        if (offre.getDateLimite() != null && offre.getDateLimite().isBefore(LocalDate.now())) {
-            throw new IllegalStateException("La date limite est dépassée : modifiez-la avant de publier");
-        }
         offre.changerStatut(StatutOffre.PUBLIEE);
         return offreEmploiMapper.toResponse(offreEmploiRepository.save(offre));
     }
@@ -113,9 +108,7 @@ public class OffreGestionServiceImpl implements OffreGestionService {
                 .and(localisation(c.localisation()))
                 .and(champEgal("typeContrat", c.typeContrat()))
                 .and(champEgal("niveauRequis", c.niveauRequis()))
-                .and(champEgal("modeTravail", c.modeTravail()))
-                .and(competence(c.competence()))
-                .and(salaireMin(c.salaireMin()));
+                .and(competence(c.competence()));
     }
 
     private OffreEmploi findOrThrow(Long id) {

@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -72,25 +71,6 @@ public class OffreEmploi {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", length = 20)
     private StatutOffre statut;
-
-    @Column(name = "entreprise", length = 200)
-    private String entreprise;
-
-    /** PRESENTIEL, HYBRIDE ou TELETRAVAIL. */
-    @Column(name = "mode_travail", length = 30)
-    private String modeTravail;
-
-    @Column(name = "experience_min_annees")
-    private Integer experienceMinAnnees;
-
-    @Column(name = "salaire_min")
-    private Integer salaireMin;
-
-    @Column(name = "salaire_max")
-    private Integer salaireMax;
-
-    @Column(name = "date_limite")
-    private LocalDate dateLimite;
 
     /** Mots-clés séparés par des virgules (saisis ou détectés par l'IA). */
     @Column(name = "mots_cles", columnDefinition = "TEXT")
