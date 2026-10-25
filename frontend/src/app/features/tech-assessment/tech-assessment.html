@@ -1,0 +1,444 @@
+<div class="tech-assessment-container">
+  <!-- En-tête de la page -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="badge-module">
+        <mat-icon>psychology</mat-icon>
+        <span>Module 4 — Aziz</span>
+      </div>
+      <h1>Tests Techniques & Évaluation IA</h1>
+      <p class="subtitle">
+        Génération dynamique de tests sur mesure par LLM, correction automatisée et feuille de route d'apprentissage personnalisée.
+      </p>
+    </div>
+
+    <!-- Stepper visuel -->
+    <div class="stepper-nav">
+      <button
+        class="step-item"
+        [class.active]="currentStep() === 'config'"
+        (click)="currentStep.set('config')"
+      >
+        <span class="step-num">1</span>
+        <span class="step-label">Configuration</span>
+      </button>
+
+      <div class="step-divider"></div>
+
+      <button
+        class="step-item"
+        [class.active]="currentStep() === 'test'"
+        [disabled]="!currentTest()"
+        (click)="currentStep.set('test')"
+      >
+        <span class="step-num">2</span>
+        <span class="step-label">Passer le Test</span>
+      </button>
+
+      <div class="step-divider"></div>
+
+      <button
+        class="step-item"
+        [class.active]="currentStep() === 'result'"
+        [disabled]="!evaluationResult()"
+        (click)="currentStep.set('result')"
+      >
+        <span class="step-num">3</span>
+        <span class="step-label">Résultats IA</span>
+      </button>
+
+      <div class="step-divider"></div>
+
+      <button
+        class="step-item"
+        [class.active]="currentStep() === 'roadmap'"
+        [disabled]="!roadmapResult()"
+        (click)="currentStep.set('roadmap')"
+      >
+        <span class="step-num">4</span>
+        <span class="step-label">Feuille de Route</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Bannière d'erreur -->
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <mat-icon>error_outline</mat-icon>
+      <div class="alert-content">
+        <strong>Attention :</strong> {{ errorMessage() }}
+      </div>
+    </div>
+  }
+
+  <!-- Spinner de chargement -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">{{ loadingMessage() }}</p>
+    </div>
+  }
+
+  <!-- ============================================================== -->
+  <!-- ÉTAPE 1 : CONFIGURATION DU TEST -->
+  <!-- ============================================================== -->
+  @if (currentStep() === 'config' && !loading()) {
+    <div class="step-content config-step">
+      <div class="card-grid">
+        <!-- Carte de configuration -->
+        <mat-card class="main-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="card-icon">tune</mat-icon>
+            <mat-card-title>Paramètres du poste & Compétences ciblées</mat-card-title>
+            <mat-card-subtitle>Configurez le profil pour lequel l'IA va concevoir le test technique</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content class="form-content">
+            <!-- Profils rapides -->
+            <div class="presets-section">
+              <span class="preset-label">Exemples rapides :</span>
+              <button mat-stroked-button type="button" (click)="loadPreset('python')">
+                <mat-icon>code</mat-icon> Backend Python
+              </button>
+              <button mat-stroked-button type="button" (click)="loadPreset('frontend')">
+                <mat-icon>web</mat-icon> Frontend React
+              </button>
+              <button mat-stroked-button type="button" (click)="loadPreset('devops')">
+                <mat-icon>cloud</mat-icon> DevOps Cloud
+              </button>
+            </div>
+
+            <!-- Intitulé du poste -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Intitulé du poste</mat-label>
+              <input matInput [(ngModel)]="jobTitle" placeholder="Ex: Développeur Backend Python" required />
+            </mat-form-field>
+
+            <!-- Description du poste -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description du poste (offres d'emploi)</mat-label>
+              <textarea
+                matInput
+                [(ngModel)]="jobDescription"
+                rows="3"
+                placeholder="Décrivez les missions principales..."
+                required
+              ></textarea>
+            </mat-form-field>
+
+            <!-- Compétences manquantes détectées -->
+            <div class="skills-block">
+              <h3>Compétences à évaluer (lacunes détectées)</h3>
+              <div class="skills-chips">
+                @for (item of skills; track $index) {
+                  <mat-chip-row (removed)="removeSkill($index)">
+                    <strong>{{ item.skill }}</strong> ({{ item.level }})
+                    <button matChipRemove aria-label="Supprimer compétence">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
+                }
+              </div>
+
+              <!-- Formulaire ajout compétence -->
+              <div class="add-skill-row">
+                <mat-form-field appearance="outline" class="skill-input">
+                  <mat-label>Nouvelle compétence</mat-label>
+                  <input matInput [(ngModel)]="newSkillName" placeholder="Ex: Docker, PostgreSQL..." />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="level-select">
+                  <mat-label>Niveau</mat-label>
+                  <mat-select [(ngModel)]="newSkillLevel">
+                    <mat-option value="débutant">Débutant</mat-option>
+                    <mat-option value="intermédiaire">Intermédiaire</mat-option>
+                    <mat-option value="avancé">Avancé</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <button mat-flat-button color="primary" type="button" (click)="addSkill()">
+                  <mat-icon>add</mat-icon> Ajouter
+                </button>
+              </div>
+            </div>
+
+            <!-- Version du Prompt -->
+            <div class="prompt-version-box">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Stratégie de Prompt LLM</mat-label>
+                <mat-select [(ngModel)]="promptVersion">
+                  <mat-option value="v1">v1 — Minimal (rapide)</mat-option>
+                  <mat-option value="v2">v2 — Structuré par rubriques (Recommandé)</mat-option>
+                  <mat-option value="v3">v3 — Chain-of-Thought (Raisonnement approfondi)</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions class="card-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              class="btn-generate"
+              (click)="generateTest()"
+            >
+              <mat-icon>auto_awesome</mat-icon>
+              Générer le test avec l'IA
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Informations académiques & sécurité -->
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="card-icon-info">verified_user</mat-icon>
+            <mat-card-title>Garanties & Règles Métier</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <ul class="guarantees-list">
+              <li>
+                <mat-icon class="icon-ok">check_circle</mat-icon>
+                <span><strong>Anonymisation stricte :</strong> Rejet automatique si une adresse e-mail ou donnée personnelle est détectée.</span>
+              </li>
+              <li>
+                <mat-icon class="icon-ok">check_circle</mat-icon>
+                <span><strong>Anti-triche :</strong> Les réponses correctes sont masquées côté client.</span>
+              </li>
+              <li>
+                <mat-icon class="icon-ok">check_circle</mat-icon>
+                <span><strong>Validation Pydantic v2 :</strong> Format strict : exactement 5 questions et 1 exercice de code.</span>
+              </li>
+              <li>
+                <mat-icon class="icon-ok">check_circle</mat-icon>
+                <span><strong>Sécurité d'exécution :</strong> Le code candidat est analysé par LLM, jamais exécuté directement (pas de <code>exec()</code>).</span>
+              </li>
+            </ul>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================== -->
+  <!-- ÉTAPE 2 : PASSATION DU TEST -->
+  <!-- ============================================================== -->
+  @if (currentStep() === 'test' && currentTest() && !loading()) {
+    <div class="step-content test-step">
+      <mat-card class="test-header-card">
+        <div class="test-meta">
+          <h2>{{ currentTest()?.titre }}</h2>
+          <div class="meta-badges">
+            <span class="badge"><mat-icon>timer</mat-icon> {{ currentTest()?.duree_minutes }} minutes</span>
+            <span class="badge"><mat-icon>quiz</mat-icon> 5 questions + 1 code</span>
+          </div>
+        </div>
+        <p class="instructions">{{ currentTest()?.instructions }}</p>
+      </mat-card>
+
+      <!-- Liste des questions -->
+      @for (q of currentTest()?.questions; track q.numero) {
+        <mat-card class="question-card">
+          <div class="question-header">
+            <span class="q-badge">Question {{ q.numero }}</span>
+            <span class="q-points">{{ q.points }} pts</span>
+            <span class="q-target">Cible : {{ q.competence_ciblee }}</span>
+          </div>
+
+          <p class="q-enonce">{{ q.enonce }}</p>
+
+          <!-- Type QCM -->
+          @if (q.type === 'qcm' && q.choix) {
+            <mat-radio-group [(ngModel)]="answers[q.numero]" class="qcm-options">
+              @for (opt of q.choix; track opt.lettre) {
+                <mat-radio-button [value]="opt.lettre" class="qcm-choice">
+                  <strong>{{ opt.lettre }}.</strong> {{ opt.texte }}
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+          }
+
+          <!-- Type Ouverte -->
+          @if (q.type === 'ouverte') {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Votre réponse explicative</mat-label>
+              <textarea
+                matInput
+                rows="3"
+                [(ngModel)]="answers[q.numero]"
+                placeholder="Rédigez votre explication technique..."
+              ></textarea>
+            </mat-form-field>
+          }
+        </mat-card>
+      }
+
+      <!-- Exercice Pratique de Code -->
+      @if (currentTest()?.exercice; as exo) {
+        <mat-card class="exercise-card">
+          <div class="question-header">
+            <span class="q-badge exercise-badge">Exercice Pratique</span>
+            <span class="q-points">{{ exo.points }} pts</span>
+            <span class="q-target">Cible : {{ exo.competence_ciblee }}</span>
+          </div>
+
+          <h3>{{ exo.titre }}</h3>
+          <p class="exo-consigne">{{ exo.consigne }}</p>
+
+          <div class="code-editor-box">
+            <div class="editor-bar">
+              <span>Éditeur de code</span>
+              <span>Python / Bash</span>
+            </div>
+            <textarea
+              class="code-textarea"
+              rows="8"
+              [(ngModel)]="exerciseCode"
+              spellcheck="false"
+            ></textarea>
+          </div>
+        </mat-card>
+      }
+
+      <!-- Bouton de soumission -->
+      <div class="submit-action-bar">
+        <button mat-stroked-button (click)="currentStep.set('config')">
+          <mat-icon>arrow_back</mat-icon> Modifier les paramètres
+        </button>
+        <button mat-raised-button color="primary" class="btn-submit" (click)="submitTest()">
+          <mat-icon>send</mat-icon> Soumettre mes réponses pour correction IA
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================== -->
+  <!-- ÉTAPE 3 : RÉSULTATS DE L'ÉVALUATION PAR L'IA -->
+  <!-- ============================================================== -->
+  @if (currentStep() === 'result' && evaluationResult() && !loading()) {
+    <div class="step-content result-step">
+      <mat-card class="result-summary-card">
+        <div class="score-container">
+          <div class="score-circle" [class]="'score-' + evaluationResult()?.recommandation?.toLowerCase()">
+            <span class="score-value">{{ evaluationResult()?.score }}</span>
+            <span class="score-max">/ 100</span>
+          </div>
+
+          <div class="result-details">
+            <div class="recommendation-badge" [class]="'badge-' + evaluationResult()?.recommandation?.toLowerCase()">
+              {{ evaluationResult()?.recommandation }}
+            </div>
+            <h2>Résultat de la correction par l'IA</h2>
+            <div class="sub-scores">
+              <span>Score Questions : <strong>{{ evaluationResult()?.score_questions }} pts</strong></span>
+              <span>Score Exercice Pratique : <strong>{{ evaluationResult()?.score_exercice }} pts</strong></span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Points forts et points faibles -->
+      <div class="feedback-grid">
+        <mat-card class="feedback-card points-forts">
+          <h3><mat-icon>thumb_up</mat-icon> Points Forts</h3>
+          <ul>
+            @for (item of evaluationResult()?.points_forts; track $index) {
+              <li><mat-icon>check</mat-icon> {{ item }}</li>
+            }
+          </ul>
+        </mat-card>
+
+        <mat-card class="feedback-card points-faibles">
+          <h3><mat-icon>warning_amber</mat-icon> Points à Améliorer</h3>
+          <ul>
+            @for (item of evaluationResult()?.points_faibles; track $index) {
+              <li><mat-icon>close</mat-icon> {{ item }}</li>
+            }
+          </ul>
+        </mat-card>
+      </div>
+
+      <!-- Feedback détaillé -->
+      <mat-card class="feedback-text-card">
+        <h3><mat-icon>comment</mat-icon> Analyse Détaillée & Feedback de l'Évaluateur IA</h3>
+        <p class="feedback-text">{{ evaluationResult()?.feedback }}</p>
+      </mat-card>
+
+      <!-- Actions : Générer Roadmap -->
+      <div class="result-actions">
+        <button mat-stroked-button (click)="currentStep.set('test')">
+          <mat-icon>visibility</mat-icon> Revoir mes réponses
+        </button>
+
+        <button mat-raised-button color="primary" class="btn-roadmap" (click)="generateRoadmap()">
+          <mat-icon>explore</mat-icon> Générer ma Feuille de Route d'Apprentissage personnalisée
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================== -->
+  <!-- ÉTAPE 4 : FEUILLE DE ROUTE D'APPRENTISSAGE (ROADMAP) -->
+  <!-- ============================================================== -->
+  @if (currentStep() === 'roadmap' && roadmapResult() && !loading()) {
+    <div class="step-content roadmap-step">
+      <mat-card class="roadmap-header-card">
+        <h2>{{ roadmapResult()?.titre }}</h2>
+        <p class="roadmap-duree">
+          <mat-icon>calendar_month</mat-icon> Plan de formation sur <strong>{{ roadmapResult()?.duree_semaines }} semaines</strong>
+        </p>
+        <p class="final-advice">
+          <mat-icon>lightbulb</mat-icon> {{ roadmapResult()?.conseil_final }}
+        </p>
+      </mat-card>
+
+      <!-- Accordéon semaine par semaine -->
+      <mat-accordion class="weeks-accordion" multi>
+        @for (sem of roadmapResult()?.plan; track sem.semaine) {
+          <mat-expansion-panel [expanded]="sem.semaine === 1">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <span class="week-number">Semaine {{ sem.semaine }}</span>
+                <strong>{{ sem.objectif }}</strong>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="week-details">
+              <div class="detail-block">
+                <h4>Compétences travaillées :</h4>
+                <div class="tags-container">
+                  @for (comp of sem.competences; track comp) {
+                    <span class="tag-chip">{{ comp }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="detail-block">
+                <h4>Ressources recommandées :</h4>
+                <ul class="resources-list">
+                  @for (res of sem.ressources; track res) {
+                    <li><mat-icon>menu_book</mat-icon> {{ res }}</li>
+                  }
+                </ul>
+              </div>
+
+              <div class="detail-block project-block">
+                <h4>Mini-projet pratique :</h4>
+                <p><mat-icon>construction</mat-icon> {{ sem.mini_projet }}</p>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+
+      <!-- Actions finales -->
+      <div class="roadmap-actions">
+        <button mat-stroked-button (click)="currentStep.set('result')">
+          <mat-icon>arrow_back</mat-icon> Retour aux résultats
+        </button>
+        <button mat-raised-button color="primary" (click)="reset()">
+          <mat-icon>restart_alt</mat-icon> Nouveau test technique
+        </button>
+      </div>
+    </div>
+  }
+</div>

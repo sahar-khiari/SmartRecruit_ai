@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api import chat, health, knowledge, retrieval, tech_assessment
@@ -49,6 +50,15 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
         openapi_url="/openapi.json",
         lifespan=lifespan,
+    )
+
+    # Middleware CORS pour permettre au frontend Angular d'appeler directement le service IA
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:4200", "http://127.0.0.1:4200", "*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     # Routes Module 1 (RAG / Connaissances RH)

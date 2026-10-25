@@ -52,6 +52,7 @@ export class FrontOfficeTopbar {
         { icon: 'inbox', label: 'Candidatures', soon: true },
         { icon: 'video_call', label: 'Entretiens', soon: true },
         { icon: 'smart_toy', label: 'Assistant RH', path: '/app/assistant-rh' },
+        { icon: 'quiz', label: 'Tests techniques', path: '/app/tests-techniques' },
         { icon: 'person', label: 'Mon profil', path: '/app/profile' },
       ];
     }
@@ -61,6 +62,7 @@ export class FrontOfficeTopbar {
       { icon: 'work_outline', label: 'Offres', soon: true },
       { icon: 'fact_check', label: 'Mes candidatures', soon: true },
       { icon: 'video_call', label: 'Mes entretiens', soon: true },
+      { icon: 'quiz', label: 'Tests techniques', path: '/app/tests-techniques' },
       { icon: 'smart_toy', label: 'Assistant RH', path: '/app/assistant-rh' },
       { icon: 'person', label: 'Mon profil', path: '/app/profile' },
     ];

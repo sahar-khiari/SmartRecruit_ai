@@ -63,6 +63,21 @@
     </a>
 
     <a
+      routerLink="/admin/tests-techniques"
+      routerLinkActive="side-link--active"
+      class="side-link"
+      [matTooltip]="collapsed() ? 'Tests techniques & IA' : ''"
+      [matTooltipDisabled]="!collapsed()"
+      (click)="navigated.emit()"
+    >
+      <mat-icon aria-hidden="true">psychology</mat-icon>
+      @if (!collapsed()) {
+        <span class="side-link__label">Tests techniques & IA</span>
+        <span class="side-link__tag">Aziz</span>
+      }
+    </a>
+
+    <a
       routerLink="/admin/profile"
       routerLinkActive="side-link--active"
       class="side-link"

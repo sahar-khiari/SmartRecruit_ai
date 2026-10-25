@@ -91,6 +91,14 @@ export const routes: Routes = [
           ).then((module) => module.KnowledgeDocumentList),
       },
       {
+        path: 'tests-techniques',
+        title: 'Tests techniques & Evaluation IA | SmartRecruit AI',
+        loadComponent: () =>
+          import('./features/tech-assessment/tech-assessment').then(
+            (module) => module.TechAssessment,
+          ),
+      },
+      {
         path: 'knowledge-base/new',
         title: 'Ajouter une ressource RH | SmartRecruit AI',
         canDeactivate: [unsavedChangesGuard],
@@ -189,6 +197,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/hr-assistant/assistant-page/assistant-page').then(
             (module) => module.AssistantPage,
+          ),
+      },
+      {
+        path: 'tests-techniques',
+        title: 'Tests techniques & Evaluation IA | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['CANDIDATE', 'RECRUITER'] },
+        loadComponent: () =>
+          import('./features/tech-assessment/tech-assessment').then(
+            (module) => module.TechAssessment,
           ),
       },
       {
