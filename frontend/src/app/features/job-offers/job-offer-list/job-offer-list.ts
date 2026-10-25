@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { JobOfferService } from '../../../core/services/job-offer.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { OffreEmploi, PagedResponse } from '../../../core/models/job-offer.model';
+import { Candidature, OffreEmploi, PagedResponse } from '../../../core/models/job-offer.model';
 import {
   MODE_TRAVAIL_LABELS,
   ModeTravail,
@@ -48,6 +48,7 @@ export class JobOfferList implements OnInit {
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly offres = signal<OffreDetaillee[]>([]);
+  protected readonly candidaturesMap = signal<Record<number, Candidature>>({});
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly totalElements = signal(0);
@@ -69,6 +70,19 @@ export class JobOfferList implements OnInit {
   protected loadOffres(): void {
     this.loading.set(true);
     this.errorMessage.set(null);
+
+    if (this.isCandidate) {
+      this.jobOfferService.getMesCandidatures().subscribe({
+        next: (cands: Candidature[]) => {
+          const map: Record<number, Candidature> = {};
+          for (const cand of cands) {
+            map[cand.offreId] = cand;
+          }
+          this.candidaturesMap.set(map);
+        },
+        error: () => {},
+      });
+    }
 
     this.offreGestionService.rechercher(this.filtres, this.currentPage(), this.pageSize).subscribe({
       next: (response: PagedResponse<OffreDetaillee>) => {
@@ -103,6 +117,10 @@ export class JobOfferList implements OnInit {
 
   private filtresVides(): OffreRechercheFiltres {
     return { q: '', localisation: '', typeContrat: '', niveauRequis: '', modeTravail: '', competence: '', salaireMin: null };
+  }
+
+  protected getCandidatureForOffer(offreId: number): Candidature | undefined {
+    return this.candidaturesMap()[offreId];
   }
 
   protected previousPage(): void {

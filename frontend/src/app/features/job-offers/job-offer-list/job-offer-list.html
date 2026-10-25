@@ -146,20 +146,33 @@
 
           <mat-card-actions class="card-actions">
             @if (isCandidate) {
-              <button
-                mat-raised-button
-                color="primary"
-                class="btn-apply"
-                (click)="applyToOffer(offre)"
-              >
-                <mat-icon>send</mat-icon>
-                Postuler &amp; Passer le test IA
+              @if (getCandidatureForOffer(offre.id); as cand) {
+                <button
+                  mat-raised-button
+                  color="accent"
+                  class="btn-already-applied"
+                  (click)="applyToOffer(offre)"
+                >
+                  <mat-icon>verified</mat-icon>
+                  Test passé ({{ cand.scoreIa ?? 'Évalué' }}/100) • Voir Résultats &amp; Roadmap
+                </button>
+              } @else {
+                <button
+                  mat-raised-button
+                  color="primary"
+                  class="btn-apply"
+                  (click)="applyToOffer(offre)"
+                >
+                  <mat-icon>send</mat-icon>
+                  Postuler &amp; Passer le test IA
+                </button>
+              }
+            } @else {
+              <button mat-stroked-button (click)="viewDetail(offre)">
+                <mat-icon>visibility</mat-icon>
+                Voir détail
               </button>
             }
-            <button mat-stroked-button (click)="viewDetail(offre)">
-              <mat-icon>visibility</mat-icon>
-              Voir détail
-            </button>
           </mat-card-actions>
         </mat-card>
       }

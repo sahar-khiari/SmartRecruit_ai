@@ -18,5 +18,7 @@ public interface CandidatureService {
 
     List<CandidatureResponse> getMesCandidatures(User candidat);
 
+    CandidatureResponse getMaCandidatureParOffre(Long offreId, User candidat);
+
     CandidatureResponse updateStatut(Long candidatureId, CandidatureStatut statut, User currentUser);
 }
