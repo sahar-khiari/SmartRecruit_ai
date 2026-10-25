@@ -1,0 +1,150 @@
+<div class="cd-page">
+  <header class="cd-head">
+    <div>
+      <h1 class="cd-head__title">{{ isAdmin ? 'Gestion des candidats' : 'Candidats' }}</h1>
+      <p class="cd-head__subtitle">
+        Recherchez par nom, titre ou compétence. Les compétences sont normalisées
+        (« ReactJS » et « React » sont regroupées).
+      </p>
+    </div>
+    <span class="cd-count">{{ totalElements() }} candidat(s)</span>
+  </header>
+
+  <div class="cd-filters">
+    <mat-form-field appearance="outline" class="cd-filters__search">
+      <mat-label>Rechercher</mat-label>
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+      <input matInput [formControl]="search" placeholder="Java, Angular, Développeur..." />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Niveau</mat-label>
+      <mat-select [formControl]="level">
+        <mat-option [value]="null">Tous les niveaux</mat-option>
+        @for (option of levels; track option) {
+          <mat-option [value]="option">{{ levelLabels[option] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (error()) {
+    <p class="cd-alert" role="alert"><mat-icon aria-hidden="true">error_outline</mat-icon>{{ error() }}</p>
+  }
+
+  <div class="cd-layout" [class.cd-layout--detail]="selected()">
+    <div class="cd-list">
+      @if (loading()) {
+        <div class="cd-loading" role="status"><mat-spinner diameter="40" /></div>
+      } @else {
+        @for (candidate of candidates(); track candidate.id) {
+          <article class="cd-item" [class.cd-item--active]="selected()?.id === candidate.id">
+            <button type="button" class="cd-item__main" (click)="showDetail(candidate)">
+              <span class="cd-avatar" aria-hidden="true">
+                {{ candidate.firstName.charAt(0) }}{{ candidate.lastName.charAt(0) }}
+              </span>
+              <span class="cd-item__text">
+                <strong>{{ candidate.firstName }} {{ candidate.lastName }}</strong>
+                <span>{{ candidate.headline || 'Profil non complété' }}</span>
+                @if (candidate.skills.length) {
+                  <span class="cd-tags">
+                    @for (skill of candidate.skills.slice(0, 6); track skill) {
+                      <span class="cd-tag">{{ skill }}</span>
+                    }
+                    @if (candidate.skills.length > 6) {
+                      <span class="cd-tag cd-tag--more">+{{ candidate.skills.length - 6 }}</span>
+                    }
+                  </span>
+                }
+              </span>
+              @if (candidate.experienceLevel) {
+                <span class="cd-level cd-level--{{ candidate.experienceLevel.toLowerCase() }}">
+                  {{ candidate.experienceLevel }}
+                </span>
+              }
+            </button>
+            @if (isAdmin) {
+              <button mat-icon-button type="button" class="cd-item__delete"
+                      (click)="confirmDelete(candidate)" [attr.aria-label]="'Supprimer ' + candidate.firstName">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            }
+          </article>
+        } @empty {
+          <div class="cd-empty">
+            <mat-icon aria-hidden="true">person_search</mat-icon>
+            <p>Aucun candidat ne correspond à votre recherche.</p>
+          </div>
+        }
+
+        @if (totalPages() > 1) {
+          <nav class="cd-pager" aria-label="Pagination">
+            <button mat-stroked-button type="button" [disabled]="page() === 0" (click)="load(page() - 1)">
+              <mat-icon aria-hidden="true">chevron_left</mat-icon> Précédent
+            </button>
+            <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+            <button mat-stroked-button type="button" [disabled]="page() >= totalPages() - 1" (click)="load(page() + 1)">
+              Suivant <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          </nav>
+        }
+      }
+    </div>
+
+    @if (selected(); as profile) {
+      <aside class="cd-detail" aria-label="Détail du candidat">
+        <header class="cd-detail__head">
+          <span class="cd-avatar cd-avatar--lg" aria-hidden="true">
+            {{ profile.firstName.charAt(0) }}{{ profile.lastName.charAt(0) }}
+          </span>
+          <div>
+            <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
+            <p>{{ profile.headline || 'Profil non complété' }}</p>
+          </div>
+          <button mat-icon-button type="button" (click)="selected.set(null)" aria-label="Fermer">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <dl class="cd-facts">
+          <div><dt>Email</dt><dd>{{ profile.email }}</dd></div>
+          @if (profile.phone) { <div><dt>Téléphone</dt><dd>{{ profile.phone }}</dd></div> }
+          @if (profile.city) { <div><dt>Ville</dt><dd>{{ profile.city }}</dd></div> }
+          <div>
+            <dt>Expérience</dt>
+            <dd>
+              @if (profile.yearsOfExperience !== null) {
+                {{ profile.yearsOfExperience }} an(s) · {{ levelLabels[profile.experienceLevel!] }}
+              } @else { — }
+            </dd>
+          </div>
+        </dl>
+
+        @if (profile.summary) {
+          <p class="cd-summary">{{ profile.summary }}</p>
+        }
+
+        @if (profile.skills.length) {
+          <div class="cd-tags">
+            @for (skill of profile.skills; track skill.id) {
+              <span class="cd-tag" [class.cd-tag--ai]="skill.source === 'AI'">{{ skill.name }}</span>
+            }
+          </div>
+        }
+
+        <div class="cd-links">
+          @if (profile.githubUrl) {
+            <a mat-stroked-button [href]="profile.githubUrl" target="_blank" rel="noopener noreferrer">GitHub</a>
+          }
+          @if (profile.linkedinUrl) {
+            <a mat-stroked-button [href]="profile.linkedinUrl" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          }
+          <button mat-flat-button type="button" (click)="openCv(profile.id)">
+            <mat-icon aria-hidden="true">picture_as_pdf</mat-icon> Voir le CV
+          </button>
+        </div>
+      </aside>
+    } @else if (detailLoading()) {
+      <aside class="cd-detail cd-detail--loading"><mat-spinner diameter="36" /></aside>
+    }
+  </div>
+</div>

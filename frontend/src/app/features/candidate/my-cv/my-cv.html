@@ -1,0 +1,222 @@
+<div class="cv-page">
+  <header class="cv-hero">
+    <div>
+      <p class="cv-hero__eyebrow">Module candidats</p>
+      <h1 class="cv-hero__title">Mon CV</h1>
+      <p class="cv-hero__text">
+        Déposez votre CV : l’IA en extrait vos compétences et votre expérience.
+        Vous vérifiez tout avant que votre profil soit mis à jour.
+      </p>
+    </div>
+    <span class="cv-hero__icon" aria-hidden="true"><mat-icon>auto_awesome</mat-icon></span>
+  </header>
+
+  @if (loading()) {
+    <div class="cv-loading" role="status">
+      <mat-spinner diameter="44" />
+      <span>Chargement de votre CV…</span>
+    </div>
+  } @else {
+    <!-- 1. Dépôt du CV -->
+    <section class="cv-card" aria-labelledby="cv-upload-title">
+      <header class="cv-card__head">
+        <span class="cv-card__step">1</span>
+        <h2 id="cv-upload-title" class="cv-card__title">Votre CV (PDF, 5 Mo maximum)</h2>
+      </header>
+
+      @if (cv(); as currentCv) {
+        <div class="cv-file">
+          <mat-icon class="cv-file__icon" aria-hidden="true">picture_as_pdf</mat-icon>
+          <div class="cv-file__info">
+            <strong>{{ currentCv.originalFilename }}</strong>
+            <span>{{ formatSize(currentCv.sizeBytes) | number: '1.0-0' }} Ko · déposé le
+              {{ currentCv.uploadedAt | date: 'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
+          <button mat-stroked-button type="button" (click)="openCv()">
+            <mat-icon aria-hidden="true">visibility</mat-icon>
+            Voir
+          </button>
+        </div>
+      }
+
+      <label
+        class="cv-drop"
+        [class.cv-drop--over]="dragOver()"
+        [class.cv-drop--busy]="uploading()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="dragOver.set(false)"
+        (drop)="onDrop($event)"
+      >
+        <input type="file" accept="application/pdf,.pdf" (change)="onFileSelected($event)" [disabled]="uploading()" />
+        @if (uploading()) {
+          <mat-spinner diameter="32" />
+          <span>Envoi du CV…</span>
+        } @else {
+          <mat-icon aria-hidden="true">cloud_upload</mat-icon>
+          <span>
+            <strong>{{ cv() ? 'Remplacer mon CV' : 'Déposer mon CV' }}</strong> : glissez le PDF ici ou cliquez
+          </span>
+        }
+      </label>
+
+      @if (uploadError()) {
+        <p class="cv-alert cv-alert--error" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>{{ uploadError() }}
+        </p>
+      }
+    </section>
+
+    <!-- 2. Analyse IA -->
+    <section class="cv-card" aria-labelledby="cv-analysis-title">
+      <header class="cv-card__head">
+        <span class="cv-card__step">2</span>
+        <h2 id="cv-analysis-title" class="cv-card__title">Analyse par l’IA</h2>
+      </header>
+
+      <p class="cv-card__text">
+        <mat-icon class="cv-inline-icon" aria-hidden="true">shield</mat-icon>
+        Vos nom, email, téléphone et liens sont masqués <strong>avant</strong> l’envoi à l’IA.
+      </p>
+
+      @if (analyzing()) {
+        <ol class="cv-steps" aria-live="polite">
+          @for (step of steps; track step.label; let i = $index) {
+            <li class="cv-steps__item"
+                [class.cv-steps__item--done]="i < currentStep()"
+                [class.cv-steps__item--active]="i === currentStep()">
+              <span class="cv-steps__icon" aria-hidden="true">
+                @if (i < currentStep()) {
+                  <mat-icon>check</mat-icon>
+                } @else if (i === currentStep()) {
+                  <mat-spinner diameter="18" />
+                } @else {
+                  <mat-icon>{{ step.icon }}</mat-icon>
+                }
+              </span>
+              {{ step.label }}
+            </li>
+          }
+        </ol>
+        <p class="cv-card__hint">Environ 20 secondes…</p>
+      } @else {
+        <button mat-flat-button type="button" (click)="analyze()" [disabled]="!cv() || uploading()">
+          <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+          {{ proposal() ? 'Relancer l’analyse' : 'Analyser mon CV' }}
+        </button>
+        @if (!cv()) {
+          <p class="cv-card__hint">Déposez d’abord votre CV.</p>
+        }
+      }
+
+      @if (analysisError()) {
+        <p class="cv-alert cv-alert--error" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>{{ analysisError() }}
+        </p>
+      } @else if (analysis()?.status === 'FAILED' && !analyzing()) {
+        <p class="cv-alert cv-alert--error" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          La dernière analyse a échoué : {{ analysis()?.errorMessage }}
+        </p>
+      }
+    </section>
+
+    <!-- 3. Vérification et validation -->
+    @if (proposal() && !analyzing()) {
+      <section class="cv-card cv-card--review" aria-labelledby="cv-review-title">
+        <header class="cv-card__head">
+          <span class="cv-card__step">3</span>
+          <h2 id="cv-review-title" class="cv-card__title">Vérifiez la proposition de l’IA</h2>
+          <span class="cv-badge">
+            <mat-icon aria-hidden="true">smart_toy</mat-icon>
+            {{ analysis()?.trace?.model }}
+            @if (analysis()?.trace?.fallbackUsed) { (modèle de secours) }
+          </span>
+        </header>
+
+        <p class="cv-card__text">
+          L’IA propose, vous décidez : corrigez ce qui ne va pas, retirez ou ajoutez des compétences,
+          puis validez. Votre téléphone, votre ville et vos liens ne sont pas modifiés.
+        </p>
+
+        <div class="cv-form">
+          <mat-form-field appearance="outline" class="cv-form__full">
+            <mat-label>Titre du profil</mat-label>
+            <input matInput [(ngModel)]="headline" maxlength="150" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="cv-form__full">
+            <mat-label>Résumé</mat-label>
+            <textarea matInput [(ngModel)]="summary" rows="4" maxlength="2000"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Années d’expérience</mat-label>
+            <input matInput type="number" min="0" max="60" [ngModel]="years()" (ngModelChange)="setYears($event)" />
+          </mat-form-field>
+
+          <div class="cv-level">
+            <span class="cv-level__label">Niveau (calculé)</span>
+            <span class="cv-level__value">{{ level() ? levelLabels[level()!] : '—' }}</span>
+          </div>
+        </div>
+
+        <h3 class="cv-subtitle">Compétences ({{ skills().length }})</h3>
+        <div class="cv-skills">
+          @for (skill of skills(); track skill.name) {
+            <span class="cv-skill" [class.cv-skill--manual]="!skill.fromAi">
+              {{ skill.name }}
+              @if (skill.original) {
+                <small class="cv-skill__original" title="Écrit dans le CV">« {{ skill.original }} »</small>
+              }
+              <button type="button" class="cv-skill__remove" (click)="removeSkill(skill)"
+                      [attr.aria-label]="'Retirer ' + skill.name">
+                <mat-icon>close</mat-icon>
+              </button>
+            </span>
+          } @empty {
+            <span class="cv-card__hint">Aucune compétence.</span>
+          }
+        </div>
+        <form class="cv-add-skill" (ngSubmit)="addSkill()">
+          <mat-form-field appearance="outline">
+            <mat-label>Ajouter une compétence</mat-label>
+            <input matInput name="newSkill" [(ngModel)]="newSkill" maxlength="80" />
+          </mat-form-field>
+          <button mat-stroked-button type="submit">
+            <mat-icon aria-hidden="true">add</mat-icon>
+            Ajouter
+          </button>
+        </form>
+
+        @if (proposal()!.languages.length || proposal()!.softSkills.length) {
+          <dl class="cv-extra">
+            @if (proposal()!.languages.length) {
+              <div><dt>Langues</dt><dd>{{ proposal()!.languages.join(', ') }}</dd></div>
+            }
+            @if (proposal()!.softSkills.length) {
+              <div><dt>Qualités</dt><dd>{{ proposal()!.softSkills.join(', ') }}</dd></div>
+            }
+          </dl>
+        }
+
+        <footer class="cv-actions">
+          @if (applied()) {
+            <span class="cv-alert cv-alert--success">
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              Profil mis à jour
+            </span>
+            <a mat-stroked-button routerLink="/app/candidate/profil">Voir mon profil candidat</a>
+          }
+          <button mat-flat-button type="button" (click)="apply()" [disabled]="applying()">
+            @if (applying()) {
+              <mat-spinner diameter="18" />
+            } @else {
+              <mat-icon aria-hidden="true">task_alt</mat-icon>
+            }
+            {{ applied() ? 'Valider à nouveau' : 'Valider et mettre à jour mon profil' }}
+          </button>
+        </footer>
+      </section>
+    }
+  }
+</div>

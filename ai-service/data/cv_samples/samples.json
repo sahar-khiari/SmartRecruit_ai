@@ -1,0 +1,126 @@
+{
+  "description": "CV fictifs (personnes inventées) et réponses attendues, pour comparer modèles et prompts. Jamais de vrai CV.",
+  "samples": [
+    {
+      "id": "cv01-fullstack-intermediaire",
+      "lines": [
+        "Ahmed Ben Salah",
+        "ahmed.bensalah@example.com | +216 22 333 444",
+        "Développeur Full Stack Java / Angular",
+        "Expérience",
+        "2021 - 2024 : Développeur chez Vermeg, Tunis. Développement d'API REST avec Spring Boot et Hibernate.",
+        "Compétences : Java, Spring Boot, Angular, Docker, MySQL, Git",
+        "Langues : Français, Anglais (B2)"
+      ],
+      "expected": {"years": 3, "skills": ["Java", "Spring Boot", "Hibernate", "API REST", "Angular", "Docker", "MySQL", "Git"]}
+    },
+    {
+      "id": "cv02-fautes-de-frappe",
+      "lines": [
+        "Sarra Haddad",
+        "sarra.h@example.com | 55 123 456",
+        "Ingenieure logiciel backend",
+        "2018 - 2025 : Ingenieure backend chez Sofrecom. Microservices Spring-boot, ReactJS, Postgres, Kubernete, Docker-Compose.",
+        "Competences : JAVA 17, javascrip, REST API, mysql, CI/CD",
+        "Langues : Francais, Anglais (C1), Arabe"
+      ],
+      "expected": {"years": 7, "skills": ["Java", "Spring Boot", "Microservices", "React", "PostgreSQL", "Kubernetes", "Docker", "JavaScript", "API REST", "MySQL", "CI/CD"]}
+    },
+    {
+      "id": "cv03-junior-stages",
+      "lines": [
+        "Yassine Trabelsi",
+        "yassine.t@example.com",
+        "Jeune diplômé en génie logiciel (2025)",
+        "Stage de fin d'études (6 mois, 2025) : application mobile Flutter avec Firebase.",
+        "Stage d'été (2 mois, 2024) : site vitrine en HTML, CSS et JavaScript.",
+        "Compétences : Dart, Flutter, Firebase, HTML, CSS, JavaScript, Git"
+      ],
+      "expected": {"years": 0, "skills": ["Dart", "Flutter", "Firebase", "HTML", "CSS", "JavaScript", "Git"]}
+    },
+    {
+      "id": "cv04-data-scientist",
+      "lines": [
+        "Ines Gharbi",
+        "ines.gharbi@example.com | +216 98 111 222",
+        "Data Scientist",
+        "2020 - 2025 : Data Scientist chez une banque. Modèles de Machine Learning avec scikit-learn et TensorFlow,",
+        "préparation des données avec Pandas et NumPy, tableaux de bord Power BI.",
+        "Compétences : Python, SQL, NLP, Deep Learning"
+      ],
+      "expected": {"years": 5, "skills": ["Python", "Machine Learning", "scikit-learn", "TensorFlow", "Pandas", "NumPy", "Power BI", "SQL", "NLP", "Deep Learning"]}
+    },
+    {
+      "id": "cv05-devops-senior",
+      "lines": [
+        "Karim Jlassi",
+        "karim.jlassi@example.com",
+        "Ingénieur DevOps",
+        "2015 - 2025 : Ingénieur DevOps. Clusters K8s sur AWS, infrastructure avec Terraform et Ansible,",
+        "pipelines GitLab CI et Jenkins, supervision Prometheus et Grafana, serveurs Linux.",
+        "Langues : Français, Anglais"
+      ],
+      "expected": {"years": 10, "skills": ["Kubernetes", "AWS", "Terraform", "Ansible", "GitLab CI", "Jenkins", "Prometheus", "Grafana", "Linux"]}
+    },
+    {
+      "id": "cv06-competences-dans-le-texte",
+      "lines": [
+        "Mariem Saidi",
+        "mariem.s@example.com | 20 456 789",
+        "Développeuse web",
+        "2022 - 2025 : Développeuse chez une agence web.",
+        "Réalisation de sites e-commerce en PHP avec Laravel, front-end en Vue.js et Tailwind,",
+        "base de données MariaDB, déploiement avec Docker. Méthode Scrum."
+      ],
+      "expected": {"years": 3, "skills": ["PHP", "Laravel", "Vue.js", "Tailwind CSS", "MariaDB", "Docker", "Scrum"]}
+    },
+    {
+      "id": "cv07-anglais",
+      "lines": [
+        "Omar Mansour",
+        "omar.mansour@example.com",
+        "Software Engineer",
+        "2019 - 2024 : Backend developer. Built REST APIs with Node.js, Express and MongoDB,",
+        "message queues with RabbitMQ, unit tests with Jest.",
+        "Skills : TypeScript, NestJS, Redis, Git",
+        "Languages : English, French"
+      ],
+      "expected": {"years": 5, "skills": ["Node.js", "Express.js", "MongoDB", "RabbitMQ", "Jest", "TypeScript", "NestJS", "Redis", "Git", "API REST"]}
+    },
+    {
+      "id": "cv08-mobile",
+      "lines": [
+        "Nour Ayari",
+        "nour.ayari@example.com | +216 50 222 333",
+        "Développeur mobile",
+        "2021 - 2025 : Applications Android natives en Kotlin, puis applications iOS en Swift.",
+        "Projets React Native pour un client du secteur santé.",
+        "Outils : Git, Jira, Figma"
+      ],
+      "expected": {"years": 4, "skills": ["Android", "Kotlin", "iOS", "Swift", "React Native", "Git", "Jira", "Figma"]}
+    },
+    {
+      "id": "cv09-dotnet-reconversion",
+      "lines": [
+        "Hela Bouaziz",
+        "hela.b@example.com",
+        "Développeuse .NET",
+        "2012 - 2018 : Professeure de mathématiques (hors informatique).",
+        "2019 - 2025 : Développeuse .NET : applications ASP.NET Core en C#, SQL Server, Azure.",
+        "Compétences : C#, Entity Framework, Angular, Git"
+      ],
+      "expected": {"years": 6, "skills": ["C#", ".NET", "SQL Server", "Microsoft Azure", "Angular", "Git"]}
+    },
+    {
+      "id": "cv10-liste-abrevations",
+      "lines": [
+        "Walid Chebbi",
+        "walid.chebbi@example.com | 99 888 777",
+        "Développeur Java",
+        "2020 - 2023 : Développeur JEE. JPA, Spring MVC, Oracle, Maven, JUnit, Mockito, SonarQube.",
+        "Compétences : POO, UML, Design Patterns, Agile"
+      ],
+      "expected": {"years": 3, "skills": ["Java", "Hibernate", "Spring", "Oracle Database", "Maven", "JUnit", "Mockito", "SonarQube", "Programmation orientée objet", "UML", "Design Patterns", "Agile"]}
+    }
+  ]
+}

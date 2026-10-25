@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import chat, health, knowledge, retrieval, tech_assessment
+from app.api import chat, cv_analysis, health, knowledge, retrieval, tech_assessment
 from app.core.config import get_settings
 from app.offres import router as offres_router
 from app.core.logging_config import configure_logging
@@ -82,6 +82,9 @@ def create_app() -> FastAPI:
         logger.info('Module Matching charge avec succes.')
     except Exception as _matching_exc:
         logger.warning('Module Matching non charge (non bloquant) : %s', _matching_exc)
+
+    # Routes Module 1 (Gestion des candidats / Jalel) : analyse de CV
+    application.include_router(cv_analysis.router)
 
     @application.exception_handler(ValueError)
     async def value_error_handler(_: Request, exc: ValueError) -> JSONResponse:

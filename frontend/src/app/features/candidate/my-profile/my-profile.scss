@@ -1,0 +1,161 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.cp-page {
+  display: grid;
+  gap: 18px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.cp-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  &__title {
+    font-size: 1.6rem;
+  }
+
+  &__subtitle {
+    color: v.$color-text-muted;
+  }
+}
+
+.cp-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px;
+  color: v.$color-text-muted;
+}
+
+.cp-alert,
+.cp-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: v.$radius-sm;
+}
+
+.cp-alert {
+  background: v.$color-danger-soft;
+  color: v.$color-danger;
+}
+
+.cp-info {
+  background: v.$color-info-soft;
+  color: v.$color-info;
+}
+
+.cp-card {
+  @include m.card;
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+}
+
+.cp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+
+  &__full {
+    grid-column: 1 / -1;
+  }
+
+  @include m.respond-sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cp-level {
+  display: grid;
+  padding: 8px 4px;
+
+  span {
+    color: v.$color-text-subtle;
+    font-size: 0.8rem;
+  }
+
+  strong {
+    color: v.$color-primary;
+  }
+}
+
+.cp-subtitle {
+  font-size: 1rem;
+}
+
+.cp-muted {
+  color: v.$color-text-subtle;
+}
+
+.cp-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cp-skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 12px;
+  border-radius: v.$radius-pill;
+  background: v.$color-secondary-soft;
+  color: v.$color-secondary-strong;
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  &--ai {
+    background: v.$color-primary-soft;
+    color: v.$color-primary-strong;
+  }
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  &__remove {
+    display: inline-flex;
+    padding: 2px;
+    border: 0;
+    border-radius: v.$radius-pill;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(15, 23, 42, 0.08);
+    }
+
+    &:focus-visible {
+      @include m.focus-ring;
+    }
+  }
+}
+
+.cp-add {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.cp-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid v.$color-border;
+
+  mat-spinner {
+    display: inline-block;
+    margin-right: 6px;
+  }
+}
