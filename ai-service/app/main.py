@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from app.api import chat, health, knowledge, retrieval, tech_assessment
 from app.core.config import get_settings
+from app.offres import router as offres_router
 from app.core.logging_config import configure_logging
 import app.db.models.tech_assessment  # noqa: F401 (Enregistre les tables pour SQLAlchemy)
 from app.db.base import Base
@@ -25,6 +26,7 @@ Service interne IA pour SmartRecruit AI.
 **Périmètre**
 - Module 1 : Recherche RAG locale pour la base RH (ChromaDB + Ollama).
 - Module 4 : Tests techniques dynamiques, évaluation automatique et feuille de route IA.
+- Module 2 : IA de gestion des offres (description, compétences, mots-clés) via Cohere.
 """
 
 
@@ -69,6 +71,9 @@ def create_app() -> FastAPI:
 
     # Routes Module 4 (Tests techniques / Aziz)
     application.include_router(tech_assessment.router)
+
+    # Routes Module 2 (IA des offres / Cohere)
+    application.include_router(offres_router.router)
 
     @application.exception_handler(ValueError)
     async def value_error_handler(_: Request, exc: ValueError) -> JSONResponse:

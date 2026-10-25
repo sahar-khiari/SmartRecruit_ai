@@ -1,5 +1,8 @@
 package com.smartrecruit.dto.response;
 
+import com.smartrecruit.entity.StatutOffre;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -18,6 +21,17 @@ public record OffreEmploiResponse(
         Long recruteurId,
         String recruteurNom,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        // --- Module 2 ---
+        StatutOffre statut,
+        String motifSuspension,
+        String entreprise,
+        String modeTravail,
+        Integer experienceMinAnnees,
+        Integer salaireMin,
+        Integer salaireMax,
+        LocalDate dateLimite,
+        String motsCles,
+        LocalDateTime datePublication
 ) {
 }

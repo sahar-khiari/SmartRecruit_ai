@@ -91,6 +91,19 @@ export const routes: Routes = [
           ).then((module) => module.KnowledgeDocumentList),
       },
       {
+        path: 'offres',
+        title: 'Modération des offres | SmartRecruit AI',
+        loadComponent: () =>
+          import('./features/offres/admin-offres/admin-offres').then((module) => module.AdminOffres),
+      },
+      {
+        path: 'offres/:id',
+        title: 'Détail de l’offre | SmartRecruit AI',
+        data: { admin: true },
+        loadComponent: () =>
+          import('./features/offres/offre-detail/offre-detail').then((module) => module.OffreDetail),
+      },
+      {
         path: 'tests-techniques',
         title: 'Tests techniques & Evaluation IA | SmartRecruit AI',
         loadComponent: () =>
@@ -215,9 +228,17 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['CANDIDATE', 'RECRUITER'] },
         loadComponent: () =>
-          import('./features/job-offers/job-offer-list/job-offer-list').then(
-            (module) => module.JobOfferList,
+          import('./features/offres/recherche-offres/recherche-offres').then(
+            (module) => module.RechercheOffres,
           ),
+      },
+      {
+        path: 'offres/:id',
+        title: 'Détail de l’offre | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['CANDIDATE', 'RECRUITER'] },
+        loadComponent: () =>
+          import('./features/offres/offre-detail/offre-detail').then((module) => module.OffreDetail),
       },
       {
         path: 'offres/:id/postuler',
@@ -233,31 +254,27 @@ export const routes: Routes = [
         path: 'recruteur/offres',
         title: 'Mes offres | SmartRecruit AI',
         canActivate: [roleGuard],
-        data: { roles: ['RECRUITER', 'ADMIN'] },
+        data: { roles: ['RECRUITER'] },
         loadComponent: () =>
-          import('./features/recruiter/my-offers/my-offers').then(
-            (module) => module.MyOffers,
-          ),
+          import('./features/offres/mes-offres/mes-offres').then((module) => module.MesOffres),
       },
       {
         path: 'recruteur/offres/new',
         title: 'Créer une offre | SmartRecruit AI',
         canActivate: [roleGuard],
-        data: { roles: ['RECRUITER', 'ADMIN'] },
+        data: { roles: ['RECRUITER'] },
+        canDeactivate: [unsavedChangesGuard],
         loadComponent: () =>
-          import('./features/recruiter/create-offer/create-offer').then(
-            (module) => module.CreateOffer,
-          ),
+          import('./features/offres/offre-form/offre-form').then((module) => module.OffreForm),
       },
       {
         path: 'recruteur/offres/:id/edit',
         title: 'Modifier une offre | SmartRecruit AI',
         canActivate: [roleGuard],
-        data: { roles: ['RECRUITER', 'ADMIN'] },
+        data: { roles: ['RECRUITER'] },
+        canDeactivate: [unsavedChangesGuard],
         loadComponent: () =>
-          import('./features/recruiter/create-offer/create-offer').then(
-            (module) => module.CreateOffer,
-          ),
+          import('./features/offres/offre-form/offre-form').then((module) => module.OffreForm),
       },
       {
         path: 'recruteur/offres/:id/candidatures',

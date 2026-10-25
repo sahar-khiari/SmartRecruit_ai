@@ -63,6 +63,21 @@
     </a>
 
     <a
+      routerLink="/admin/offres"
+      routerLinkActive="side-link--active"
+      class="side-link"
+      [matTooltip]="collapsed() ? 'Modération des offres' : ''"
+      [matTooltipDisabled]="!collapsed()"
+      (click)="navigated.emit()"
+    >
+      <mat-icon aria-hidden="true">work_outline</mat-icon>
+      @if (!collapsed()) {
+        <span class="side-link__label">Modération des offres</span>
+        <span class="side-link__tag">Module 2</span>
+      }
+    </a>
+
+    <a
       routerLink="/admin/tests-techniques"
       routerLinkActive="side-link--active"
       class="side-link"

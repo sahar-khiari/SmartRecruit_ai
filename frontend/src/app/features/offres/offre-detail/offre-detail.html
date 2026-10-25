@@ -1,0 +1,67 @@
+<div class="page">
+  <button mat-button (click)="retour()"><mat-icon>arrow_back</mat-icon> Retour</button>
+
+  @if (loading()) {
+    <div class="center"><mat-spinner diameter="40" /> Chargement…</div>
+  } @else if (error()) {
+    <div class="alert error"><mat-icon>error_outline</mat-icon><div>{{ error() }}</div></div>
+  } @else if (offre(); as o) {
+    <header class="page-head">
+      <div>
+        <span class="statut {{ o.statut }}">{{ statutLabels[o.statut] }}</span>
+        <h1>{{ o.titrePoste }}</h1>
+        <p>{{ o.entreprise || o.recruteurNom }} · publiée par {{ o.recruteurNom }}</p>
+      </div>
+      <div class="head-actions">
+        @if (role === 'CANDIDATE' && o.statut === 'PUBLIEE') {
+          <button mat-flat-button color="primary" (click)="postuler(o)">
+            <mat-icon>send</mat-icon> Postuler &amp; passer le test IA
+          </button>
+        }
+        @if (role === 'RECRUITER' && !isAdminView && o.statut !== 'ARCHIVEE') {
+          <a mat-stroked-button [routerLink]="['/app/recruteur/offres', o.id, 'edit']"><mat-icon>edit</mat-icon> Modifier</a>
+        }
+      </div>
+    </header>
+
+    @if (o.statut === 'SUSPENDUE' && o.motifSuspension) {
+      <div class="alert warning"><mat-icon>gavel</mat-icon><div><strong>Motif de suspension :</strong> {{ o.motifSuspension }}</div></div>
+    }
+
+    <div class="layout">
+      <section class="main">
+        <h2>Description</h2>
+        <p class="description">{{ o.description }}</p>
+
+        <h2>Compétences requises</h2>
+        <div class="chips">
+          @for (c of splitListe(o.competencesRequises); track c) { <span class="chip">{{ c }}</span> }
+        </div>
+
+        @if (o.motsCles) {
+          <h2>Mots-clés</h2>
+          <div class="chips">
+            @for (m of splitListe(o.motsCles); track m) { <span class="chip keyword">{{ m }}</span> }
+          </div>
+        }
+      </section>
+
+      <aside class="side">
+        <dl>
+          <dt>Lieu</dt><dd>{{ o.localisation || '—' }}</dd>
+          <dt>Contrat</dt><dd>{{ o.typeContrat || '—' }}</dd>
+          <dt>Mode de travail</dt><dd>{{ o.modeTravail ? modeLabels[o.modeTravail] : '—' }}</dd>
+          <dt>Niveau</dt><dd>{{ o.niveauRequis }}</dd>
+          <dt>Expérience minimum</dt><dd>{{ o.experienceMinAnnees != null ? o.experienceMinAnnees + ' an(s)' : '—' }}</dd>
+          <dt>Salaire</dt>
+          <dd>
+            @if (o.salaireMin || o.salaireMax) { {{ o.salaireMin ?? '…' }} – {{ o.salaireMax ?? '…' }} TND } @else { — }
+          </dd>
+          <dt>Date limite</dt><dd>{{ o.dateLimite ? (o.dateLimite | date: 'dd/MM/yyyy') : '—' }}</dd>
+          <dt>Test technique</dt><dd>{{ o.dureeTestMinutes }} min</dd>
+          <dt>Publiée le</dt><dd>{{ o.datePublication ? (o.datePublication | date: 'dd/MM/yyyy') : '—' }}</dd>
+        </dl>
+      </aside>
+    </div>
+  }
+</div>

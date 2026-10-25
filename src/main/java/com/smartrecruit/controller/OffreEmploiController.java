@@ -10,6 +10,7 @@ import com.smartrecruit.entity.User;
 import com.smartrecruit.service.CandidatureService;
 import com.smartrecruit.service.CurrentUserService;
 import com.smartrecruit.service.OffreEmploiService;
+import com.smartrecruit.service.OffreGestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +41,7 @@ import java.util.function.Function;
 public class OffreEmploiController {
 
     private final OffreEmploiService offreEmploiService;
+    private final OffreGestionService offreGestionService;
     private final CandidatureService candidatureService;
     private final CurrentUserService currentUserService;
 
@@ -63,15 +66,17 @@ public class OffreEmploiController {
 
     @GetMapping("/{id}")
     public ResponseEntity<OffreEmploiResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(offreEmploiService.getById(id));
+        return ResponseEntity.ok(offreGestionService.consulter(id, currentUserService.getCurrentUser()));
     }
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @PostMapping
     public ResponseEntity<OffreEmploiResponse> create(@Valid @RequestBody OffreEmploiCreateRequest request) {
         User currentUser = currentUserService.getCurrentUser();
         return ResponseEntity.status(HttpStatus.CREATED).body(offreEmploiService.create(request, currentUser));
     }
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @PutMapping("/{id}")
     public ResponseEntity<OffreEmploiResponse> update(
             @PathVariable Long id,
@@ -80,6 +85,7 @@ public class OffreEmploiController {
         return ResponseEntity.ok(offreEmploiService.update(id, request, currentUser));
     }
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @PutMapping("/{id}/status")
     public ResponseEntity<OffreEmploiResponse> toggleStatus(
             @PathVariable Long id,

@@ -23,7 +23,6 @@ export class AdminSidebar {
 
   protected readonly futureModules: readonly FutureAdminModule[] = [
     { icon: 'groups', label: 'Candidats' },
-    { icon: 'work_outline', label: 'Offres' },
     { icon: 'video_call', label: 'Entretiens' },
     { icon: 'hub', label: 'Matching' },
   ];
