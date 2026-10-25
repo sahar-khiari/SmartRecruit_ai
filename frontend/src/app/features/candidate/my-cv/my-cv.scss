@@ -1,0 +1,361 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.cv-page {
+  display: grid;
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.cv-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 28px;
+  border-radius: v.$radius-xl;
+  background: linear-gradient(135deg, v.$color-primary, #2563eb);
+  color: #ffffff;
+
+  &__eyebrow {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  &__title {
+    margin: 4px 0 6px;
+    font-size: 1.8rem;
+    color: #ffffff;
+  }
+
+  &__text {
+    max-width: 620px;
+    opacity: 0.92;
+  }
+
+  &__icon mat-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 56px;
+    opacity: 0.85;
+  }
+}
+
+.cv-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px;
+  color: v.$color-text-muted;
+}
+
+.cv-card {
+  @include m.card;
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: v.$radius-pill;
+    background: v.$color-primary-soft;
+    color: v.$color-primary;
+    font-weight: 700;
+  }
+
+  &__title {
+    flex: 1;
+    font-size: 1.1rem;
+  }
+
+  &__text {
+    color: v.$color-text-muted;
+  }
+
+  &__hint {
+    color: v.$color-text-subtle;
+    font-size: 0.9rem;
+  }
+}
+
+.cv-inline-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  vertical-align: text-bottom;
+  color: v.$color-secondary;
+}
+
+.cv-file {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: v.$radius-md;
+  background: v.$color-surface-muted;
+  border: 1px solid v.$color-border;
+
+  &__icon {
+    color: v.$color-danger;
+  }
+
+  &__info {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      @include m.truncate;
+    }
+
+    span {
+      color: v.$color-text-subtle;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+.cv-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 28px;
+  border: 2px dashed v.$color-border-strong;
+  border-radius: v.$radius-md;
+  color: v.$color-text-muted;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color v.$transition-fast, background v.$transition-fast;
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  &:hover,
+  &--over {
+    border-color: v.$color-primary;
+    background: v.$color-primary-soft;
+  }
+
+  &:focus-within {
+    @include m.focus-ring;
+  }
+
+  &--busy {
+    cursor: progress;
+  }
+}
+
+.cv-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: v.$radius-sm;
+  font-size: 0.92rem;
+
+  &--error {
+    background: v.$color-danger-soft;
+    color: v.$color-danger;
+  }
+
+  &--success {
+    background: v.$color-success-soft;
+    color: v.$color-success;
+  }
+}
+
+.cv-steps {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: v.$color-text-subtle;
+
+    &--active {
+      color: v.$color-primary;
+      font-weight: 600;
+    }
+
+    &--done {
+      color: v.$color-success;
+    }
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+  }
+}
+
+.cv-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: v.$radius-pill;
+  background: v.$color-secondary-soft;
+  color: v.$color-secondary-strong;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.cv-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+  align-items: start;
+
+  &__full {
+    grid-column: 1 / -1;
+  }
+
+  @include m.respond-sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cv-level {
+  display: grid;
+  padding: 8px 4px;
+
+  &__label {
+    color: v.$color-text-subtle;
+    font-size: 0.8rem;
+  }
+
+  &__value {
+    font-weight: 600;
+    color: v.$color-primary;
+  }
+}
+
+.cv-subtitle {
+  font-size: 1rem;
+}
+
+.cv-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cv-skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 12px;
+  border-radius: v.$radius-pill;
+  background: v.$color-primary-soft;
+  color: v.$color-primary-strong;
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  &--manual {
+    background: v.$color-secondary-soft;
+    color: v.$color-secondary-strong;
+  }
+
+  &__original {
+    color: v.$color-text-subtle;
+    font-weight: 400;
+  }
+
+  &__remove {
+    display: inline-flex;
+    padding: 2px;
+    border: 0;
+    border-radius: v.$radius-pill;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(15, 23, 42, 0.08);
+    }
+
+    &:focus-visible {
+      @include m.focus-ring;
+    }
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+}
+
+.cv-add-skill {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.cv-extra {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+
+  div {
+    display: flex;
+    gap: 8px;
+  }
+
+  dt {
+    min-width: 80px;
+    color: v.$color-text-subtle;
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.cv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid v.$color-border;
+
+  mat-spinner {
+    display: inline-block;
+    margin-right: 6px;
+  }
+}

@@ -1,0 +1,272 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.cd-page {
+  display: grid;
+  gap: 16px;
+}
+
+.cd-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+
+  &__title {
+    font-size: 1.6rem;
+  }
+
+  &__subtitle {
+    color: v.$color-text-muted;
+  }
+}
+
+.cd-count {
+  padding: 6px 12px;
+  border-radius: v.$radius-pill;
+  background: v.$color-primary-soft;
+  color: v.$color-primary;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.cd-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  &__search {
+    flex: 1;
+    min-width: 260px;
+  }
+}
+
+.cd-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: v.$radius-sm;
+  background: v.$color-danger-soft;
+  color: v.$color-danger;
+}
+
+.cd-layout {
+  display: grid;
+  gap: 16px;
+
+  &--detail {
+    grid-template-columns: minmax(0, 1fr) 380px;
+
+    @include m.respond-md {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.cd-list {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.cd-loading,
+.cd-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 40px;
+  color: v.$color-text-subtle;
+}
+
+.cd-item {
+  @include m.card;
+  display: flex;
+  align-items: center;
+  transition: border-color v.$transition-fast, box-shadow v.$transition-fast;
+
+  &:hover,
+  &--active {
+    border-color: v.$color-primary;
+    box-shadow: v.$shadow-md;
+  }
+
+  &__main {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 14px 16px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:focus-visible {
+      @include m.focus-ring;
+    }
+  }
+
+  &__text {
+    display: grid;
+    flex: 1;
+    gap: 4px;
+    min-width: 0;
+
+    > span:first-of-type {
+      @include m.truncate;
+      color: v.$color-text-muted;
+      font-size: 0.9rem;
+    }
+  }
+
+  &__delete {
+    margin-right: 8px;
+    color: v.$color-danger;
+  }
+}
+
+.cd-avatar {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, v.$color-primary, #2563eb);
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  &--lg {
+    width: 56px;
+    height: 56px;
+    font-size: 1.1rem;
+  }
+}
+
+.cd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cd-tag {
+  padding: 3px 10px;
+  border-radius: v.$radius-pill;
+  background: v.$color-surface-muted;
+  border: 1px solid v.$color-border;
+  font-size: 0.8rem;
+
+  &--ai {
+    background: v.$color-primary-soft;
+    border-color: transparent;
+    color: v.$color-primary-strong;
+  }
+
+  &--more {
+    color: v.$color-text-subtle;
+  }
+}
+
+.cd-level {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border-radius: v.$radius-pill;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  &--junior {
+    background: v.$color-info-soft;
+    color: v.$color-info;
+  }
+
+  &--intermediate {
+    background: v.$color-warning-soft;
+    color: v.$color-warning;
+  }
+
+  &--senior {
+    background: v.$color-success-soft;
+    color: v.$color-success;
+  }
+}
+
+.cd-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.cd-detail {
+  @include m.card;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  padding: 20px;
+  position: sticky;
+  top: 90px;
+
+  &--loading {
+    justify-items: center;
+    padding: 40px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    div {
+      flex: 1;
+      min-width: 0;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+    }
+
+    p {
+      color: v.$color-text-muted;
+    }
+  }
+}
+
+.cd-facts {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+
+  div {
+    display: flex;
+    gap: 10px;
+  }
+
+  dt {
+    min-width: 90px;
+    color: v.$color-text-subtle;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.cd-summary {
+  color: v.$color-text-muted;
+  line-height: 1.5;
+}
+
+.cd-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

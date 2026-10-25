@@ -48,6 +48,21 @@
     </a>
 
     <a
+      routerLink="/admin/candidates"
+      routerLinkActive="side-link--active"
+      class="side-link"
+      [matTooltip]="collapsed() ? 'Candidats' : ''"
+      [matTooltipDisabled]="!collapsed()"
+      (click)="navigated.emit()"
+    >
+      <mat-icon aria-hidden="true">groups</mat-icon>
+      @if (!collapsed()) {
+        <span class="side-link__label">Candidats</span>
+        <span class="side-link__tag">Admin</span>
+      }
+    </a>
+
+    <a
       routerLink="/admin/knowledge-base"
       routerLinkActive="side-link--active"
       class="side-link"

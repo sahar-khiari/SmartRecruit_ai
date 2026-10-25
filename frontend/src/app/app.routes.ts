@@ -81,6 +81,16 @@ export const routes: Routes = [
             (module) => module.UserDetails,
           ),
       },
+      // Module 1 (Jalel) - gestion des candidats
+      {
+        path: 'candidates',
+        title: 'Gestion des candidats | SmartRecruit AI',
+        data: { admin: true },
+        loadComponent: () =>
+          import('./features/candidate/candidate-directory/candidate-directory').then(
+            (module) => module.CandidateDirectory,
+          ),
+      },
       {
         path: 'knowledge-base',
         pathMatch: 'full',
@@ -187,6 +197,33 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/front-office/recruiter/recruiter-home').then(
             (module) => module.RecruiterHome,
+          ),
+      },
+      // Module 1 (Jalel) - gestion des candidats
+      {
+        path: 'candidate/cv',
+        title: 'Mon CV | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['CANDIDATE'] },
+        loadComponent: () =>
+          import('./features/candidate/my-cv/my-cv').then((module) => module.MyCv),
+      },
+      {
+        path: 'candidate/profil',
+        title: 'Mon profil candidat | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['CANDIDATE'] },
+        loadComponent: () =>
+          import('./features/candidate/my-profile/my-profile').then((module) => module.MyProfile),
+      },
+      {
+        path: 'candidats',
+        title: 'Candidats | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['RECRUITER'] },
+        loadComponent: () =>
+          import('./features/candidate/candidate-directory/candidate-directory').then(
+            (module) => module.CandidateDirectory,
           ),
       },
       {

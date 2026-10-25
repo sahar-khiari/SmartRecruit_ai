@@ -33,6 +33,18 @@ export class CandidateHome {
 
   protected readonly shortcuts: readonly CandidateShortcut[] = [
     {
+      icon: 'description',
+      title: 'Mon CV',
+      description: 'Déposez votre CV : l’IA remplit votre profil, vous validez.',
+      path: '/app/candidate/cv',
+    },
+    {
+      icon: 'badge',
+      title: 'Mon profil candidat',
+      description: 'Titre, expérience, compétences et liens visibles par les recruteurs.',
+      path: '/app/candidate/profil',
+    },
+    {
       icon: 'work_outline',
       title: 'Consulter les offres',
       description: 'Parcourez les opportunités publiées par les recruteurs.',

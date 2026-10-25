@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import chat, health, knowledge, retrieval, tech_assessment
+from app.api import chat, cv_analysis, health, knowledge, retrieval, tech_assessment
 from app.core.config import get_settings
 from app.core.logging_config import configure_logging
 import app.db.models.tech_assessment  # noqa: F401 (Enregistre les tables pour SQLAlchemy)
@@ -69,6 +69,9 @@ def create_app() -> FastAPI:
 
     # Routes Module 4 (Tests techniques / Aziz)
     application.include_router(tech_assessment.router)
+
+    # Routes Module 1 (Gestion des candidats / Jalel) : analyse de CV
+    application.include_router(cv_analysis.router)
 
     @application.exception_handler(ValueError)
     async def value_error_handler(_: Request, exc: ValueError) -> JSONResponse:

@@ -1,0 +1,106 @@
+<div class="cp-page">
+  <header class="cp-head">
+    <div>
+      <h1 class="cp-head__title">Mon profil candidat</h1>
+      <p class="cp-head__subtitle">Ces informations sont visibles par les recruteurs.</p>
+    </div>
+    <a mat-stroked-button routerLink="/app/candidate/cv">
+      <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+      Remplir depuis mon CV
+    </a>
+  </header>
+
+  @if (loading()) {
+    <div class="cp-loading" role="status"><mat-spinner diameter="44" /> Chargement…</div>
+  } @else if (loadError()) {
+    <p class="cp-alert" role="alert"><mat-icon aria-hidden="true">error_outline</mat-icon>{{ loadError() }}</p>
+  } @else {
+    @if (!profile()?.profileCompleted) {
+      <p class="cp-info">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        Votre profil est vide. Complétez-le à la main ou laissez l’IA le préremplir depuis votre CV.
+      </p>
+    }
+
+    <form class="cp-card" [formGroup]="form" (ngSubmit)="save()">
+      <div class="cp-grid">
+        <mat-form-field appearance="outline" class="cp-grid__full">
+          <mat-label>Titre du profil</mat-label>
+          <input matInput formControlName="headline" placeholder="Développeur Full Stack Java / Angular" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Téléphone</mat-label>
+          <input matInput formControlName="phone" placeholder="+216 22 333 444" />
+          @if (form.controls.phone.invalid) { <mat-error>Numéro invalide</mat-error> }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Ville</mat-label>
+          <input matInput formControlName="city" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>GitHub</mat-label>
+          <input matInput formControlName="githubUrl" placeholder="https://github.com/..." />
+          @if (form.controls.githubUrl.invalid) { <mat-error>Doit commencer par http:// ou https://</mat-error> }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>LinkedIn</mat-label>
+          <input matInput formControlName="linkedinUrl" placeholder="https://www.linkedin.com/in/..." />
+          @if (form.controls.linkedinUrl.invalid) { <mat-error>Doit commencer par http:// ou https://</mat-error> }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="cp-grid__full">
+          <mat-label>Résumé</mat-label>
+          <textarea matInput formControlName="summary" rows="4"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Années d’expérience</mat-label>
+          <input matInput type="number" min="0" max="60" formControlName="yearsOfExperience" />
+          @if (form.controls.yearsOfExperience.invalid) { <mat-error>Entre 0 et 60</mat-error> }
+        </mat-form-field>
+
+        <div class="cp-level">
+          <span>Niveau</span>
+          <strong>{{ profile()?.experienceLevel ? levelLabels[profile()!.experienceLevel!] : '—' }}</strong>
+        </div>
+      </div>
+
+      <h2 class="cp-subtitle">Compétences ({{ skills().length }})</h2>
+      <div class="cp-skills">
+        @for (skill of skills(); track skill.name) {
+          <span class="cp-skill" [class.cp-skill--ai]="skill.source === 'AI'"
+                [title]="skill.source === 'AI' ? 'Proposée par l’IA et validée par vous' : 'Ajoutée par vous'">
+            @if (skill.source === 'AI') { <mat-icon aria-hidden="true">auto_awesome</mat-icon> }
+            {{ skill.name }}
+            <button type="button" class="cp-skill__remove" (click)="removeSkill(skill)" [attr.aria-label]="'Retirer ' + skill.name">
+              <mat-icon>close</mat-icon>
+            </button>
+          </span>
+        } @empty {
+          <span class="cp-muted">Aucune compétence.</span>
+        }
+      </div>
+      <div class="cp-add">
+        <mat-form-field appearance="outline">
+          <mat-label>Ajouter une compétence</mat-label>
+          <input matInput [value]="newSkill" (input)="newSkill = $any($event.target).value"
+                 (keydown.enter)="$event.preventDefault(); addSkill()" maxlength="80" />
+        </mat-form-field>
+        <button mat-stroked-button type="button" (click)="addSkill()">
+          <mat-icon aria-hidden="true">add</mat-icon> Ajouter
+        </button>
+      </div>
+
+      <footer class="cp-actions">
+        <button mat-flat-button type="submit" [disabled]="saving()">
+          @if (saving()) { <mat-spinner diameter="18" /> } @else { <mat-icon aria-hidden="true">save</mat-icon> }
+          Enregistrer
+        </button>
+      </footer>
+    </form>
+  }
+</div>

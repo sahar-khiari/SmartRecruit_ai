@@ -49,6 +49,7 @@ export class FrontOfficeTopbar {
       return [
         { icon: 'home', label: 'Accueil', path: '/app/recruiter' },
         { icon: 'work_outline', label: 'Mes offres', path: '/app/recruteur/offres' },
+        { icon: 'groups', label: 'Candidats', path: '/app/candidats' },
         { icon: 'inbox', label: 'Candidatures', soon: true },
         { icon: 'video_call', label: 'Entretiens', soon: true },
         { icon: 'smart_toy', label: 'Assistant RH', path: '/app/assistant-rh' },
@@ -59,6 +60,7 @@ export class FrontOfficeTopbar {
 
     return [
       { icon: 'home', label: 'Accueil', path: '/app/candidate' },
+      { icon: 'description', label: 'Mon CV', path: '/app/candidate/cv' },
       { icon: 'work_outline', label: 'Offres', path: '/app/offres' },
       { icon: 'fact_check', label: 'Mes candidatures', soon: true },
       { icon: 'video_call', label: 'Mes entretiens', soon: true },

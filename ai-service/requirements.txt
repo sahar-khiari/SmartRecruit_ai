@@ -12,3 +12,12 @@ pytest-asyncio==0.26.0
 httpx==0.28.1
 sqlalchemy>=2.0.0
 python-dotenv>=1.0.0
+
+# --- Module 1 (Jalel) - gestion des candidats ---
+python-multipart==0.0.20
+pdfplumber==0.11.7
+spacy==3.8.16
+# preshed 3.0.14 fait planter le chargement des modèles spaCy (OverflowError) : version figée.
+preshed==3.0.10
+rapidfuzz==3.14.1
+fpdf2==2.8.3
