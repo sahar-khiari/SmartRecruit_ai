@@ -15,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { JobOfferService } from '../../../core/services/job-offer.service';
-import { PagedResponse } from '../../../core/models/job-offer.model';
+import { OffreEmploi, PagedResponse } from '../../../core/models/job-offer.model';
 import { OffreDetaillee, STATUT_LABELS, StatutOffre } from '../../../core/models/offre-gestion.model';
 import { OffreGestionService, messageErreur } from '../../../core/services/offre-gestion.service';
 
@@ -143,6 +143,14 @@ export class MyOffers implements OnInit {
 
   protected viewApplications(offre: OffreDetaillee): void {
     void this.router.navigate(['/app/recruteur/offres', offre.id, 'candidatures']);
+  }
+
+  protected viewCriteria(offre: OffreEmploi): void {
+    void this.router.navigate(['/app/recruteur/offres', offre.id, 'criteres']);
+  }
+
+  protected viewMatching(offre: OffreEmploi): void {
+    void this.router.navigate(['/app/recruteur/offres', offre.id, 'matching']);
   }
 
   protected previousPage(): void {

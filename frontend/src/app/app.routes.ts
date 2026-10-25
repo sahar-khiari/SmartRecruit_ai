@@ -270,6 +270,46 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'recruteur/offres/:offreId/matching',
+        title: 'Classement Matching | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['RECRUITER', 'ADMIN'] },
+        loadComponent: () =>
+          import('./features/matching/matching-ranking/matching-ranking').then(
+            (module) => module.MatchingRanking,
+          ),
+      },
+      {
+        path: 'recruteur/offres/:offreId/criteres',
+        title: 'Critères de matching | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['RECRUITER', 'ADMIN'] },
+        loadComponent: () =>
+          import('./features/matching/matching-criteria/matching-criteria').then(
+            (module) => module.MatchingCriteria,
+          ),
+      },
+      {
+        path: 'matching/profile',
+        title: 'Mon profil CV & Matching | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['CANDIDATE'] },
+        loadComponent: () =>
+          import('./features/matching/matching-profile/matching-profile').then(
+            (module) => module.MatchingProfile,
+          ),
+      },
+      {
+        path: 'matching/recommandations',
+        title: 'Offres recommandées | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['CANDIDATE'] },
+        loadComponent: () =>
+          import(
+            './features/matching/matching-recommendations/matching-recommendations'
+          ).then((module) => module.MatchingRecommendations),
+      },
+      {
         path: 'profile',
         title: 'Mon profil | SmartRecruit AI',
         loadComponent: () =>
