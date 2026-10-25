@@ -5,7 +5,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import chat, cv_analysis, health, knowledge, retrieval, tech_assessment
+from app.api import chat, health, knowledge, retrieval, tech_assessment
+from app.api import cv_analysis  # Module 1 (Jalel) - analyse de CV
 from app.core.config import get_settings
 from app.offres import router as offres_router
 from app.core.logging_config import configure_logging
