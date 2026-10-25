@@ -257,3 +257,34 @@
     }
   }
 }
+
+// Module 2 : filtres et statuts
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.alert-success {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.card-status-chip.statut-BROUILLON {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.card-status-chip.statut-ARCHIVEE {
+  background: #f4f4f5;
+  color: #71717a;
+}

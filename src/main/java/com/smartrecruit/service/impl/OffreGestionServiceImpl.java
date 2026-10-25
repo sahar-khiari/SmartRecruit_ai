@@ -2,7 +2,6 @@ package com.smartrecruit.service.impl;
 
 import com.smartrecruit.dto.request.OffreRechercheCriteres;
 import com.smartrecruit.dto.response.OffreEmploiResponse;
-import com.smartrecruit.dto.response.OffreStatistiquesResponse;
 import com.smartrecruit.entity.OffreEmploi;
 import com.smartrecruit.entity.RoleName;
 import com.smartrecruit.entity.StatutOffre;
@@ -35,8 +34,7 @@ import static com.smartrecruit.repository.OffreEmploiSpecifications.visiblesCand
 /**
  * Règles du cycle de vie :
  * BROUILLON/CLOTUREE -> PUBLIEE (recruteur), PUBLIEE -> CLOTUREE (recruteur),
- * tout sauf SUSPENDUE -> ARCHIVEE (recruteur), tout sauf ARCHIVEE -> SUSPENDUE (admin),
- * SUSPENDUE -> PUBLIEE (admin).
+ * BROUILLON/PUBLIEE/CLOTUREE -> ARCHIVEE (recruteur).
  */
 @Service
 @RequiredArgsConstructor
@@ -58,15 +56,6 @@ public class OffreGestionServiceImpl implements OffreGestionService {
                                                          Pageable pageable) {
         Specification<OffreEmploi> spec = Specification.where(recruteur(recruteurConnecte.getId()))
                 .and(statut(criteres.statut()))
-                .and(filtresCommuns(criteres));
-        return offreEmploiRepository.findAll(spec, pageable).map(offreEmploiMapper::toResponse);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<OffreEmploiResponse> rechercherToutesOffres(OffreRechercheCriteres criteres, Pageable pageable) {
-        Specification<OffreEmploi> spec = Specification.where(statut(criteres.statut()))
-                .and(recruteur(criteres.recruteurId()))
                 .and(filtresCommuns(criteres));
         return offreEmploiRepository.findAll(spec, pageable).map(offreEmploiMapper::toResponse);
     }
@@ -113,40 +102,6 @@ public class OffreGestionServiceImpl implements OffreGestionService {
                 "archivée");
         offre.changerStatut(StatutOffre.ARCHIVEE);
         return offreEmploiMapper.toResponse(offreEmploiRepository.save(offre));
-    }
-
-    @Override
-    @Transactional
-    public OffreEmploiResponse suspendre(Long id, String motif) {
-        OffreEmploi offre = findOrThrow(id);
-        verifierStatut(offre, EnumSet.of(StatutOffre.BROUILLON, StatutOffre.PUBLIEE, StatutOffre.CLOTUREE),
-                "suspendue");
-        offre.changerStatut(StatutOffre.SUSPENDUE);
-        offre.setMotifSuspension(motif.trim());
-        return offreEmploiMapper.toResponse(offreEmploiRepository.save(offre));
-    }
-
-    @Override
-    @Transactional
-    public OffreEmploiResponse reactiver(Long id) {
-        OffreEmploi offre = findOrThrow(id);
-        verifierStatut(offre, EnumSet.of(StatutOffre.SUSPENDUE), "réactivée");
-        offre.changerStatut(StatutOffre.PUBLIEE);
-        offre.setMotifSuspension(null);
-        return offreEmploiMapper.toResponse(offreEmploiRepository.save(offre));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public OffreStatistiquesResponse statistiques() {
-        return new OffreStatistiquesResponse(
-                offreEmploiRepository.count(),
-                offreEmploiRepository.countByStatut(StatutOffre.BROUILLON),
-                offreEmploiRepository.countByStatut(StatutOffre.PUBLIEE),
-                offreEmploiRepository.countByStatut(StatutOffre.CLOTUREE),
-                offreEmploiRepository.countByStatut(StatutOffre.ARCHIVEE),
-                offreEmploiRepository.countByStatut(StatutOffre.SUSPENDUE)
-        );
     }
 
     // -------------------------------------------------------------------------

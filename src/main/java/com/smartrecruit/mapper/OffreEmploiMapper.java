@@ -27,7 +27,6 @@ public class OffreEmploiMapper {
                 offre.getCreatedAt(),
                 offre.getUpdatedAt(),
                 offre.getStatut(),
-                offre.getMotifSuspension(),
                 offre.getEntreprise(),
                 offre.getModeTravail(),
                 offre.getExperienceMinAnnees(),

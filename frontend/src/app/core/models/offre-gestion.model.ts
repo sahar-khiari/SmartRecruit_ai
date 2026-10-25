@@ -1,7 +1,7 @@
 import { OffreEmploi } from './job-offer.model';
 
 /** Module 2 : statuts du cycle de vie d'une offre. */
-export type StatutOffre = 'BROUILLON' | 'PUBLIEE' | 'CLOTUREE' | 'ARCHIVEE' | 'SUSPENDUE';
+export type StatutOffre = 'BROUILLON' | 'PUBLIEE' | 'CLOTUREE' | 'ARCHIVEE';
 
 export type ModeTravail = 'PRESENTIEL' | 'HYBRIDE' | 'TELETRAVAIL';
 
@@ -10,7 +10,6 @@ export const STATUT_LABELS: Record<StatutOffre, string> = {
   PUBLIEE: 'Publiée',
   CLOTUREE: 'Clôturée',
   ARCHIVEE: 'Archivée',
-  SUSPENDUE: 'Suspendue',
 };
 
 export const MODE_TRAVAIL_LABELS: Record<ModeTravail, string> = {
@@ -22,7 +21,6 @@ export const MODE_TRAVAIL_LABELS: Record<ModeTravail, string> = {
 /** Offre complète renvoyée par le backend (champs historiques + champs du Module 2). */
 export interface OffreDetaillee extends OffreEmploi {
   statut: StatutOffre;
-  motifSuspension: string | null;
   entreprise: string | null;
   modeTravail: ModeTravail | null;
   experienceMinAnnees: number | null;
@@ -60,16 +58,6 @@ export interface OffreRechercheFiltres {
   competence?: string;
   salaireMin?: number | null;
   statut?: StatutOffre | '';
-  recruteurId?: number | null;
-}
-
-export interface OffreStatistiques {
-  total: number;
-  brouillons: number;
-  publiees: number;
-  cloturees: number;
-  archivees: number;
-  suspendues: number;
 }
 
 // --------------------------------------------------------------------- IA (Cohere)

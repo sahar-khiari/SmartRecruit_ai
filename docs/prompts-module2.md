@@ -21,7 +21,8 @@ offre une clé d'essai gratuite, un modèle d'embedding multilingue adapté au f
 | Date | Outil / modèle | Prompt (résumé) | Résultat | Ce que j'ai corrigé | Justification / gain |
 |---|---|---|---|---|---|
 | 25/10/2026 | Claude Code (Opus) | Analyse du dépôt et des 2 documents du projet, entretien pour définir le périmètre du Module 2 | Plan du module, choix de Cohere, découverte que l'offre de base existait déjà (Aziz) | Décision d'étendre l'existant au lieu de dupliquer | Évite deux tables d'offres au merge |
-| 25/10/2026 | Claude Code (Opus) | Règle métier : l'admin peut-il modifier une offre ? | Proposition initiale : oui | **Corrigé par moi** : l'admin modère (suspend avec motif) mais ne modifie pas le contenu | Propriété des données, logique métier réelle |
+| 25/10/2026 | Claude Code (Opus) | Règle métier : l’admin peut-il modifier une offre ? | Proposition initiale : oui | **Corrigé par moi** : l’admin ne modifie pas le contenu (il peut seulement supprimer) | Propriété des données, logique métier réelle |
+| 25/10/2026 | Claude Code (Opus) | Intégrer le Module 2 dans les pages existantes d’Aziz au lieu de pages séparées, sans toucher à l’admin | Fonctionnalités ajoutées dans job-offer-list, my-offers, create-offer | Décision d’équipe : pas de doublons, pas de conflit sur les routes et menus | Intégration plus simple |
 | 25/10/2026 | Claude Code (Opus) | Génération backend (statuts, recherche Specification, modération) + tests d'intégration | Code compilé, 7 tests verts | Faille détectée : un candidat pouvait lire un brouillon via `/api/offres/{id}` → corrigée (404) | Sécurité |
 | 25/10/2026 | Claude Code (Opus) | Génération du client Cohere, du service IA et des tests pytest (Cohere simulé) | Gestion clé absente / timeout / quota / JSON invalide | — | Exigences du cours couvertes |
 | … | … | … | … | … | … |

@@ -242,3 +242,23 @@
     font-size: 0.9rem;
   }
 }
+
+// Module 2 : barre de recherche multicritère
+.search-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0 12px;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto 20px;
+  padding: 16px 16px 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  .search-actions {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 20px;
+  }
+}

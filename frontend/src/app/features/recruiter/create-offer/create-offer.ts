@@ -9,8 +9,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { JobOfferService } from '../../../core/services/job-offer.service';
-import { OffreEmploiCreateRequest } from '../../../core/models/job-offer.model';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  CompetenceSuggeree,
+  MODE_TRAVAIL_LABELS,
+  ModeTravail,
+  OffreFormPayload,
+  STATUT_LABELS,
+  StatutOffre,
+} from '../../../core/models/offre-gestion.model';
+import { OffreGestionService, messageErreur, splitListe } from '../../../core/services/offre-gestion.service';
+
+type IaAction = 'description' | 'competences' | 'motsCles';
 
 @Component({
   selector: 'app-create-offer',
@@ -25,6 +35,7 @@ import { OffreEmploiCreateRequest } from '../../../core/models/job-offer.model';
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   templateUrl: './create-offer.html',
   styleUrl: './create-offer.scss',
@@ -32,7 +43,7 @@ import { OffreEmploiCreateRequest } from '../../../core/models/job-offer.model';
 export class CreateOffer implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly jobOfferService = inject(JobOfferService);
+  private readonly offreGestionService = inject(OffreGestionService);
 
   protected readonly isEditMode = signal(false);
   protected readonly offerId = signal<number | null>(null);
@@ -45,12 +56,31 @@ export class CreateOffer implements OnInit {
   protected description = '';
   protected niveauRequis = 'Intermédiaire';
   protected typeContrat = 'CDI';
-  protected localisation = 'Paris / Télétravail';
-  protected competencesRequises = 'Python, FastAPI, Docker, SQL';
+  protected localisation = 'Tunis';
   protected dureeTestMinutes = 30;
 
   protected readonly niveaux = ['Junior', 'Intermédiaire', 'Senior', 'Expert'];
   protected readonly contrats = ['CDI', 'CDD', 'Freelance', 'Stage', 'Alternance'];
+
+  // --- Module 2 : champs enrichis, statut et assistant IA (Cohere) ---
+  protected readonly modes = Object.entries(MODE_TRAVAIL_LABELS) as [ModeTravail, string][];
+  protected readonly statutLabels = STATUT_LABELS;
+  protected readonly statut = signal<StatutOffre | null>(null);
+  protected readonly iaEnCours = signal<IaAction | null>(null);
+  protected readonly iaInfo = signal<string | null>(null);
+  protected readonly suggestions = signal<CompetenceSuggeree[]>([]);
+  protected readonly baseline = signal<string[]>([]);
+
+  protected entreprise = '';
+  protected modeTravail: ModeTravail | '' = 'HYBRIDE';
+  protected experienceMinAnnees: number | null = null;
+  protected salaireMin: number | null = null;
+  protected salaireMax: number | null = null;
+  protected dateLimite = '';
+  protected notesIa = '';
+  protected competences: string[] = [];
+  protected nouvelleCompetence = '';
+  protected motsCles: string[] = [];
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -66,15 +96,23 @@ export class CreateOffer implements OnInit {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.jobOfferService.getById(id).subscribe({
+    this.offreGestionService.getById(id).subscribe({
       next: (offre) => {
         this.titrePoste = offre.titrePoste;
         this.description = offre.description;
         this.niveauRequis = offre.niveauRequis;
         this.typeContrat = offre.typeContrat;
         this.localisation = offre.localisation;
-        this.competencesRequises = offre.competencesRequises;
+        this.competences = splitListe(offre.competencesRequises);
         this.dureeTestMinutes = offre.dureeTestMinutes;
+        this.entreprise = offre.entreprise ?? '';
+        this.modeTravail = offre.modeTravail ?? '';
+        this.experienceMinAnnees = offre.experienceMinAnnees;
+        this.salaireMin = offre.salaireMin;
+        this.salaireMax = offre.salaireMax;
+        this.dateLimite = offre.dateLimite ?? '';
+        this.motsCles = splitListe(offre.motsCles);
+        this.statut.set(offre.statut);
         this.loading.set(false);
       },
       error: () => {
@@ -84,46 +122,194 @@ export class CreateOffer implements OnInit {
     });
   }
 
-  protected save(): void {
-    if (!this.titrePoste.trim() || !this.description.trim() || !this.competencesRequises.trim()) {
-      this.errorMessage.set('Veuillez remplir tous les champs obligatoires.');
+  /** publier = true : publication directe ; false : brouillon (création) ou simple mise à jour (modification). */
+  protected save(publier = false): void {
+    const erreur = this.valider();
+    if (erreur) {
+      this.errorMessage.set(erreur);
       return;
     }
 
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    const payload: OffreEmploiCreateRequest = {
+    const payload = this.payload();
+    const id = this.offerId();
+    const action$ = this.isEditMode() && id
+      ? this.offreGestionService.update(id, payload)
+      : this.offreGestionService.create({ ...payload, publier });
+
+    action$.subscribe({
+      next: (offre) => {
+        // En modification, « Publier » publie un brouillon ou une offre clôturée.
+        if (id && publier && (offre.statut === 'BROUILLON' || offre.statut === 'CLOTUREE')) {
+          this.offreGestionService.publier(id).subscribe({
+            next: () => this.retourListe(),
+            error: (err) => this.echecSauvegarde(err),
+          });
+          return;
+        }
+        this.retourListe();
+      },
+      error: (err) => this.echecSauvegarde(err),
+    });
+  }
+
+  protected cancel(): void {
+    void this.router.navigate(['/app/recruteur/offres']);
+  }
+
+  // ------------------------------------------------------- Assistant IA (Cohere)
+
+  protected genererDescription(): void {
+    if (!this.titrePoste.trim()) {
+      this.errorMessage.set('Indiquez au moins l\'intitulé du poste pour générer la description.');
+      return;
+    }
+    this.lancerIa('description');
+    this.offreGestionService
+      .iaDescription({
+        titrePoste: this.titrePoste,
+        niveauRequis: this.niveauRequis,
+        typeContrat: this.typeContrat,
+        localisation: this.localisation,
+        modeTravail: this.modeTravail ? MODE_TRAVAIL_LABELS[this.modeTravail] : undefined,
+        entreprise: this.entreprise,
+        competences: this.competences.join(', '),
+        notes: this.notesIa,
+      })
+      .subscribe({
+        next: (res) => {
+          this.description = res.description;
+          this.terminerIa(
+            `Description générée par ${res.modele}${res.depuisCache ? ' (cache)' : ''}. Relisez-la avant d'enregistrer.`,
+          );
+        },
+        error: (err) => this.echecIa(err),
+      });
+  }
+
+  protected suggererCompetences(): void {
+    if (!this.titrePoste.trim()) {
+      this.errorMessage.set('Indiquez au moins l\'intitulé du poste pour suggérer des compétences.');
+      return;
+    }
+    this.lancerIa('competences');
+    this.offreGestionService.iaCompetences(this.titrePoste, this.description, this.niveauRequis).subscribe({
+      next: (res) => {
+        this.suggestions.set(res.competences.filter((c) => !this.aCompetence(c.nom)));
+        this.terminerIa(`${res.competences.length} compétences suggérées (méthode : ${res.methode}). Cliquez pour les ajouter.`);
+      },
+      error: (err) => this.echecIa(err),
+    });
+  }
+
+  protected detecterMotsCles(): void {
+    if (this.description.trim().length < 20) {
+      this.errorMessage.set('Rédigez ou générez d\'abord la description (20 caractères minimum).');
+      return;
+    }
+    this.lancerIa('motsCles');
+    this.offreGestionService.iaMotsCles(this.titrePoste, this.description).subscribe({
+      next: (res) => {
+        this.motsCles = res.motsCles.map((m) => m.mot);
+        this.baseline.set(res.motsClesBaseline);
+        this.terminerIa(`${res.motsCles.length} mots-clés détectés par ${res.modele}.`);
+      },
+      error: (err) => this.echecIa(err),
+    });
+  }
+
+  protected accepterSuggestion(s: CompetenceSuggeree): void {
+    this.ajouterCompetence(s.nom);
+    this.suggestions.update((list) => list.filter((x) => x.nom !== s.nom));
+  }
+
+  protected accepterToutes(): void {
+    this.suggestions().forEach((s) => this.ajouterCompetence(s.nom));
+    this.suggestions.set([]);
+  }
+
+  protected ajouterCompetenceSaisie(): void {
+    splitListe(this.nouvelleCompetence).forEach((c) => this.ajouterCompetence(c));
+    this.nouvelleCompetence = '';
+  }
+
+  protected retirerCompetence(nom: string): void {
+    this.competences = this.competences.filter((c) => c !== nom);
+  }
+
+  protected retirerMotCle(mot: string): void {
+    this.motsCles = this.motsCles.filter((m) => m !== mot);
+  }
+
+  // ----------------------------------------------------------------- privé
+
+  private valider(): string | null {
+    if (!this.titrePoste.trim() || !this.description.trim() || this.competences.length === 0) {
+      return 'Veuillez remplir tous les champs obligatoires (intitulé, description, au moins une compétence).';
+    }
+    if (this.salaireMin !== null && this.salaireMax !== null && this.salaireMin > this.salaireMax) {
+      return 'Le salaire minimum doit être inférieur ou égal au salaire maximum.';
+    }
+    return null;
+  }
+
+  private payload(): OffreFormPayload {
+    return {
       titrePoste: this.titrePoste.trim(),
       description: this.description.trim(),
       niveauRequis: this.niveauRequis,
       typeContrat: this.typeContrat,
       localisation: this.localisation.trim(),
-      competencesRequises: this.competencesRequises.trim(),
+      competencesRequises: this.competences.join(', '),
       dureeTestMinutes: this.dureeTestMinutes,
+      entreprise: this.entreprise.trim() || null,
+      modeTravail: this.modeTravail || null,
+      experienceMinAnnees: this.experienceMinAnnees,
+      salaireMin: this.salaireMin,
+      salaireMax: this.salaireMax,
+      dateLimite: this.dateLimite || null,
+      motsCles: this.motsCles.length ? this.motsCles.join(', ') : null,
     };
-
-    const action$ = this.isEditMode() && this.offerId()
-      ? this.jobOfferService.update(this.offerId()!, payload)
-      : this.jobOfferService.create(payload);
-
-    action$.subscribe({
-      next: () => {
-        this.submitting.set(false);
-        void this.router.navigate(['/app/recruteur/offres']);
-      },
-      error: (err) => {
-        this.submitting.set(false);
-        const detail =
-          err.error?.message ||
-          err.error?.error ||
-          'Erreur lors de l\'enregistrement de l\'offre.';
-        this.errorMessage.set(detail);
-      },
-    });
   }
 
-  protected cancel(): void {
+  private ajouterCompetence(nom: string): void {
+    if (nom.trim() && !this.aCompetence(nom)) {
+      this.competences = [...this.competences, nom.trim()];
+    }
+  }
+
+  private aCompetence(nom: string): boolean {
+    return this.competences.some((c) => c.toLowerCase() === nom.toLowerCase());
+  }
+
+  private lancerIa(action: IaAction): void {
+    this.iaEnCours.set(action);
+    this.iaInfo.set(null);
+    this.errorMessage.set(null);
+  }
+
+  private terminerIa(info: string): void {
+    this.iaEnCours.set(null);
+    this.iaInfo.set(info);
+  }
+
+  private echecIa(err: unknown): void {
+    this.iaEnCours.set(null);
+    this.errorMessage.set(
+      messageErreur(err, 'L\'IA est indisponible pour le moment.') +
+        ' Vous pouvez continuer à remplir le formulaire manuellement.',
+    );
+  }
+
+  private echecSauvegarde(err: unknown): void {
+    this.submitting.set(false);
+    this.errorMessage.set(messageErreur(err, 'Erreur lors de l\'enregistrement de l\'offre.'));
+  }
+
+  private retourListe(): void {
+    this.submitting.set(false);
     void this.router.navigate(['/app/recruteur/offres']);
   }
 }

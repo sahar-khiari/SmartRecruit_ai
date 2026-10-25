@@ -19,6 +19,29 @@
     </div>
   </header>
 
+  <!-- Filtres (Module 2) -->
+  <form class="filters-bar" (ngSubmit)="filtrer()">
+    <mat-form-field appearance="outline">
+      <mat-label>Rechercher</mat-label>
+      <input matInput name="recherche" [(ngModel)]="recherche" placeholder="Titre, compétence…" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Statut</mat-label>
+      <mat-select name="statutFiltre" [(ngModel)]="statutFiltre" (selectionChange)="filtrer()">
+        <mat-option value="">Tous</mat-option>
+        @for (s of statuts; track s) { <mat-option [value]="s">{{ statutLabels[s] }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button type="submit"><mat-icon>search</mat-icon> Filtrer</button>
+  </form>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <mat-icon>check_circle</mat-icon>
+      <div class="alert-content">{{ successMessage() }}</div>
+    </div>
+  }
+
   <!-- Erreur -->
   @if (errorMessage()) {
     <div class="alert alert-error">
@@ -42,7 +65,7 @@
     @if (offres().length === 0 && !errorMessage()) {
       <div class="empty-state">
         <mat-icon>post_add</mat-icon>
-        <h3>Aucune offre publiée pour le moment</h3>
+        <h3>Aucune offre pour ces critères</h3>
         <p>Commencez par créer votre première offre pour recevoir des candidatures qualifiées par l'IA.</p>
         <button mat-raised-button color="primary" (click)="createOffer()">
           <mat-icon>add</mat-icon>
@@ -55,12 +78,13 @@
       @for (offre of offres(); track offre.id) {
         <mat-card class="offer-card" [class.inactive]="!offre.active">
           <mat-card-header>
-            <div class="card-status-chip" [class.active]="offre.active">
-              <mat-icon>{{ offre.active ? 'check_circle' : 'pause_circle' }}</mat-icon>
-              <span>{{ offre.active ? 'Active' : 'Désactivée' }}</span>
+            <div class="card-status-chip statut-{{ offre.statut }}" [class.active]="offre.active">
+              <mat-icon>{{ offre.active ? 'check_circle' : offre.statut === 'BROUILLON' ? 'edit_note' : 'pause_circle' }}</mat-icon>
+              <span>{{ statutLabels[offre.statut] }}</span>
             </div>
             <mat-card-title>{{ offre.titrePoste }}</mat-card-title>
             <mat-card-subtitle>
+              @if (offre.entreprise) { {{ offre.entreprise }} &bull; }
               {{ offre.typeContrat }} &bull; {{ offre.localisation }} &bull; Test IA : {{ offre.dureeTestMinutes }} min
             </mat-card-subtitle>
           </mat-card-header>
@@ -100,21 +124,26 @@
             </button>
 
             <div class="actions-right">
-              <button
-                mat-icon-button
-                matTooltip="Modifier l'offre"
-                (click)="editOffer(offre)"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-
-              <button
-                mat-icon-button
-                [matTooltip]="offre.active ? 'Désactiver' : 'Activer'"
-                (click)="toggleActive(offre, $event)"
-              >
-                <mat-icon>{{ offre.active ? 'pause' : 'play_arrow' }}</mat-icon>
-              </button>
+              @if (offre.statut !== 'ARCHIVEE') {
+                <button mat-icon-button matTooltip="Modifier l'offre" (click)="editOffer(offre)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              @if (offre.statut === 'BROUILLON' || offre.statut === 'CLOTUREE') {
+                <button mat-icon-button matTooltip="Publier" (click)="publier(offre, $event)">
+                  <mat-icon>publish</mat-icon>
+                </button>
+              }
+              @if (offre.statut === 'PUBLIEE') {
+                <button mat-icon-button matTooltip="Clôturer" (click)="cloturer(offre, $event)">
+                  <mat-icon>lock</mat-icon>
+                </button>
+              }
+              @if (offre.statut !== 'ARCHIVEE') {
+                <button mat-icon-button matTooltip="Archiver" (click)="archiver(offre, $event)">
+                  <mat-icon>archive</mat-icon>
+                </button>
+              }
 
               <button
                 mat-icon-button

@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Module 2 : CRUD enrichi, cycle de vie, recherche multicritère, droits et modération des offres.
+ * Module 2 : CRUD enrichi, cycle de vie, recherche multicritère et droits sur les offres.
  */
 class OffreGestionIntegrationTest extends AbstractIntegrationTest {
 
@@ -95,45 +95,20 @@ class OffreGestionIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void moderationAdmin() throws Exception {
-        String recruteur = recruteurToken("rec.moderation@test.local");
-        String candidat = createCandidateAndGetToken("cand.moderation@test.local");
-        String admin = adminToken();
-        long id = creerOffre(recruteur, "Offre à modérer", true);
+    void offreClotureeInvisibleEtAdminPeutSupprimer() throws Exception {
+        String recruteur = recruteurToken("rec.admin@test.local");
+        String candidat = createCandidateAndGetToken("cand.admin@test.local");
+        long id = creerOffre(recruteur, "Offre clôturée", true);
 
-        // Motif obligatoire.
-        mockMvc.perform(put("/api/admin/offres/" + id + "/suspendre").header("Authorization", bearer(admin))
-                        .contentType(MediaType.APPLICATION_JSON).content("{\"motif\":\"\"}"))
-                .andExpect(status().isBadRequest());
-
-        mockMvc.perform(put("/api/admin/offres/" + id + "/suspendre").header("Authorization", bearer(admin))
-                        .contentType(MediaType.APPLICATION_JSON).content("{\"motif\":\"Critère discriminatoire\"}"))
-                .andExpect(jsonPath("$.statut").value("SUSPENDUE"))
-                .andExpect(jsonPath("$.motifSuspension").value("Critère discriminatoire"));
-
-        // Le recruteur voit le motif, le candidat ne voit plus l'offre, le recruteur ne peut pas republier.
-        mockMvc.perform(get("/api/offres/" + id).header("Authorization", bearer(recruteur)))
-                .andExpect(jsonPath("$.motifSuspension").value("Critère discriminatoire"));
+        mockMvc.perform(put("/api/offres/" + id + "/cloturer").header("Authorization", bearer(recruteur)))
+                .andExpect(status().isOk());
         mockMvc.perform(get("/api/offres/" + id).header("Authorization", bearer(candidat)))
                 .andExpect(status().isNotFound());
-        mockMvc.perform(put("/api/offres/" + id + "/publier").header("Authorization", bearer(recruteur)))
-                .andExpect(status().isBadRequest());
+        // L'auteur la voit toujours.
+        mockMvc.perform(get("/api/offres/" + id).header("Authorization", bearer(recruteur)))
+                .andExpect(jsonPath("$.statut").value("CLOTUREE"));
 
-        mockMvc.perform(get("/api/admin/offres/statistiques").header("Authorization", bearer(admin)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.suspendues").isNumber());
-        mockMvc.perform(get("/api/admin/offres").param("statut", "SUSPENDUE").header("Authorization", bearer(admin)))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(put("/api/admin/offres/" + id + "/reactiver").header("Authorization", bearer(admin)))
-                .andExpect(jsonPath("$.statut").value("PUBLIEE"))
-                .andExpect(jsonPath("$.motifSuspension").doesNotExist());
-
-        // Les routes admin sont interdites aux non-admins.
-        mockMvc.perform(get("/api/admin/offres").header("Authorization", bearer(recruteur)))
-                .andExpect(status().isForbidden());
-
-        mockMvc.perform(delete("/api/admin/offres/" + id).header("Authorization", bearer(admin)))
+        mockMvc.perform(delete("/api/offres/" + id).header("Authorization", bearer(adminToken())))
                 .andExpect(status().isNoContent());
     }
 

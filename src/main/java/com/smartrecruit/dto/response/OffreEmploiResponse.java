@@ -24,7 +24,6 @@ public record OffreEmploiResponse(
         LocalDateTime updatedAt,
         // --- Module 2 ---
         StatutOffre statut,
-        String motifSuspension,
         String entreprise,
         String modeTravail,
         Integer experienceMinAnnees,

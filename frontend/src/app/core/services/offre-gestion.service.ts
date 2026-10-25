@@ -11,20 +11,18 @@ import {
   OffreDetaillee,
   OffreFormPayload,
   OffreRechercheFiltres,
-  OffreStatistiques,
 } from '../models/offre-gestion.model';
 
 /**
- * Module 2 : CRUD enrichi, recherche multicritère, cycle de vie, modération et IA des offres.
+ * Module 2 : recherche multicritère, cycle de vie et IA des offres (complète JobOfferService).
  * Angular appelle uniquement Spring Boot ; Spring appelle le service IA.
  */
 @Injectable({ providedIn: 'root' })
 export class OffreGestionService {
   private readonly http = inject(HttpClient);
   private readonly offresUrl = `${environment.apiUrl}/offres`;
-  private readonly adminUrl = `${environment.apiUrl}/admin/offres`;
 
-  // ------------------------------------------------------------------ CRUD
+  // ------------------------------------------------------------------ CRUD (champs enrichis)
 
   getById(id: number): Observable<OffreDetaillee> {
     return this.http.get<OffreDetaillee>(`${this.offresUrl}/${id}`);
@@ -36,10 +34,6 @@ export class OffreGestionService {
 
   update(id: number, payload: OffreFormPayload): Observable<OffreDetaillee> {
     return this.http.put<OffreDetaillee>(`${this.offresUrl}/${id}`, payload);
-  }
-
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.offresUrl}/${id}`);
   }
 
   // ------------------------------------------------------------- recherche
@@ -68,34 +62,6 @@ export class OffreGestionService {
 
   archiver(id: number): Observable<OffreDetaillee> {
     return this.http.put<OffreDetaillee>(`${this.offresUrl}/${id}/archiver`, {});
-  }
-
-  // ---------------------------------------------------------- modération
-
-  adminLister(filtres: OffreRechercheFiltres, page = 0, size = 10): Observable<PagedResponse<OffreDetaillee>> {
-    return this.http.get<PagedResponse<OffreDetaillee>>(this.adminUrl, {
-      params: this.toParams(filtres, page, size),
-    });
-  }
-
-  adminStatistiques(): Observable<OffreStatistiques> {
-    return this.http.get<OffreStatistiques>(`${this.adminUrl}/statistiques`);
-  }
-
-  adminDetail(id: number): Observable<OffreDetaillee> {
-    return this.http.get<OffreDetaillee>(`${this.adminUrl}/${id}`);
-  }
-
-  adminSuspendre(id: number, motif: string): Observable<OffreDetaillee> {
-    return this.http.put<OffreDetaillee>(`${this.adminUrl}/${id}/suspendre`, { motif });
-  }
-
-  adminReactiver(id: number): Observable<OffreDetaillee> {
-    return this.http.put<OffreDetaillee>(`${this.adminUrl}/${id}/reactiver`, {});
-  }
-
-  adminSupprimer(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.adminUrl}/${id}`);
   }
 
   // ------------------------------------------------------------- IA Cohere

@@ -73,9 +73,6 @@ public class OffreEmploi {
     @Column(name = "statut", length = 20)
     private StatutOffre statut;
 
-    @Column(name = "motif_suspension", length = 500)
-    private String motifSuspension;
-
     @Column(name = "entreprise", length = 200)
     private String entreprise;
 

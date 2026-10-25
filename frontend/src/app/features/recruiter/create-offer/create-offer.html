@@ -4,9 +4,13 @@
       <mat-icon>post_add</mat-icon>
       <span>{{ isEditMode() ? 'Modification d\'offre' : 'Nouvelle offre' }}</span>
     </div>
+    @if (statut()) {
+      <span class="statut-chip statut-{{ statut() }}">{{ statutLabels[statut()!] }}</span>
+    }
     <h1>{{ isEditMode() ? 'Modifier l\'offre d\'emploi' : 'Publier une nouvelle offre' }}</h1>
     <p class="subtitle">
       Les compétences et la séniorité définies ici serviront de base à l'agent IA pour calibrer le test technique des candidats.
+      L'assistant IA (Cohere) peut rédiger la description, suggérer les compétences et détecter les mots-clés.
     </p>
   </header>
 
@@ -19,6 +23,13 @@
     </div>
   }
 
+  @if (iaInfo()) {
+    <div class="alert alert-ia">
+      <mat-icon>auto_awesome</mat-icon>
+      <div class="alert-content">{{ iaInfo() }}</div>
+    </div>
+  }
+
   @if (loading()) {
     <div class="loading-overlay">
       <mat-spinner diameter="50"></mat-spinner>
@@ -28,7 +39,7 @@
 
   @if (!loading()) {
     <mat-card class="form-card">
-      <form (ngSubmit)="save()" #offerForm="ngForm">
+      <form (ngSubmit)="save(false)" #offerForm="ngForm">
         <mat-card-content class="form-grid">
           <!-- Intitulé du poste -->
           <mat-form-field appearance="outline" class="col-span-2">
@@ -39,6 +50,23 @@
               name="titrePoste"
               required
               placeholder="Ex: Développeur Fullstack Java / Angular"
+            />
+          </mat-form-field>
+
+          <!-- Entreprise -->
+          <mat-form-field appearance="outline">
+            <mat-label>Entreprise</mat-label>
+            <input matInput [(ngModel)]="entreprise" name="entreprise" maxlength="200" />
+          </mat-form-field>
+
+          <!-- Localisation -->
+          <mat-form-field appearance="outline">
+            <mat-label>Localisation</mat-label>
+            <input
+              matInput
+              [(ngModel)]="localisation"
+              name="localisation"
+              placeholder="Ex: Tunis / Télétravail"
             />
           </mat-form-field>
 
@@ -62,15 +90,37 @@
             </mat-select>
           </mat-form-field>
 
-          <!-- Localisation -->
+          <!-- Mode de travail -->
           <mat-form-field appearance="outline">
-            <mat-label>Localisation</mat-label>
-            <input
-              matInput
-              [(ngModel)]="localisation"
-              name="localisation"
-              placeholder="Ex: Tunis / Télétravail"
-            />
+            <mat-label>Mode de travail</mat-label>
+            <mat-select [(ngModel)]="modeTravail" name="modeTravail">
+              <mat-option value="">Non précisé</mat-option>
+              @for (m of modes; track m[0]) {
+                <mat-option [value]="m[0]">{{ m[1] }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Expérience minimum -->
+          <mat-form-field appearance="outline">
+            <mat-label>Expérience minimum (années)</mat-label>
+            <input matInput type="number" min="0" max="40" [(ngModel)]="experienceMinAnnees" name="experienceMinAnnees" />
+          </mat-form-field>
+
+          <!-- Salaire -->
+          <mat-form-field appearance="outline">
+            <mat-label>Salaire min. (TND)</mat-label>
+            <input matInput type="number" min="0" [(ngModel)]="salaireMin" name="salaireMin" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Salaire max. (TND)</mat-label>
+            <input matInput type="number" min="0" [(ngModel)]="salaireMax" name="salaireMax" />
+          </mat-form-field>
+
+          <!-- Date limite -->
+          <mat-form-field appearance="outline">
+            <mat-label>Date limite de candidature</mat-label>
+            <input matInput type="date" [(ngModel)]="dateLimite" name="dateLimite" />
           </mat-form-field>
 
           <!-- Durée du test IA -->
@@ -86,46 +136,114 @@
             />
           </mat-form-field>
 
-          <!-- Compétences cibles (séparées par virgules) -->
-          <mat-form-field appearance="outline" class="col-span-2">
-            <mat-label>Compétences cibles pour le test IA (séparées par des virgules) *</mat-label>
-            <input
-              matInput
-              [(ngModel)]="competencesRequises"
-              name="competencesRequises"
-              required
-              placeholder="Ex: Spring Boot, Angular, Docker, REST API"
-            />
-            <mat-hint>Ces technologies seront directement transmises au générateur de tests IA</mat-hint>
-          </mat-form-field>
+          <!-- Description de l'offre + IA -->
+          <div class="col-span-2 ia-section">
+            <div class="ia-head">
+              <h3>Description du poste et missions *</h3>
+              <button mat-raised-button type="button" class="btn-ia" (click)="genererDescription()" [disabled]="iaEnCours() !== null">
+                @if (iaEnCours() === 'description') { <mat-spinner diameter="18"></mat-spinner> } @else { <mat-icon>auto_awesome</mat-icon> }
+                Générer avec l'IA
+              </button>
+            </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Notes pour l'IA (optionnel)</mat-label>
+              <input matInput [(ngModel)]="notesIa" name="notesIa" maxlength="2000"
+                     placeholder="Ex: équipe de 5 personnes, projet e-commerce, méthode Scrum" />
+              <mat-hint>Les données personnelles (emails, téléphones) sont masquées avant l'envoi à l'IA.</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description du poste et missions *</mat-label>
+              <textarea
+                matInput
+                rows="10"
+                [(ngModel)]="description"
+                name="description"
+                required
+                placeholder="Décrivez les responsabilités, le contexte de l'équipe et les exigences techniques..."
+              ></textarea>
+            </mat-form-field>
+          </div>
 
-          <!-- Description de l'offre -->
-          <mat-form-field appearance="outline" class="col-span-2">
-            <mat-label>Description du poste et missions *</mat-label>
-            <textarea
-              matInput
-              rows="6"
-              [(ngModel)]="description"
-              name="description"
-              required
-              placeholder="Décrivez les responsabilités, le contexte de l'équipe et les exigences techniques..."
-            ></textarea>
-          </mat-form-field>
+          <!-- Compétences + IA -->
+          <div class="col-span-2 ia-section">
+            <div class="ia-head">
+              <h3>Compétences cibles pour le test IA *</h3>
+              <button mat-raised-button type="button" class="btn-ia" (click)="suggererCompetences()" [disabled]="iaEnCours() !== null">
+                @if (iaEnCours() === 'competences') { <mat-spinner diameter="18"></mat-spinner> } @else { <mat-icon>auto_awesome</mat-icon> }
+                Suggérer les compétences
+              </button>
+            </div>
+            <div class="chips">
+              @for (c of competences; track c) {
+                <span class="chip">{{ c }} <button type="button" (click)="retirerCompetence(c)" aria-label="Retirer">✕</button></span>
+              } @empty {
+                <span class="hint">Ces technologies seront directement transmises au générateur de tests IA.</span>
+              }
+            </div>
+            @if (suggestions().length) {
+              <div class="suggestions">
+                <span class="hint">Suggestions de l'IA (cliquez pour ajouter) :</span>
+                <div class="chips">
+                  @for (s of suggestions(); track s.nom) {
+                    <span class="chip chip-suggestion" (click)="accepterSuggestion(s)"
+                          [matTooltip]="s.categorie + ' · pertinence ' + (s.score * 100).toFixed(0) + ' %'">+ {{ s.nom }}</span>
+                  }
+                </div>
+                <button mat-button type="button" (click)="accepterToutes()">Tout ajouter</button>
+              </div>
+            }
+            <div class="add-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Ajouter une compétence</mat-label>
+                <input matInput [(ngModel)]="nouvelleCompetence" name="nouvelleCompetence"
+                       (keydown.enter)="$event.preventDefault(); ajouterCompetenceSaisie()" placeholder="Ex: Docker, Git" />
+              </mat-form-field>
+              <button mat-stroked-button type="button" (click)="ajouterCompetenceSaisie()">Ajouter</button>
+            </div>
+          </div>
+
+          <!-- Mots-clés + IA -->
+          <div class="col-span-2 ia-section">
+            <div class="ia-head">
+              <h3>Mots-clés</h3>
+              <button mat-raised-button type="button" class="btn-ia" (click)="detecterMotsCles()" [disabled]="iaEnCours() !== null">
+                @if (iaEnCours() === 'motsCles') { <mat-spinner diameter="18"></mat-spinner> } @else { <mat-icon>auto_awesome</mat-icon> }
+                Détecter les mots-clés
+              </button>
+            </div>
+            <div class="chips">
+              @for (m of motsCles; track m) {
+                <span class="chip chip-keyword">{{ m }} <button type="button" (click)="retirerMotCle(m)" aria-label="Retirer">✕</button></span>
+              } @empty {
+                <span class="hint">Les mots-clés améliorent la recherche des candidats.</span>
+              }
+            </div>
+            @if (baseline().length) {
+              <p class="hint">Méthode sans IA (fréquence des mots), pour comparaison : {{ baseline().join(', ') }}</p>
+            }
+          </div>
         </mat-card-content>
 
         <mat-card-actions class="form-actions">
           <button mat-button type="button" (click)="cancel()">
             Annuler
           </button>
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="submitting()"
-          >
-            <mat-icon>{{ isEditMode() ? 'check' : 'publish' }}</mat-icon>
-            {{ isEditMode() ? 'Mettre à jour l\'offre' : 'Publier l\'offre' }}
+          <button mat-stroked-button type="submit" [disabled]="submitting()">
+            <mat-icon>{{ isEditMode() ? 'check' : 'save' }}</mat-icon>
+            {{ isEditMode() ? 'Mettre à jour l\'offre' : 'Enregistrer en brouillon' }}
           </button>
+          @if (!isEditMode() || statut() === 'BROUILLON' || statut() === 'CLOTUREE') {
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              [disabled]="submitting()"
+              (click)="save(true)"
+            >
+              <mat-icon>publish</mat-icon>
+              Publier l'offre
+            </button>
+          }
         </mat-card-actions>
       </form>
     </mat-card>

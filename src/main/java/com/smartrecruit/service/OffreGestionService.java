@@ -2,13 +2,12 @@ package com.smartrecruit.service;
 
 import com.smartrecruit.dto.request.OffreRechercheCriteres;
 import com.smartrecruit.dto.response.OffreEmploiResponse;
-import com.smartrecruit.dto.response.OffreStatistiquesResponse;
 import com.smartrecruit.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Module 2 : cycle de vie, recherche multicritère et modération des offres.
+ * Module 2 : cycle de vie et recherche multicritère des offres.
  */
 public interface OffreGestionService {
 
@@ -18,9 +17,6 @@ public interface OffreGestionService {
     /** Recherche dans les offres du recruteur connecté (tous statuts). */
     Page<OffreEmploiResponse> rechercherMesOffres(OffreRechercheCriteres criteres, User recruteur, Pageable pageable);
 
-    /** Recherche administrateur sur toutes les offres. */
-    Page<OffreEmploiResponse> rechercherToutesOffres(OffreRechercheCriteres criteres, Pageable pageable);
-
     /** Détail d'une offre : un candidat ne voit que les offres publiées ; l'auteur et l'admin voient tout. */
     OffreEmploiResponse consulter(Long id, User utilisateur);
 
@@ -29,10 +25,4 @@ public interface OffreGestionService {
     OffreEmploiResponse cloturer(Long id, User recruteur);
 
     OffreEmploiResponse archiver(Long id, User recruteur);
-
-    OffreEmploiResponse suspendre(Long id, String motif);
-
-    OffreEmploiResponse reactiver(Long id);
-
-    OffreStatistiquesResponse statistiques();
 }

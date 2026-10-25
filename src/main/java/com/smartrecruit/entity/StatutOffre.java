@@ -7,13 +7,11 @@ package com.smartrecruit.entity;
  *   <li>PUBLIEE : visible par les candidats, candidatures ouvertes.</li>
  *   <li>CLOTUREE : recrutement terminé, plus visible par les candidats.</li>
  *   <li>ARCHIVEE : conservée pour l'historique, plus modifiable.</li>
- *   <li>SUSPENDUE : bloquée par un administrateur (modération), avec un motif.</li>
  * </ul>
  */
 public enum StatutOffre {
     BROUILLON,
     PUBLIEE,
     CLOTUREE,
-    ARCHIVEE,
-    SUSPENDUE
+    ARCHIVEE
 }

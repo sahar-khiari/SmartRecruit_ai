@@ -77,7 +77,7 @@ public class OffreEmploiServiceImpl implements OffreEmploiService {
     public OffreEmploiResponse toggleStatus(Long id, boolean active, User currentUser) {
         OffreEmploi offre = findOffreOrThrow(id);
         verifierProprietaire(offre, currentUser);
-        if (offre.getStatut() == StatutOffre.SUSPENDUE || offre.getStatut() == StatutOffre.ARCHIVEE) {
+        if (offre.getStatut() == StatutOffre.ARCHIVEE) {
             throw new IllegalStateException("Le statut de cette offre ne peut pas être modifié");
         }
         offre.changerStatut(active ? StatutOffre.PUBLIEE : StatutOffre.CLOTUREE);
@@ -88,7 +88,7 @@ public class OffreEmploiServiceImpl implements OffreEmploiService {
     @Transactional
     public void delete(Long id, User currentUser) {
         OffreEmploi offre = findOffreOrThrow(id);
-        // Suppression : le recruteur propriétaire ou un administrateur (modération).
+        // Suppression : le recruteur propriétaire ou un administrateur.
         if (!isAdmin(currentUser)) {
             verifierProprietaire(offre, currentUser);
         }
