@@ -86,6 +86,11 @@ export interface RoadmapResult {
   conseil_final: string;
 }
 
+export interface RoadmapResponse {
+  candidate_id: string;
+  roadmap: RoadmapResult;
+}
+
 export interface GenerateRoadmapRequest {
   candidate_id: string;
   competences_manquantes: CompetenceManquante[];

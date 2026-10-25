@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   GenerateRoadmapRequest,
   GenerateTestRequest,
+  RoadmapResponse,
   RoadmapResult,
   SubmitAnswersRequest,
   SubmitTestResponse,
@@ -51,8 +52,8 @@ export class TechAssessmentService {
    */
   generateRoadmap(
     request: GenerateRoadmapRequest,
-  ): Observable<RoadmapResult> {
-    return this.http.post<RoadmapResult>(
+  ): Observable<RoadmapResponse> {
+    return this.http.post<RoadmapResponse>(
       `${this.baseUrl}/roadmap`,
       request,
     );

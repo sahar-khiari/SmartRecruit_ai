@@ -210,7 +210,8 @@ export class TechAssessment {
         duree_plan_semaines: 8,
       })
       .subscribe({
-        next: (roadmap) => {
+        next: (response: any) => {
+          const roadmap: RoadmapResult = response.roadmap || response;
           this.roadmapResult.set(roadmap);
           this.currentStep.set('roadmap');
           this.loading.set(false);
