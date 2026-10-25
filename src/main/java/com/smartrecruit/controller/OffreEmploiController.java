@@ -114,4 +114,20 @@ public class OffreEmploiController {
         User currentUser = currentUserService.getCurrentUser();
         return ResponseEntity.ok(candidatureService.getCandidaturesParOffre(id, currentUser));
     }
+
+    @GetMapping("/mes-candidatures")
+    public ResponseEntity<List<CandidatureResponse>> getMesCandidatures() {
+        User currentUser = currentUserService.getCurrentUser();
+        return ResponseEntity.ok(candidatureService.getMesCandidatures(currentUser));
+    }
+
+    @GetMapping("/{id}/ma-candidature")
+    public ResponseEntity<CandidatureResponse> getMaCandidature(@PathVariable Long id) {
+        User currentUser = currentUserService.getCurrentUser();
+        CandidatureResponse res = candidatureService.getMaCandidatureParOffre(id, currentUser);
+        if (res == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(res);
+    }
 }

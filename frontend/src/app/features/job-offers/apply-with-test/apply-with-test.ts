@@ -15,7 +15,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { JobOfferService } from '../../../core/services/job-offer.service';
 import { TechAssessmentService } from '../../../core/services/tech-assessment.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { OffreEmploi } from '../../../core/models/job-offer.model';
+import { Candidature, OffreEmploi } from '../../../core/models/job-offer.model';
 import {
   CompetenceManquante,
   EvaluationResult,
@@ -64,6 +64,7 @@ export class ApplyWithTest implements OnInit {
   protected readonly evaluationResult = signal<EvaluationResult | null>(null);
   protected readonly roadmapResult = signal<RoadmapResult | null>(null);
   protected readonly applicationSent = signal(false);
+  protected readonly existingCandidature = signal<Candidature | null>(null);
 
   protected answers: Record<string, string> = {};
   protected exerciseCode = '';
@@ -91,10 +92,55 @@ export class ApplyWithTest implements OnInit {
           .map((s) => s.trim())
           .filter((s) => s.length > 0)
           .map((s) => ({ skill: s, level: 'intermédiaire' as const }));
-        this.loading.set(false);
+
+        // Vérifier si le candidat a déjà postulé à cette offre
+        this.checkExistingCandidature();
       },
       error: () => {
         this.errorMessage.set('Impossible de charger les détails de l\'offre.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  private checkExistingCandidature(): void {
+    this.jobOfferService.getMaCandidature(this.offreId).subscribe({
+      next: (cand) => {
+        if (cand) {
+          // Candidature déjà enregistrée : on reconstitue l'évaluation et on bascule direct sur 'result'
+          this.existingCandidature.set(cand);
+          this.applicationSent.set(true);
+
+          let parsedForts: string[] = [];
+          let parsedFaibles: string[] = [];
+          try {
+            parsedForts = cand.pointsForts ? JSON.parse(cand.pointsForts) : [];
+          } catch {
+            parsedForts = cand.pointsForts ? [cand.pointsForts] : [];
+          }
+          try {
+            parsedFaibles = cand.pointsFaibles ? JSON.parse(cand.pointsFaibles) : [];
+          } catch {
+            parsedFaibles = cand.pointsFaibles ? [cand.pointsFaibles] : [];
+          }
+
+          const reco = (cand.recommandationIa as any) || 'VALIDER';
+          this.evaluationResult.set({
+            score: cand.scoreIa ?? 0,
+            score_questions: Math.round((cand.scoreIa ?? 0) * 0.4),
+            score_exercice: Math.round((cand.scoreIa ?? 0) * 0.6),
+            recommandation: reco,
+            points_forts: parsedForts,
+            points_faibles: parsedFaibles,
+            feedback: cand.feedbackIa || 'Votre test a été évalué avec succès.',
+          });
+
+          // Basculer automatiquement sur la vue résultat
+          this.currentStep.set('result');
+        }
+        this.loading.set(false);
+      },
+      error: () => {
         this.loading.set(false);
       },
     });

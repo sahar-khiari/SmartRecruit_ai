@@ -80,4 +80,18 @@ export class JobOfferService {
   getCandidatures(offreId: number): Observable<Candidature[]> {
     return this.http.get<Candidature[]>(`${this.baseUrl}/${offreId}/candidatures`);
   }
+
+  /**
+   * Récupère la candidature du candidat connecté pour une offre donnée (s'il a déjà postulé).
+   */
+  getMaCandidature(offreId: number): Observable<Candidature | null> {
+    return this.http.get<Candidature | null>(`${this.baseUrl}/${offreId}/ma-candidature`);
+  }
+
+  /**
+   * Récupère toutes les candidatures du candidat connecté.
+   */
+  getMesCandidatures(): Observable<Candidature[]> {
+    return this.http.get<Candidature[]>(`${this.baseUrl}/mes-candidatures`);
+  }
 }

@@ -8,7 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { JobOfferService } from '../../../core/services/job-offer.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { OffreEmploi, PagedResponse } from '../../../core/models/job-offer.model';
+import { Candidature, OffreEmploi, PagedResponse } from '../../../core/models/job-offer.model';
 
 @Component({
   selector: 'app-job-offer-list',
@@ -32,6 +32,7 @@ export class JobOfferList implements OnInit {
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly offres = signal<OffreEmploi[]>([]);
+  protected readonly candidaturesMap = signal<Record<number, Candidature>>({});
   protected readonly currentPage = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly totalElements = signal(0);
@@ -47,6 +48,19 @@ export class JobOfferList implements OnInit {
     this.loading.set(true);
     this.errorMessage.set(null);
 
+    if (this.isCandidate) {
+      this.jobOfferService.getMesCandidatures().subscribe({
+        next: (cands: Candidature[]) => {
+          const map: Record<number, Candidature> = {};
+          for (const cand of cands) {
+            map[cand.offreId] = cand;
+          }
+          this.candidaturesMap.set(map);
+        },
+        error: () => {},
+      });
+    }
+
     this.jobOfferService.getOffres(this.currentPage(), this.pageSize).subscribe({
       next: (response: PagedResponse<OffreEmploi>) => {
         this.offres.set(response.content);
@@ -59,6 +73,10 @@ export class JobOfferList implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  protected getCandidatureForOffer(offreId: number): Candidature | undefined {
+    return this.candidaturesMap()[offreId];
   }
 
   protected previousPage(): void {

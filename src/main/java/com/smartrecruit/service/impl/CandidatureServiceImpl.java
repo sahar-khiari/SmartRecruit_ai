@@ -83,6 +83,14 @@ public class CandidatureServiceImpl implements CandidatureService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public CandidatureResponse getMaCandidatureParOffre(Long offreId, User candidat) {
+        return candidatureRepository.findByOffreIdAndCandidatId(offreId, candidat.getId())
+                .map(this::toResponse)
+                .orElse(null);
+    }
+
+    @Override
     @Transactional
     public CandidatureResponse updateStatut(Long candidatureId, CandidatureStatut statut, User currentUser) {
         Candidature candidature = candidatureRepository.findById(candidatureId)

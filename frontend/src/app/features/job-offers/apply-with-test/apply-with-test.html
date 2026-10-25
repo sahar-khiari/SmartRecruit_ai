@@ -200,8 +200,17 @@
   @if (currentStep() === 'result' && evaluationResult() && !loading()) {
     <div class="step-content result-step">
       <header class="page-header">
-        <h1>Résultats de l'évaluation IA</h1>
-        <p class="subtitle">Votre test a été corrigé automatiquement. Envoyez votre candidature !</p>
+        @if (existingCandidature()) {
+          <div class="badge-module" style="background: #dcfce7; color: #15803d;">
+            <mat-icon>check_circle</mat-icon>
+            <span>Candidature déjà soumise</span>
+          </div>
+          <h1>Vos résultats &amp; Feuille de route pour cette offre</h1>
+          <p class="subtitle">Vous avez déjà passé le test technique IA pour cette offre. Retrouvez votre score et continuez votre apprentissage sur 8 semaines.</p>
+        } @else {
+          <h1>Résultats de l'évaluation IA</h1>
+          <p class="subtitle">Votre test a été corrigé automatiquement. Envoyez votre candidature !</p>
+        }
       </header>
 
       <mat-card class="result-summary-card">
