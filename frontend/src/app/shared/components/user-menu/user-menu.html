@@ -1,0 +1,42 @@
+<button
+  type="button"
+  class="user-menu__trigger"
+  [class.user-menu__trigger--compact]="compact()"
+  [matMenuTriggerFor]="userMenu"
+  aria-label="Menu du compte"
+  aria-haspopup="menu"
+>
+  <span class="user-menu__avatar" aria-hidden="true">{{ initials() }}</span>
+  @if (!compact()) {
+    <span class="user-menu__text">
+      <span class="user-menu__name">{{ authService.displayName() }}</span>
+      <span class="user-menu__role">{{ authService.currentUser()?.role | roleLabel }}</span>
+    </span>
+    <mat-icon class="user-menu__chevron" aria-hidden="true">expand_more</mat-icon>
+  }
+</button>
+
+<mat-menu #userMenu="matMenu" [xPosition]="menuPosition()">
+  <div class="user-menu__identity" aria-hidden="true">
+    <span class="user-menu__identity-name">{{ authService.displayName() }}</span>
+    <span class="user-menu__identity-email">{{ authService.currentUser()?.email }}</span>
+  </div>
+  <mat-divider />
+  <a mat-menu-item [routerLink]="profilePath()">
+    <mat-icon>person</mat-icon>
+    <span>Mon profil</span>
+  </a>
+  <a mat-menu-item [routerLink]="editPath()">
+    <mat-icon>edit</mat-icon>
+    <span>Modifier mon profil</span>
+  </a>
+  <a mat-menu-item [routerLink]="passwordPath()">
+    <mat-icon>key</mat-icon>
+    <span>Changer le mot de passe</span>
+  </a>
+  <mat-divider />
+  <button mat-menu-item type="button" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    <span>Déconnexion</span>
+  </button>
+</mat-menu>

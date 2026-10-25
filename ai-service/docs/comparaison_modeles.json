@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-20 12:52",
+  "auteur": "Aziz",
+  "module": "Module 4 - Tests techniques",
+  "prompt_utilisateur_chars": 620,
+  "resultats": [
+    {
+      "modele": "gpt-oss-20b",
+      "id_modele": "openai/gpt-oss-20b",
+      "latence_ms": 1177,
+      "tokens_prompt": 294,
+      "tokens_completion": 544,
+      "tokens_total": 838,
+      "json_valide": true,
+      "questions_valides": 5,
+      "questions_total": 5,
+      "taux_conformite_pct": 100
+    },
+    {
+      "modele": "gpt-oss-120b",
+      "id_modele": "openai/gpt-oss-120b",
+      "latence_ms": 2138,
+      "tokens_prompt": 294,
+      "tokens_completion": 703,
+      "tokens_total": 997,
+      "json_valide": true,
+      "questions_valides": 5,
+      "questions_total": 5,
+      "taux_conformite_pct": 100
+    }
+  ]
+}

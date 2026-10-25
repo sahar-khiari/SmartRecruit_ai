@@ -1,0 +1,119 @@
+<div class="page">
+  <app-page-header
+    title="Modifier mon profil"
+    subtitle="Mettez à jour votre prénom, votre nom ou votre adresse email."
+  >
+    <a mat-stroked-button [routerLink]="profilePath()">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Retour au profil
+    </a>
+  </app-page-header>
+
+  <section class="surface-card form-card">
+    @if (loading()) {
+      <p class="form-card__loading">Chargement de vos informations…</p>
+    }
+
+    @if (errorMessage()) {
+      <div class="form-banner form-banner--error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="form-grid">
+        <mat-form-field>
+          <mat-label>Prénom</mat-label>
+          <mat-icon matPrefix aria-hidden="true">badge</mat-icon>
+          <input
+            matInput
+            type="text"
+            formControlName="firstName"
+            autocomplete="given-name"
+            aria-required="true"
+          />
+          @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+            <mat-error>Le prénom est obligatoire.</mat-error>
+          } @else if (
+            form.controls.firstName.touched && form.controls.firstName.hasError('pattern')
+          ) {
+            <mat-error>Le prénom ne peut pas contenir uniquement des espaces.</mat-error>
+          } @else if (
+            form.controls.firstName.touched && form.controls.firstName.hasError('maxlength')
+          ) {
+            <mat-error>Le prénom est trop long.</mat-error>
+          } @else if (
+            form.controls.firstName.touched && form.controls.firstName.hasError('server')
+          ) {
+            <mat-error>{{ form.controls.firstName.getError('server') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Nom</mat-label>
+          <mat-icon matPrefix aria-hidden="true">badge</mat-icon>
+          <input
+            matInput
+            type="text"
+            formControlName="lastName"
+            autocomplete="family-name"
+            aria-required="true"
+          />
+          @if (form.controls.lastName.touched && form.controls.lastName.hasError('required')) {
+            <mat-error>Le nom est obligatoire.</mat-error>
+          } @else if (form.controls.lastName.touched && form.controls.lastName.hasError('pattern')) {
+            <mat-error>Le nom ne peut pas contenir uniquement des espaces.</mat-error>
+          } @else if (
+            form.controls.lastName.touched && form.controls.lastName.hasError('maxlength')
+          ) {
+            <mat-error>Le nom est trop long.</mat-error>
+          } @else if (form.controls.lastName.touched && form.controls.lastName.hasError('server')) {
+            <mat-error>{{ form.controls.lastName.getError('server') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="form-field--full">
+          <mat-label>Adresse email</mat-label>
+          <mat-icon matPrefix aria-hidden="true">mail_outline</mat-icon>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            aria-required="true"
+          />
+          @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+            <mat-error>L’adresse email est obligatoire.</mat-error>
+          } @else if (form.controls.email.touched && form.controls.email.hasError('email')) {
+            <mat-error>Le format de l’adresse email est invalide.</mat-error>
+          } @else if (form.controls.email.touched && form.controls.email.hasError('maxlength')) {
+            <mat-error>L’adresse email est trop longue.</mat-error>
+          } @else if (form.controls.email.touched && form.controls.email.hasError('server')) {
+            <mat-error>{{ form.controls.email.getError('server') }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <p class="field-hint">
+        L’adresse email sert d’identifiant de connexion. Elle doit rester unique.
+      </p>
+
+      <div class="form-actions">
+        <button mat-flat-button type="submit" [disabled]="saving() || loading()">
+          @if (saving()) {
+            <mat-progress-spinner
+              diameter="18"
+              mode="indeterminate"
+              aria-label="Enregistrement en cours"
+            />
+            Enregistrement…
+          } @else {
+            Enregistrer les modifications
+          }
+        </button>
+        <a mat-button [routerLink]="profilePath()">Annuler</a>
+      </div>
+    </form>
+  </section>
+</div>

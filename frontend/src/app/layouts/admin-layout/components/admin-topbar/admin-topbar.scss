@@ -1,0 +1,64 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: v.$topbar-height;
+  padding: 0 24px;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid v.$color-border;
+  backdrop-filter: blur(10px);
+  box-shadow: none;
+  color: v.$color-text;
+}
+
+.topbar__menu {
+  margin-right: 8px;
+  color: v.$color-text-muted;
+}
+
+.topbar__heading {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.topbar__context {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: v.$color-secondary-strong;
+}
+
+.topbar__title {
+  font-size: 1.12rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar__spacer {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 719.98px) {
+  .topbar {
+    padding: 0 12px;
+  }
+
+  .topbar__context {
+    display: none;
+  }
+
+  .topbar__title {
+    font-size: 1rem;
+  }
+}

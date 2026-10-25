@@ -1,0 +1,91 @@
+<header class="fo-topbar">
+  <div class="fo-topbar__inner">
+    <a
+      [routerLink]="homePath()"
+      class="fo-brand"
+      aria-label="SmartRecruit AI, accueil de mon espace"
+    >
+      <span class="fo-brand__mark" aria-hidden="true">
+        <mat-icon>work</mat-icon>
+      </span>
+      <span class="fo-brand__name">SmartRecruit <strong>AI</strong></span>
+    </a>
+
+    <nav class="fo-nav" aria-label="Navigation principale du front-office">
+      @for (item of navItems(); track item.label) {
+        @if (item.path) {
+          <a
+            class="fo-nav__link"
+            [routerLink]="item.path"
+            routerLinkActive="fo-nav__link--active"
+            [routerLinkActiveOptions]="{ exact: item.path !== '/app/profile' }"
+          >
+            <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        } @else {
+          <span class="fo-nav__link fo-nav__link--soon" aria-disabled="true">
+            <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+            <span class="fo-nav__soon">Bientôt</span>
+          </span>
+        }
+      }
+    </nav>
+
+    <div class="fo-topbar__actions">
+      <app-user-menu class="fo-topbar__user" />
+      <button
+        mat-icon-button
+        type="button"
+        class="fo-topbar__menu-button"
+        [matMenuTriggerFor]="mobileMenu"
+        #mobileMenuTrigger="matMenuTrigger"
+        aria-label="Ouvrir le menu de navigation"
+        aria-haspopup="menu"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+  </div>
+</header>
+
+<mat-menu #mobileMenu="matMenu" class="fo-mobile-menu" xPosition="before">
+  @if (authService.currentUser(); as user) {
+    <div class="fo-mobile-menu__identity" aria-hidden="true">
+      <span class="fo-mobile-menu__avatar">
+        {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+      </span>
+      <span>
+        <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+        <small>{{ user.role | roleLabel }}</small>
+      </span>
+    </div>
+    <mat-divider />
+  }
+
+  @for (item of navItems(); track item.label) {
+    @if (item.path) {
+      <a
+        mat-menu-item
+        [routerLink]="item.path"
+        (click)="mobileMenuTrigger.closeMenu()"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+      </a>
+    } @else {
+      <button mat-menu-item type="button" disabled>
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+        <span class="fo-mobile-menu__soon">Bientôt</span>
+      </button>
+    }
+  }
+
+  <mat-divider />
+  <button mat-menu-item type="button" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    <span>Déconnexion</span>
+  </button>
+</mat-menu>

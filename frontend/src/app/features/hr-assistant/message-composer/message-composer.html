@@ -1,0 +1,47 @@
+<form class="composer" (submit)="$event.preventDefault(); submit()">
+  <mat-form-field appearance="outline" class="composer__field">
+    <mat-label>Votre message</mat-label>
+    <textarea
+      matInput
+      rows="2"
+      [formControl]="control"
+      [attr.maxlength]="maxLength"
+      [attr.aria-describedby]="'message-help'"
+      (keydown)="onKeydown($event)"
+      placeholder="Posez votre question à l'Assistant RH…"
+    ></textarea>
+    <mat-hint id="message-help" align="start">
+      Ctrl + Entrée pour envoyer · {{ characterCount }}/{{ maxLength }}
+    </mat-hint>
+    @if (control.hasError('required') && control.touched) {
+      <mat-error>Le message ne peut pas être vide.</mat-error>
+    } @else if (control.hasError('maxlength')) {
+      <mat-error>Le message ne doit pas dépasser {{ maxLength }} caractères.</mat-error>
+    }
+  </mat-form-field>
+
+  <button
+    mat-flat-button
+    type="submit"
+    class="composer__send"
+    [disabled]="disabled() || sending() || control.invalid"
+    [attr.aria-label]="sending() ? 'Envoi du message en cours' : 'Envoyer le message'"
+  >
+    @if (sending()) {
+      <mat-progress-spinner
+        diameter="18"
+        mode="indeterminate"
+        aria-hidden="true"
+      />
+    }
+    <mat-icon aria-hidden="true">send</mat-icon>
+    <span>{{ sending() ? 'Envoi…' : 'Envoyer' }}</span>
+  </button>
+</form>
+
+@if (disabled()) {
+  <p class="composer__notice" role="status">
+    <mat-icon aria-hidden="true">info</mat-icon>
+    Créez ou sélectionnez une conversation pour écrire un message.
+  </p>
+}

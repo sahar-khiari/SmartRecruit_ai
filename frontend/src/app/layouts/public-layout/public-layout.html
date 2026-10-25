@@ -1,0 +1,41 @@
+<app-public-navbar />
+
+<main class="public-main">
+  <router-outlet />
+</main>
+
+<footer class="public-footer">
+  <div class="container public-footer__grid">
+    <div class="public-footer__brand">
+      <a routerLink="/" class="footer-brand">
+        <span class="footer-brand__mark" aria-hidden="true">
+          <mat-icon>work</mat-icon>
+        </span>
+        <span>SmartRecruit <strong>AI</strong></span>
+      </a>
+      <p>
+        Plateforme intelligente de recrutement pensée pour connecter les talents,
+        les recruteurs et les équipes RH.
+      </p>
+    </div>
+
+    <nav class="public-footer__links" aria-label="Liens du pied de page">
+      <p class="public-footer__title">Navigation</p>
+      <a routerLink="/">Accueil</a>
+      <a routerLink="/login">Se connecter</a>
+      <a routerLink="/signup">Créer un compte</a>
+    </nav>
+
+    <div class="public-footer__project">
+      <p class="public-footer__title">Projet</p>
+      <p>SmartRecruit AI</p>
+      <p>Module commun User / Auth</p>
+      <p class="public-footer__note">Projet universitaire — {{ currentYear }}</p>
+    </div>
+  </div>
+
+  <div class="container public-footer__bottom">
+    <span>© {{ currentYear }} SmartRecruit AI. Tous droits réservés.</span>
+    <span>Projet universitaire · Frontend Angular</span>
+  </div>
+</footer>

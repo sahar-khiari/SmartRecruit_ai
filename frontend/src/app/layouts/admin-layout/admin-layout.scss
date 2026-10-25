@@ -1,0 +1,40 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.shell {
+  height: 100vh;
+  background: v.$color-bg;
+}
+
+.shell__sidenav {
+  width: v.$sidebar-width;
+  border: none;
+  transition: width v.$transition-base;
+  overflow: hidden;
+}
+
+.shell__sidenav--collapsed {
+  width: v.$sidebar-collapsed-width;
+}
+
+.shell__content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: v.$color-bg;
+}
+
+.shell__main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 959.98px) {
+  .shell__sidenav {
+    width: v.$sidebar-width;
+  }
+}

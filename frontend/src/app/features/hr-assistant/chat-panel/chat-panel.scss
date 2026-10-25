@@ -1,0 +1,141 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-sm;
+  overflow: hidden;
+}
+
+.chat--empty {
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+}
+
+.chat__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-bottom: 1px solid v.$color-border;
+}
+
+.chat__back {
+  display: none;
+  flex: 0 0 auto;
+}
+
+.chat__heading {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.chat__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+}
+
+.chat__meta {
+  color: v.$color-text-subtle;
+  font-size: 0.72rem;
+}
+
+.chat__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.chat__actions button {
+  color: v.$color-text-muted;
+}
+
+.chat__actions .chat__delete {
+  color: v.$color-danger;
+}
+
+.chat__banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 16px 0;
+  padding: 9px 11px;
+  border-radius: v.$radius-sm;
+  background: v.$color-danger-soft;
+  color: #7f1d1d;
+  font-size: 0.78rem;
+}
+
+.chat__banner mat-icon {
+  flex: 0 0 auto;
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.chat__messages {
+  flex: 1 1 auto;
+  min-height: 120px;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.chat__typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 9px 12px;
+  border-radius: v.$radius-sm;
+  background: v.$color-surface-muted;
+  border: 1px solid v.$color-border;
+  color: v.$color-text-muted;
+  font-size: 0.8rem;
+}
+
+.chat__typing mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+  color: v.$color-secondary-strong;
+}
+
+.chat__composer {
+  border-top: 1px solid v.$color-border;
+  padding: 12px 16px 10px;
+  background: v.$color-surface;
+}
+
+@media (max-width: 899.98px) {
+  .chat__back {
+    display: inline-flex;
+  }
+
+  .chat__messages {
+    padding: 12px;
+  }
+
+  .chat__composer {
+    padding: 10px 12px 8px;
+  }
+
+  .chat__banner {
+    margin-inline: 12px;
+  }
+}

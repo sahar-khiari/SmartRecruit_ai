@@ -1,0 +1,101 @@
+@use 'variables' as v;
+
+:host {
+  display: inline-flex;
+}
+
+.user-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 5px 10px;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-pill;
+  background: v.$color-surface;
+  color: v.$color-text;
+  cursor: pointer;
+  transition: border-color v.$transition-fast, box-shadow v.$transition-fast;
+}
+
+.user-menu__trigger:hover {
+  border-color: v.$color-border-strong;
+  box-shadow: v.$shadow-sm;
+}
+
+.user-menu__trigger--compact {
+  padding: 3px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.user-menu__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: v.$color-primary-soft;
+  color: v.$color-primary;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.user-menu__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+  max-width: 170px;
+}
+
+.user-menu__name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu__role {
+  font-size: 0.74rem;
+  color: v.$color-text-muted;
+}
+
+.user-menu__chevron {
+  color: v.$color-text-subtle;
+}
+
+.user-menu__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px 10px;
+  max-width: 260px;
+}
+
+.user-menu__identity-name {
+  font-weight: 700;
+  color: v.$color-text;
+}
+
+.user-menu__identity-email {
+  font-size: 0.8rem;
+  color: v.$color-text-muted;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 719.98px) {
+  .user-menu__text,
+  .user-menu__chevron {
+    display: none;
+  }
+
+  .user-menu__trigger {
+    padding: 3px;
+    border-color: transparent;
+  }
+}

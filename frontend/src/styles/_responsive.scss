@@ -1,0 +1,20 @@
+@use 'variables' as v;
+
+// Ajustements responsive globaux (les composants gèrent leurs propres points de rupture)
+@media (max-width: 959.98px) {
+  .container {
+    width: min(100% - 32px, v.$container-max);
+  }
+
+  .page {
+    width: min(100% - 32px, 1240px);
+    padding-top: 24px;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .container,
+  .page {
+    width: min(100% - 24px, v.$container-max);
+  }
+}

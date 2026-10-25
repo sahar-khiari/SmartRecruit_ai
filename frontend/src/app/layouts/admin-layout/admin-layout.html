@@ -1,0 +1,23 @@
+<mat-sidenav-container class="shell" autosize="false">
+  <mat-sidenav
+    class="shell__sidenav"
+    [class.shell__sidenav--collapsed]="sideCollapsed()"
+    [mode]="sidenavMode()"
+    [opened]="sidenavOpened()"
+    [fixedInViewport]="isMobile()"
+    (closedStart)="mobileOpen.set(false)"
+    aria-label="Navigation du back-office administrateur"
+  >
+    <app-admin-sidebar
+      [collapsed]="sideCollapsed() && !isMobile()"
+      (navigated)="onNavigated()"
+    />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell__content">
+    <app-admin-topbar [pageTitle]="pageTitle()" (menuToggle)="toggleSidenav()" />
+    <main class="shell__main">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

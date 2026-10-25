@@ -1,0 +1,38 @@
+@use 'variables' as v;
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.page-header__title {
+  font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+  margin-bottom: 6px;
+}
+
+.page-header__subtitle {
+  color: v.$color-text-muted;
+  max-width: 720px;
+  font-size: 0.96rem;
+}
+
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 719.98px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header__actions {
+    justify-content: flex-start;
+  }
+}

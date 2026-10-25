@@ -1,0 +1,135 @@
+<div class="fo-home">
+  <section class="fo-hero">
+    <div class="fo-hero__content">
+      <p class="fo-hero__eyebrow">Espace candidat</p>
+      <h1 class="fo-hero__title">Bienvenue, {{ firstName() }}</h1>
+      <p class="fo-hero__text">
+        Gérez votre profil, suivez vos candidatures et préparez vos entretiens.
+      </p>
+
+      <div class="fo-hero__meta">
+        <span class="fo-hero__badge">
+          <mat-icon aria-hidden="true">badge</mat-icon>
+          {{ authService.currentUser()?.role | roleLabel }}
+        </span>
+        @if (authService.currentUser()?.enabled) {
+          <span class="fo-hero__badge fo-hero__badge--success">
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            Compte actif
+          </span>
+        } @else {
+          <span class="fo-hero__badge fo-hero__badge--danger">
+            <mat-icon aria-hidden="true">block</mat-icon>
+            Compte désactivé
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="fo-hero__avatar" aria-hidden="true">{{ initials() }}</div>
+  </section>
+
+  <section class="fo-section" aria-labelledby="candidate-shortcuts-title">
+    <header class="fo-section__head">
+      <div>
+        <h2 id="candidate-shortcuts-title" class="fo-section__title">Vos raccourcis</h2>
+        <p class="fo-section__subtitle">
+          Les modules métier seront disponibles progressivement dans votre espace.
+        </p>
+      </div>
+      <span class="fo-section__tag">Portail candidat</span>
+    </header>
+
+    <div class="fo-shortcuts">
+      @for (shortcut of shortcuts; track shortcut.title) {
+        @if (shortcut.path) {
+          <a class="fo-shortcut fo-shortcut--link" [routerLink]="shortcut.path">
+            <div class="fo-shortcut__top">
+              <span class="fo-shortcut__icon" aria-hidden="true">
+                <mat-icon>{{ shortcut.icon }}</mat-icon>
+              </span>
+              <span class="fo-shortcut__available">Disponible</span>
+            </div>
+            <h3 class="fo-shortcut__title">{{ shortcut.title }}</h3>
+            <p class="fo-shortcut__text">{{ shortcut.description }}</p>
+          </a>
+        } @else {
+          <article class="fo-shortcut fo-shortcut--soon" aria-disabled="true">
+            <div class="fo-shortcut__top">
+              <span class="fo-shortcut__icon" aria-hidden="true">
+                <mat-icon>{{ shortcut.icon }}</mat-icon>
+              </span>
+              <span class="fo-shortcut__soon">Bientôt disponible</span>
+            </div>
+            <h3 class="fo-shortcut__title">{{ shortcut.title }}</h3>
+            <p class="fo-shortcut__text">{{ shortcut.description }}</p>
+          </article>
+        }
+      }
+    </div>
+  </section>
+
+  <div class="fo-lower-grid">
+    <section class="fo-profile" aria-labelledby="candidate-profile-title">
+      <header class="fo-profile__head">
+        <span class="fo-profile__avatar" aria-hidden="true">{{ initials() }}</span>
+        <div>
+          <h2 id="candidate-profile-title" class="fo-profile__name">
+            {{ authService.displayName() }}
+          </h2>
+          <p class="fo-profile__email">{{ authService.currentUser()?.email }}</p>
+        </div>
+      </header>
+
+      <dl class="fo-profile__details">
+        <div>
+          <dt>Rôle</dt>
+          <dd>{{ authService.currentUser()?.role | roleLabel }}</dd>
+        </div>
+        <div>
+          <dt>Statut du compte</dt>
+          <dd>
+            @if (authService.currentUser()?.enabled) {
+              <span class="badge badge--success">
+                <mat-icon aria-hidden="true">check_circle</mat-icon>
+                Actif
+              </span>
+            } @else {
+              <span class="badge badge--danger">
+                <mat-icon aria-hidden="true">block</mat-icon>
+                Désactivé
+              </span>
+            }
+          </dd>
+        </div>
+      </dl>
+
+      <a mat-flat-button routerLink="/app/profile">
+        <mat-icon aria-hidden="true">person</mat-icon>
+        Voir mon profil
+      </a>
+    </section>
+
+    <section class="fo-info" aria-labelledby="candidate-info-title">
+      <span class="fo-info__icon" aria-hidden="true">
+        <mat-icon>hourglass_top</mat-icon>
+      </span>
+      <div>
+        <h2 id="candidate-info-title" class="fo-info__title">
+          Fonctionnalités bientôt disponibles
+        </h2>
+        <p class="fo-info__text">
+          La consultation des offres, le suivi des candidatures et les entretiens
+          seront ajoutés dans une prochaine version. L’Assistant RH est déjà
+          accessible. Votre profil et la gestion de votre compte restent pleinement
+          accessibles.
+        </p>
+        <ul class="fo-info__list">
+          <li><mat-icon aria-hidden="true">check</mat-icon> Profil consultable et modifiable</li>
+          <li><mat-icon aria-hidden="true">check</mat-icon> Mot de passe sécurisé</li>
+          <li><mat-icon aria-hidden="true">check</mat-icon> Session protégée par JWT</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>

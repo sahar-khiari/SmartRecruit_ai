@@ -1,0 +1,96 @@
+// ============================================================
+// Thème Angular Material 3 personnalisé (SmartRecruit AI)
+// Documentation : mat.theme + tokens système M3
+// ============================================================
+@use '@angular/material' as mat;
+@use 'variables' as v;
+
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$azure-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+      typography: (
+        plain-family: v.$font-family,
+        brand-family: v.$font-family,
+        bold-weight: 700,
+        medium-weight: 600,
+        regular-weight: 400,
+      ),
+      density: 0,
+    )
+  );
+
+  // Surcharges de marque appliquées aux tokens Material
+  @include mat.theme-overrides(
+    (
+      primary: v.$color-primary,
+      on-primary: v.$color-primary-contrast,
+      primary-container: v.$color-primary-soft,
+      on-primary-container: v.$color-primary-strong,
+      secondary: v.$color-secondary,
+      on-secondary: #ffffff,
+      secondary-container: v.$color-secondary-soft,
+      on-secondary-container: v.$color-secondary-strong,
+      tertiary: v.$color-secondary,
+      on-tertiary: #ffffff,
+      tertiary-container: v.$color-secondary-soft,
+      on-tertiary-container: v.$color-secondary-strong,
+      surface: v.$color-surface,
+      surface-container-lowest: v.$color-surface,
+      surface-container-low: v.$color-surface,
+      surface-container: v.$color-surface-muted,
+      surface-container-high: #f1f5f9,
+      on-surface: v.$color-text,
+      on-surface-variant: v.$color-text-muted,
+      outline: v.$color-border-strong,
+      outline-variant: v.$color-border,
+      error: v.$color-danger,
+      on-error: #ffffff,
+      error-container: v.$color-danger-soft,
+      on-error-container: #7f1d1d,
+      corner-small: 8px,
+      corner-medium: 12px,
+      corner-large: 18px,
+      corner-extra-large: 24px,
+    )
+  );
+}
+
+// Composants Material : formes et densité cohérentes avec la charte
+.mat-mdc-card {
+  border-radius: v.$radius-lg;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  border-radius: 10px;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.mat-mdc-snack-bar-container.snackbar-error .mdc-snackbar__surface {
+  background: #7f1d1d;
+  color: #ffffff;
+}
+
+.mat-mdc-snack-bar-container.snackbar-success .mdc-snackbar__surface {
+  background: #065f46;
+  color: #ffffff;
+}
+
+.mat-mdc-snack-bar-container.snackbar-info .mdc-snackbar__surface {
+  background: v.$color-primary-strong;
+  color: #ffffff;
+}

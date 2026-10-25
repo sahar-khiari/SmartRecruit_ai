@@ -1,0 +1,96 @@
+@use 'variables' as v;
+
+.public-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid v.$color-border;
+}
+
+.public-navbar__inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 72px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: v.$color-primary-strong;
+  font-weight: 700;
+  font-size: 1.08rem;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brand__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, v.$color-primary, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 6px 14px -6px rgba(30, 58, 138, 0.65);
+}
+
+.brand__mark mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.brand__name strong {
+  color: v.$color-secondary-strong;
+}
+
+.public-navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: 16px;
+}
+
+.public-navbar__links a {
+  color: v.$color-text-muted;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 6px 0;
+}
+
+.public-navbar__links a:hover {
+  color: v.$color-primary;
+  text-decoration: none;
+}
+
+.public-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.public-navbar__menu-button {
+  display: none;
+  margin-left: auto;
+}
+
+@media (max-width: 899.98px) {
+  .public-navbar__links,
+  .public-navbar__actions {
+    display: none;
+  }
+
+  .public-navbar__menu-button {
+    display: inline-flex;
+  }
+}

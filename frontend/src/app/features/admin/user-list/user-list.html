@@ -1,0 +1,225 @@
+<div class="page">
+  <app-page-header
+    title="Gestion des utilisateurs"
+    subtitle="Consultez les comptes, modifiez les rôles et gérez l’activation ou la suppression."
+  >
+    <button mat-stroked-button type="button" (click)="loadUsers()" [disabled]="loading()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>
+      Actualiser
+    </button>
+  </app-page-header>
+
+  <section class="surface-card table-card">
+    <div class="table-card__head">
+      <div>
+        <h2 class="table-card__title">Comptes utilisateurs</h2>
+        <p class="table-card__subtitle">
+          {{ totalElements() }} compte{{ totalElements() > 1 ? 's' : '' }} enregistré{{
+            totalElements() > 1 ? 's' : ''
+          }}
+        </p>
+      </div>
+      <span class="table-card__hint">Tri et pagination côté backend</span>
+    </div>
+
+    @if (loading() && users().length > 0) {
+      <mat-progress-bar mode="indeterminate" aria-label="Actualisation des utilisateurs" />
+    }
+
+    @if (loading() && users().length === 0) {
+      <app-loading-spinner message="Chargement des utilisateurs…" />
+    } @else if (errorMessage() && users().length === 0) {
+      <app-empty-state
+        icon="cloud_off"
+        title="Chargement impossible"
+        [message]="errorMessage() ?? ''"
+      >
+        <button mat-flat-button type="button" (click)="loadUsers()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          Réessayer
+        </button>
+      </app-empty-state>
+    } @else if (users().length === 0) {
+      <app-empty-state
+        icon="group_off"
+        title="Aucun utilisateur"
+        message="Aucun compte utilisateur n’est disponible pour le moment."
+      >
+        <button mat-stroked-button type="button" (click)="loadUsers()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          Actualiser
+        </button>
+      </app-empty-state>
+    } @else {
+      @if (errorMessage()) {
+        <div class="table-card__banner">
+          <div class="form-banner form-banner--error" role="alert">
+            <mat-icon aria-hidden="true">error_outline</mat-icon>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="table-scroll">
+        <table
+          mat-table
+          [dataSource]="users()"
+          matSort
+          [matSortActive]="sortActive()"
+          [matSortDirection]="sortDirection()"
+          matSortDisableClear
+          (matSortChange)="onSort($event)"
+          class="users-table"
+          aria-label="Liste des utilisateurs"
+        >
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="id">ID</th>
+            <td mat-cell *matCellDef="let user" class="id-cell">#{{ user.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="firstName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="firstName">Prénom</th>
+            <td mat-cell *matCellDef="let user">{{ user.firstName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="lastName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="lastName">Nom</th>
+            <td mat-cell *matCellDef="let user">{{ user.lastName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="email">Email</th>
+            <td mat-cell *matCellDef="let user" class="email-cell">{{ user.email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="role">Rôle</th>
+            <td mat-cell *matCellDef="let user">
+              <mat-form-field
+                appearance="outline"
+                class="role-field"
+                subscriptSizing="dynamic"
+              >
+                <mat-select
+                  #roleSelect="matSelect"
+                  [value]="user.role"
+                  [disabled]="isSelf(user) || busyUserId() === user.id"
+                  (selectionChange)="changeRole(user, $event, roleSelect)"
+                  [attr.aria-label]="
+                    'Rôle actuel : ' + (user.role | roleLabel) + ' pour ' + user.firstName + ' ' + user.lastName
+                  "
+                >
+                  @for (role of roleOptions; track role.value) {
+                    <mat-option [value]="role.value">{{ role.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="enabled">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="enabled">Statut</th>
+            <td mat-cell *matCellDef="let user">
+              @if (user.enabled) {
+                <span class="badge badge--success">
+                  <mat-icon aria-hidden="true">check_circle</mat-icon>
+                  Actif
+                </span>
+              } @else {
+                <span class="badge badge--danger">
+                  <mat-icon aria-hidden="true">block</mat-icon>
+                  Désactivé
+                </span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="createdAt">Créé le</th>
+            <td mat-cell *matCellDef="let user" class="date-cell">
+              @if (user.createdAt) {
+                {{ user.createdAt | date: 'dd/MM/yyyy' }}
+              } @else {
+                —
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="actions-head">Actions</th>
+            <td mat-cell *matCellDef="let user">
+              <div class="row-actions">
+                <a
+                  mat-icon-button
+                  [routerLink]="['/admin/users', user.id]"
+                  [matTooltip]="'Consulter ' + user.firstName + ' ' + user.lastName"
+                  [attr.aria-label]="
+                    'Consulter le compte de ' + user.firstName + ' ' + user.lastName
+                  "
+                >
+                  <mat-icon>visibility</mat-icon>
+                </a>
+
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="toggleStatus(user)"
+                  [disabled]="isSelf(user) || busyUserId() === user.id"
+                  [matTooltip]="
+                    isSelf(user)
+                      ? 'Votre propre compte ne peut pas être désactivé'
+                      : user.enabled
+                        ? 'Désactiver le compte'
+                        : 'Activer le compte'
+                  "
+                  [attr.aria-label]="
+                    isSelf(user)
+                      ? 'Désactivation impossible pour votre propre compte'
+                      : user.enabled
+                        ? 'Désactiver le compte de ' + user.firstName + ' ' + user.lastName
+                        : 'Activer le compte de ' + user.firstName + ' ' + user.lastName
+                  "
+                >
+                  <mat-icon>{{ user.enabled ? 'block' : 'check_circle' }}</mat-icon>
+                </button>
+
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="danger-action"
+                  (click)="deleteUser(user)"
+                  [disabled]="isSelf(user) || busyUserId() === user.id"
+                  [matTooltip]="
+                    isSelf(user)
+                      ? 'Vous ne pouvez pas supprimer votre propre compte'
+                      : 'Supprimer le compte'
+                  "
+                  [attr.aria-label]="
+                    isSelf(user)
+                      ? 'Suppression impossible pour votre propre compte'
+                      : 'Supprimer le compte de ' + user.firstName + ' ' + user.lastName
+                  "
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        [length]="totalElements()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        [showFirstLastButtons]="true"
+        (page)="onPage($event)"
+        aria-label="Pagination de la liste des utilisateurs"
+      />
+    }
+  </section>
+</div>

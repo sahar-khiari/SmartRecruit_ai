@@ -1,0 +1,44 @@
+<article
+  class="conversation-item"
+  [class.conversation-item--active]="active()"
+  [attr.aria-current]="active() ? 'true' : null"
+>
+  <button
+    type="button"
+    class="conversation-item__main"
+    (click)="select.emit(conversation().id)"
+    [attr.aria-label]="'Ouvrir la conversation ' + conversation().title"
+  >
+    <span class="conversation-item__icon" aria-hidden="true">
+      <mat-icon>chat_bubble_outline</mat-icon>
+    </span>
+    <span class="conversation-item__text">
+      <span class="conversation-item__title">{{ conversation().title }}</span>
+      <span class="conversation-item__date">
+        Modifiée le {{ conversation().updatedAt | date: 'dd/MM/yyyy à HH:mm' }}
+      </span>
+    </span>
+  </button>
+
+  <button
+    mat-icon-button
+    type="button"
+    class="conversation-item__menu"
+    [matMenuTriggerFor]="actionsMenu"
+    [attr.aria-label]="'Actions pour la conversation ' + conversation().title"
+    aria-haspopup="menu"
+  >
+    <mat-icon>more_vert</mat-icon>
+  </button>
+
+  <mat-menu #actionsMenu="matMenu" xPosition="before">
+    <button mat-menu-item type="button" (click)="rename.emit(conversation())">
+      <mat-icon>edit</mat-icon>
+      <span>Renommer</span>
+    </button>
+    <button mat-menu-item type="button" (click)="remove.emit(conversation())">
+      <mat-icon>delete_outline</mat-icon>
+      <span>Supprimer</span>
+    </button>
+  </mat-menu>
+</article>

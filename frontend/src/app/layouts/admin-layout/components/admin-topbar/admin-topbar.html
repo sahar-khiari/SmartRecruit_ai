@@ -1,0 +1,20 @@
+<mat-toolbar class="topbar">
+  <button
+    mat-icon-button
+    type="button"
+    class="topbar__menu"
+    aria-label="Afficher ou masquer le menu latéral"
+    (click)="menuToggle.emit()"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <div class="topbar__heading">
+    <span class="topbar__context">Back-office SmartRecruit AI</span>
+    <h1 class="topbar__title">{{ pageTitle() }}</h1>
+  </div>
+
+  <span class="topbar__spacer"></span>
+
+  <app-user-menu menuPosition="before" />
+</mat-toolbar>

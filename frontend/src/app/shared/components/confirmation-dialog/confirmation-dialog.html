@@ -1,0 +1,22 @@
+<h2 mat-dialog-title class="confirm__title">
+  <mat-icon [class.confirm__icon--danger]="data.danger" aria-hidden="true">
+    {{ data.danger ? 'warning' : 'help_outline' }}
+  </mat-icon>
+  {{ data.title }}
+</h2>
+<mat-dialog-content>
+  <p class="confirm__message">{{ data.message }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" [mat-dialog-close]="false">
+    {{ data.cancelLabel ?? 'Annuler' }}
+  </button>
+  <button
+    mat-flat-button
+    type="button"
+    [color]="data.danger ? 'warn' : 'primary'"
+    [mat-dialog-close]="true"
+  >
+    {{ data.confirmLabel ?? 'Confirmer' }}
+  </button>
+</mat-dialog-actions>

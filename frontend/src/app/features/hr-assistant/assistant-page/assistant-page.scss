@@ -1,0 +1,69 @@
+@use 'variables' as v;
+
+.workspace {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 16px;
+  height: 680px;
+  min-height: 560px;
+}
+
+.workspace__list,
+.workspace__chat {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+.workspace__legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  color: v.$color-text-subtle;
+  font-size: 0.76rem;
+}
+
+.workspace__legal mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-width: 1099.98px) {
+  .workspace {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 899.98px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    height: min(680px, calc(100vh - 240px));
+    min-height: 520px;
+  }
+
+  .workspace__chat {
+    display: none;
+  }
+
+  .workspace--chat-open .workspace__list {
+    display: none;
+  }
+
+  .workspace--chat-open .workspace__chat {
+    display: block;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .workspace {
+    height: calc(100vh - 215px);
+    min-height: 500px;
+  }
+
+  .workspace__legal {
+    text-align: center;
+  }
+}

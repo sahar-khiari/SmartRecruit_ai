@@ -1,0 +1,251 @@
+@use 'styles/material-theme';
+@use 'styles/responsive';
+@use 'styles/variables' as v;
+@use 'styles/mixins' as m;
+
+html,
+body {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: v.$font-family;
+  background: v.$color-bg;
+  color: v.$color-text;
+  font-size: v.$font-size-base;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: v.$color-text;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: v.$color-primary;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  @include m.focus-ring;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+// Spinner lisible aussi bien sur fond clair que sur bouton coloré
+.mat-mdc-progress-spinner {
+  --mat-progress-spinner-active-indicator-color: currentColor;
+}
+
+// ---------- Layout utilitaires ----------
+.container {
+  width: min(100% - 48px, v.$container-max);
+  margin-inline: auto;
+}
+
+.page {
+  width: min(100% - 48px, 1240px);
+  margin-inline: auto;
+  padding: 32px 0 56px;
+}
+
+.surface-card {
+  @include m.card;
+  padding: 24px;
+}
+
+.text-muted {
+  color: v.$color-text-muted;
+}
+
+.text-subtle {
+  color: v.$color-text-subtle;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ---------- Badges (couleur + texte, jamais la couleur seule) ----------
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: v.$radius-pill;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.badge mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.badge--success {
+  background: v.$color-success-soft;
+  color: v.$color-success;
+}
+
+.badge--danger {
+  background: v.$color-danger-soft;
+  color: v.$color-danger;
+}
+
+.badge--warning {
+  background: v.$color-warning-soft;
+  color: v.$color-warning;
+}
+
+.badge--neutral {
+  background: #eef2f7;
+  color: v.$color-text-muted;
+}
+
+.badge--role {
+  background: v.$color-primary-soft;
+  color: v.$color-primary;
+}
+
+.badge--secondary {
+  background: v.$color-secondary-soft;
+  color: v.$color-secondary-strong;
+}
+
+// ---------- Bandeaux de formulaire ----------
+.form-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: v.$radius-md;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.form-banner mat-icon {
+  flex: 0 0 auto;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.form-banner--error {
+  background: v.$color-danger-soft;
+  color: #7f1d1d;
+}
+
+.form-banner--success {
+  background: v.$color-success-soft;
+  color: #064e3b;
+}
+
+.form-banner--info {
+  background: v.$color-primary-soft;
+  color: v.$color-primary-strong;
+}
+
+// ---------- Formulaires ----------
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 20px;
+}
+
+.form-grid .form-field--full {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.field-hint {
+  margin-top: -12px;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+  color: v.$color-text-muted;
+}
+
+// ---------- Sections marketing ----------
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: v.$radius-pill;
+  background: v.$color-secondary-soft;
+  color: v.$color-secondary-strong;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  margin-bottom: 10px;
+}
+
+.section-subtitle {
+  color: v.$color-text-muted;
+  max-width: 680px;
+  font-size: 1.02rem;
+}
+
+@media (max-width: 719.98px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .surface-card {
+    padding: 18px;
+  }
+}

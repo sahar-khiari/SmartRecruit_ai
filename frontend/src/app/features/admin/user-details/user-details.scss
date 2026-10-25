@@ -1,0 +1,144 @@
+@use 'variables' as v;
+
+.self-banner {
+  margin-bottom: 18px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid v.$color-border;
+}
+
+.identity__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, v.$color-primary, #2563eb);
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.identity__text {
+  min-width: 0;
+}
+
+.identity__name {
+  font-size: 1.28rem;
+  margin-bottom: 2px;
+  overflow-wrap: anywhere;
+}
+
+.identity__email {
+  color: v.$color-text-muted;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.identity__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.details-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 28px;
+  margin: 6px 0 0;
+}
+
+.details-list__item {
+  padding: 13px 0;
+  border-bottom: 1px solid v.$color-border;
+}
+
+.details-list__item dt {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: v.$color-text-subtle;
+  margin-bottom: 3px;
+}
+
+.details-list__item dd {
+  margin: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.admin-card__title {
+  font-size: 1.08rem;
+  margin-bottom: 4px;
+}
+
+.admin-card__subtitle {
+  color: v.$color-text-muted;
+  font-size: 0.84rem;
+  margin-bottom: 18px;
+}
+
+.admin-section {
+  padding: 16px 0;
+}
+
+.admin-section:first-of-type {
+  padding-top: 0;
+}
+
+.admin-section__title {
+  font-size: 0.95rem;
+  margin-bottom: 5px;
+}
+
+.admin-section__text {
+  color: v.$color-text-muted;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  margin-bottom: 12px;
+}
+
+.status-line {
+  margin-bottom: 12px;
+}
+
+.admin-section--danger .admin-section__title {
+  color: v.$color-danger;
+}
+
+.admin-card button mat-progress-spinner {
+  margin-right: 8px;
+}
+
+@media (max-width: 1099.98px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .identity {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .details-list {
+    grid-template-columns: 1fr;
+  }
+}

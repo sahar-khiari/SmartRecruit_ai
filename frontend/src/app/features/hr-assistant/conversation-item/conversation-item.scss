@@ -1,0 +1,106 @@
+@use 'variables' as v;
+
+.conversation-item {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  border: 1px solid transparent;
+  border-radius: v.$radius-md;
+  transition:
+    background v.$transition-fast,
+    border-color v.$transition-fast;
+}
+
+.conversation-item:hover {
+  background: v.$color-surface-muted;
+}
+
+.conversation-item--active {
+  background: v.$color-primary-soft;
+  border-color: rgba(v.$color-primary, 0.22);
+}
+
+.conversation-item--active:hover {
+  background: v.$color-primary-soft;
+}
+
+.conversation-item__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 11px 6px 11px 11px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: v.$radius-md;
+}
+
+.conversation-item__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: v.$color-surface;
+  color: v.$color-text-subtle;
+}
+
+.conversation-item--active .conversation-item__icon {
+  background: v.$color-primary;
+  color: #ffffff;
+}
+
+.conversation-item__icon mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.conversation-item__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+  padding-top: 1px;
+}
+
+.conversation-item__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: v.$color-text;
+}
+
+.conversation-item--active .conversation-item__title {
+  color: v.$color-primary-strong;
+}
+
+.conversation-item__date {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.7rem;
+  color: v.$color-text-subtle;
+}
+
+.conversation-item__menu {
+  flex: 0 0 auto;
+  align-self: center;
+  color: v.$color-text-subtle;
+  --mat-icon-button-state-layer-size: 34px;
+}
+
+.conversation-item__menu mat-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+}

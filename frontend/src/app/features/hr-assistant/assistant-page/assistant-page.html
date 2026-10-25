@@ -1,0 +1,49 @@
+<div class="page">
+  <app-page-header
+    title="Assistant RH"
+    subtitle="Posez vos questions RH dans un espace privé. Les réponses sont fondées sur la base de connaissances interne et les sources utilisées sont affichées."
+  >
+  </app-page-header>
+
+  <section
+    class="workspace"
+    [class.workspace--chat-open]="mobileChatOpen()"
+    aria-label="Espace de conversation avec l'Assistant RH"
+  >
+    <aside class="workspace__list" aria-label="Mes conversations">
+      <app-conversation-list
+        [conversations]="conversations()"
+        [selectedId]="selectedId()"
+        [loading]="loading()"
+        [creating]="creating()"
+        [errorMessage]="listError()"
+        (create)="createConversation()"
+        (refresh)="loadConversations(false)"
+        (select)="selectConversation($event)"
+        (rename)="renameConversation($event)"
+        (remove)="deleteConversation($event)"
+      />
+    </aside>
+
+    <div class="workspace__chat">
+      <app-chat-panel
+        [conversation]="selectedConversation()"
+        [messages]="messages()"
+        [loading]="messageLoading()"
+        [sending]="sending()"
+        [errorMessage]="chatError()"
+        [resetToken]="resetToken()"
+        (back)="backToList()"
+        (create)="createConversation()"
+        (rename)="renameConversation($event)"
+        (remove)="deleteConversation($event)"
+        (send)="sendMessage($event)"
+      />
+    </div>
+  </section>
+
+  <p class="workspace__legal">
+    <mat-icon aria-hidden="true">lock</mat-icon>
+    Conversations privées · aucune décision de recrutement automatisée
+  </p>
+</div>

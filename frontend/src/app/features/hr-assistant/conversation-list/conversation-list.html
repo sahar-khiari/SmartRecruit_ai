@@ -1,0 +1,72 @@
+<section class="conversation-list" aria-labelledby="conversations-title">
+  <header class="conversation-list__head">
+    <div>
+      <h2 id="conversations-title" class="conversation-list__title">Conversations</h2>
+      <p class="conversation-list__subtitle">
+        {{ conversations().length }}
+        conversation{{ conversations().length > 1 ? 's' : '' }}
+      </p>
+    </div>
+    <button
+      mat-flat-button
+      type="button"
+      class="conversation-list__new"
+      (click)="create.emit()"
+      [disabled]="creating()"
+      aria-label="Créer une nouvelle conversation"
+    >
+      <mat-icon aria-hidden="true">add</mat-icon>
+      Nouvelle
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="conversation-list__banner" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <div class="conversation-list__body">
+    @if (loading() && conversations().length === 0) {
+      <app-loading-spinner message="Chargement des conversations…" [diameter]="34" />
+    } @else if (conversations().length === 0) {
+      <app-empty-state
+        icon="forum"
+        title="Aucune conversation"
+        message="Créez votre première conversation pour interroger l'Assistant RH."
+      >
+        <button mat-stroked-button type="button" (click)="create.emit()">
+          <mat-icon aria-hidden="true">add_comment</mat-icon>
+          Nouvelle conversation
+        </button>
+      </app-empty-state>
+    } @else {
+      <div class="conversation-list__items" role="list" aria-label="Mes conversations">
+        @for (conversation of conversations(); track conversation.id) {
+          <app-conversation-item
+            role="listitem"
+            [conversation]="conversation"
+            [active]="conversation.id === selectedId()"
+            (select)="select.emit($event)"
+            (rename)="rename.emit($event)"
+            (remove)="remove.emit($event)"
+          />
+        }
+      </div>
+    }
+  </div>
+
+  <footer class="conversation-list__footer">
+    <button
+      mat-button
+      type="button"
+      (click)="refresh.emit()"
+      [disabled]="loading()"
+      aria-label="Actualiser les conversations"
+    >
+      <mat-icon aria-hidden="true">refresh</mat-icon>
+      Actualiser
+    </button>
+  </footer>
+</section>

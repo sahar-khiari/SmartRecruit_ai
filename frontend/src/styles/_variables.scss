@@ -1,0 +1,65 @@
+// ============================================================
+// SmartRecruit AI - Variables centralisées du thème
+// ============================================================
+
+// Couleurs de marque
+$color-primary: #1e3a8a; // bleu indigo profond
+$color-primary-strong: #172554;
+$color-primary-soft: #dbeafe;
+$color-primary-contrast: #ffffff;
+
+$color-secondary: #0d9488; // turquoise / vert doux
+$color-secondary-strong: #0f766e;
+$color-secondary-soft: #ccfbf1;
+
+// Surfaces et texte
+$color-bg: #f5f7fb;
+$color-surface: #ffffff;
+$color-surface-muted: #f8fafc;
+$color-text: #0f172a;
+$color-text-muted: #475569;
+$color-text-subtle: #64748b;
+$color-border: #e2e8f0;
+$color-border-strong: #cbd5e1;
+
+// États
+$color-success: #047857;
+$color-success-soft: #d1fae5;
+$color-danger: #b91c1c;
+$color-danger-soft: #fee2e2;
+$color-warning: #b45309;
+$color-warning-soft: #fef3c7;
+$color-info: #1d4ed8;
+$color-info-soft: #dbeafe;
+
+// Typographie
+$font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+$font-size-base: 16px;
+
+// Rayons
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 18px;
+$radius-xl: 24px;
+$radius-pill: 999px;
+
+// Ombres
+$shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+$shadow-md: 0 10px 30px -14px rgba(15, 23, 42, 0.22);
+$shadow-lg: 0 24px 50px -24px rgba(15, 23, 42, 0.28);
+
+// Transitions
+$transition-fast: 160ms ease;
+$transition-base: 220ms ease;
+
+// Dimensions
+$container-max: 1200px;
+$sidebar-width: 264px;
+$sidebar-collapsed-width: 84px;
+$topbar-height: 72px;
+
+// Points de rupture
+$breakpoint-xs: 480px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 960px;
+$breakpoint-lg: 1280px;

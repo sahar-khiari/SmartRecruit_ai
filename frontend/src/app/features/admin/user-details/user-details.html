@@ -1,0 +1,219 @@
+<div class="page">
+  <app-page-header
+    title="Détails de l’utilisateur"
+    subtitle="Informations du compte et actions d’administration."
+  >
+    <a mat-stroked-button routerLink="/admin/users">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Retour à la liste
+    </a>
+  </app-page-header>
+
+  @if (loading()) {
+    <app-loading-spinner message="Chargement de l’utilisateur…" />
+  } @else if (errorMessage()) {
+    <section class="surface-card">
+      <app-empty-state
+        icon="cloud_off"
+        title="Utilisateur indisponible"
+        [message]="errorMessage() ?? ''"
+      >
+        <button mat-flat-button type="button" (click)="loadUser()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          Réessayer
+        </button>
+        <a mat-stroked-button routerLink="/admin/users">Retour à la liste</a>
+      </app-empty-state>
+    </section>
+  } @else if (user(); as profile) {
+    @if (isSelf()) {
+      <div class="form-banner form-banner--info self-banner">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        <span>
+          Vous consultez votre propre compte. La modification de votre rôle, la
+          désactivation et la suppression sont désactivées dans l’interface afin de
+          préserver l’accès administrateur.
+        </span>
+      </div>
+    }
+
+    <div class="details-grid">
+      <section class="surface-card identity-card">
+        <header class="identity">
+          <span class="identity__avatar" aria-hidden="true">{{ initials() }}</span>
+          <div class="identity__text">
+            <h2 class="identity__name">{{ fullName() }}</h2>
+            <p class="identity__email">{{ profile.email }}</p>
+            <div class="identity__badges">
+              <span class="badge badge--role">
+                <mat-icon aria-hidden="true">badge</mat-icon>
+                {{ profile.role | roleLabel }}
+              </span>
+              @if (profile.enabled) {
+                <span class="badge badge--success">
+                  <mat-icon aria-hidden="true">check_circle</mat-icon>
+                  Compte actif
+                </span>
+              } @else {
+                <span class="badge badge--danger">
+                  <mat-icon aria-hidden="true">block</mat-icon>
+                  Compte désactivé
+                </span>
+              }
+            </div>
+          </div>
+        </header>
+
+        <dl class="details-list">
+          <div class="details-list__item">
+            <dt>Identifiant</dt>
+            <dd>#{{ profile.id }}</dd>
+          </div>
+          <div class="details-list__item">
+            <dt>Prénom</dt>
+            <dd>{{ profile.firstName }}</dd>
+          </div>
+          <div class="details-list__item">
+            <dt>Nom</dt>
+            <dd>{{ profile.lastName }}</dd>
+          </div>
+          <div class="details-list__item">
+            <dt>Adresse email</dt>
+            <dd>{{ profile.email }}</dd>
+          </div>
+          <div class="details-list__item">
+            <dt>Rôle</dt>
+            <dd>{{ profile.role | roleLabel }}</dd>
+          </div>
+          <div class="details-list__item">
+            <dt>Statut</dt>
+            <dd>{{ profile.enabled ? 'Actif' : 'Désactivé' }}</dd>
+          </div>
+          <div class="details-list__item">
+            <dt>Date de création</dt>
+            <dd>
+              @if (profile.createdAt) {
+                {{ profile.createdAt | date: 'dd/MM/yyyy à HH:mm' }}
+              } @else {
+                Non renseignée
+              }
+            </dd>
+          </div>
+          <div class="details-list__item">
+            <dt>Dernière modification</dt>
+            <dd>
+              @if (profile.updatedAt) {
+                {{ profile.updatedAt | date: 'dd/MM/yyyy à HH:mm' }}
+              } @else {
+                Non renseignée
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="surface-card admin-card">
+        <h2 class="admin-card__title">Actions d’administration</h2>
+        <p class="admin-card__subtitle">
+          Le backend vérifie le rôle ADMIN et applique ses propres règles de sécurité.
+        </p>
+
+        <div class="admin-section">
+          <h3 class="admin-section__title">Rôle du compte</h3>
+          <p class="admin-section__text">
+            Modifiez le niveau d’accès de cet utilisateur. Une confirmation est demandée
+            avant l’enregistrement.
+          </p>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Rôle</mat-label>
+            <mat-select
+              [value]="selectedRole()"
+              [disabled]="isSelf() || busy()"
+              (selectionChange)="selectedRole.set($event.value)"
+              aria-label="Rôle de l’utilisateur"
+            >
+              @for (role of roleOptions; track role.value) {
+                <mat-option [value]="role.value">{{ role.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <button
+            mat-flat-button
+            type="button"
+            (click)="applyRole()"
+            [disabled]="!roleChanged() || isSelf() || busy()"
+          >
+            Appliquer le rôle
+          </button>
+        </div>
+
+        <mat-divider />
+
+        <div class="admin-section">
+          <h3 class="admin-section__title">Statut du compte</h3>
+          <p class="admin-section__text">
+            Un compte désactivé ne peut plus se connecter, mais ses données sont
+            conservées.
+          </p>
+
+          <div class="status-line">
+            @if (profile.enabled) {
+              <span class="badge badge--success">
+                <mat-icon aria-hidden="true">check_circle</mat-icon>
+                Actif
+              </span>
+            } @else {
+              <span class="badge badge--danger">
+                <mat-icon aria-hidden="true">block</mat-icon>
+                Désactivé
+              </span>
+            }
+          </div>
+
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="toggleStatus()"
+            [disabled]="isSelf() || busy()"
+          >
+            @if (busy()) {
+              <mat-progress-spinner
+                diameter="18"
+                mode="indeterminate"
+                aria-label="Mise à jour en cours"
+              />
+              Mise à jour…
+            } @else if (profile.enabled) {
+              Désactiver le compte
+            } @else {
+              Activer le compte
+            }
+          </button>
+        </div>
+
+        <mat-divider />
+
+        <div class="admin-section admin-section--danger">
+          <h3 class="admin-section__title">Supprimer le compte</h3>
+          <p class="admin-section__text">
+            La suppression est définitive. Le compte de l’administrateur connecté ne peut
+            pas être supprimé depuis cette interface.
+          </p>
+
+          <button
+            mat-flat-button
+            type="button"
+            color="warn"
+            (click)="deleteUser()"
+            [disabled]="isSelf() || busy()"
+          >
+            <mat-icon aria-hidden="true">delete</mat-icon>
+            Supprimer l’utilisateur
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,17 @@
+@use 'variables' as v;
+
+.rename-dialog__title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.rename-dialog__title mat-icon {
+  color: v.$color-primary;
+}
+
+.rename-dialog__hint {
+  color: v.$color-text-muted;
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+}

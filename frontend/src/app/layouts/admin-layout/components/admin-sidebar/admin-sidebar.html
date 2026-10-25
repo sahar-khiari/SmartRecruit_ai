@@ -1,0 +1,128 @@
+<div class="sidebar" [class.sidebar--collapsed]="collapsed()">
+  <a
+    routerLink="/admin"
+    class="sidebar__brand"
+    aria-label="SmartRecruit AI, administration"
+  >
+    <span class="sidebar__mark" aria-hidden="true">
+      <mat-icon>work</mat-icon>
+    </span>
+    @if (!collapsed()) {
+      <span class="sidebar__brand-text">SmartRecruit <strong>AI</strong></span>
+    }
+  </a>
+
+  <nav class="sidebar__nav" aria-label="Navigation du back-office administrateur">
+    <p class="sidebar__section" [class.sidebar__section--hidden]="collapsed()">
+      Administration
+    </p>
+
+    <a
+      routerLink="/admin"
+      routerLinkActive="side-link--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="side-link"
+      [matTooltip]="collapsed() ? 'Tableau de bord' : ''"
+      [matTooltipDisabled]="!collapsed()"
+      (click)="navigated.emit()"
+    >
+      <mat-icon aria-hidden="true">space_dashboard</mat-icon>
+      @if (!collapsed()) {
+        <span class="side-link__label">Tableau de bord</span>
+      }
+    </a>
+
+    <a
+      routerLink="/admin/users"
+      routerLinkActive="side-link--active"
+      class="side-link"
+      [matTooltip]="collapsed() ? 'Utilisateurs' : ''"
+      [matTooltipDisabled]="!collapsed()"
+      (click)="navigated.emit()"
+    >
+      <mat-icon aria-hidden="true">manage_accounts</mat-icon>
+      @if (!collapsed()) {
+        <span class="side-link__label">Utilisateurs</span>
+        <span class="side-link__tag">Admin</span>
+      }
+    </a>
+
+    <a
+      routerLink="/admin/knowledge-base"
+      routerLinkActive="side-link--active"
+      class="side-link"
+      [matTooltip]="collapsed() ? 'Base de connaissances RH' : ''"
+      [matTooltipDisabled]="!collapsed()"
+      (click)="navigated.emit()"
+    >
+      <mat-icon aria-hidden="true">menu_book</mat-icon>
+      @if (!collapsed()) {
+        <span class="side-link__label">Base de connaissances RH</span>
+        <span class="side-link__tag">Admin</span>
+      }
+    </a>
+
+    <a
+      routerLink="/admin/tests-techniques"
+      routerLinkActive="side-link--active"
+      class="side-link"
+      [matTooltip]="collapsed() ? 'Tests techniques & IA' : ''"
+      [matTooltipDisabled]="!collapsed()"
+      (click)="navigated.emit()"
+    >
+      <mat-icon aria-hidden="true">psychology</mat-icon>
+      @if (!collapsed()) {
+        <span class="side-link__label">Tests techniques & IA</span>
+        <span class="side-link__tag">Aziz</span>
+      }
+    </a>
+
+    <a
+      routerLink="/admin/profile"
+      routerLinkActive="side-link--active"
+      class="side-link"
+      [matTooltip]="collapsed() ? 'Mon profil' : ''"
+      [matTooltipDisabled]="!collapsed()"
+      (click)="navigated.emit()"
+    >
+      <mat-icon aria-hidden="true">person</mat-icon>
+      @if (!collapsed()) {
+        <span class="side-link__label">Mon profil</span>
+      }
+    </a>
+
+    <p class="sidebar__section" [class.sidebar__section--hidden]="collapsed()">
+      Modules d’administration
+    </p>
+
+    @for (module of futureModules; track module.label) {
+      <div
+        class="side-link side-link--disabled"
+        [matTooltip]="
+          collapsed() ? module.label + ' — bientôt disponible' : 'Bientôt disponible'
+        "
+        aria-disabled="true"
+      >
+        <mat-icon aria-hidden="true">{{ module.icon }}</mat-icon>
+        @if (!collapsed()) {
+          <span class="side-link__label">{{ module.label }}</span>
+          <span class="side-link__soon">Bientôt</span>
+        }
+      </div>
+    }
+  </nav>
+
+  <div class="sidebar__footer">
+    @if (!collapsed()) {
+      <div class="sidebar__version">
+        <mat-icon aria-hidden="true">admin_panel_settings</mat-icon>
+        <div>
+          <p class="sidebar__version-title">Back-office administrateur</p>
+          <p class="sidebar__version-text">Gestion des comptes · Version 1.0</p>
+        </div>
+      </div>
+    } @else {
+      <mat-icon class="sidebar__version-icon" aria-hidden="true">admin_panel_settings</mat-icon>
+    }
+  </div>
+</div>

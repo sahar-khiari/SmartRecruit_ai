@@ -1,0 +1,179 @@
+<section id="accueil" class="hero">
+  <div class="container hero__grid">
+    <div class="hero__content">
+      <p class="eyebrow">
+        <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+        Recrutement augmenté par l’IA
+      </p>
+
+      <h1 class="hero__title">
+        Trouvez les meilleurs talents grâce à
+        <span class="hero__title-accent">l’intelligence artificielle</span>
+      </h1>
+
+      <p class="hero__subtitle">
+        SmartRecruit AI réunit candidats, recruteurs et administrateurs sur une
+        plateforme unique. Ce module commun pose les fondations sécurisées :
+        inscription, authentification JWT, rôles et gestion des profils.
+      </p>
+
+      <div class="hero__actions">
+        <a mat-flat-button routerLink="/signup" class="hero__cta">
+          Créer un compte
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+        <a mat-stroked-button routerLink="/login">Se connecter</a>
+      </div>
+
+      <ul class="hero__highlights" aria-label="Points clés de la plateforme">
+        <li><mat-icon aria-hidden="true">check_circle</mat-icon> Inscription gratuite</li>
+        <li><mat-icon aria-hidden="true">check_circle</mat-icon> Connexion sécurisée par JWT</li>
+        <li><mat-icon aria-hidden="true">check_circle</mat-icon> Trois espaces dédiés</li>
+      </ul>
+    </div>
+
+    <div class="hero__visual" aria-hidden="true">
+      <div class="preview">
+        <div class="preview__top">
+          <div>
+            <p class="preview__label">Aperçu produit</p>
+            <p class="preview__title">Vivier de talents</p>
+          </div>
+          <span class="preview__live">Démo</span>
+        </div>
+
+        <div class="candidate-card">
+          <div class="candidate-card__identity">
+            <span class="candidate-card__avatar">AB</span>
+            <div>
+              <p class="candidate-card__name">Amina Benali</p>
+              <p class="candidate-card__role">Candidat · UX Designer</p>
+            </div>
+            <span class="match-pill">92 %</span>
+          </div>
+
+          <div class="match-bar" role="presentation">
+            <span class="match-bar__fill"></span>
+          </div>
+          <p class="candidate-card__caption">Compatibilité avec l’offre</p>
+
+          <div class="candidate-card__tags">
+            <span>Figma</span>
+            <span>Recherche utilisateur</span>
+            <span>Prototypage</span>
+          </div>
+        </div>
+
+        <div class="preview__row">
+          <div class="mini-card">
+            <mat-icon>work_outline</mat-icon>
+            <div>
+              <p class="mini-card__title">Offre publiée</p>
+              <p class="mini-card__text">Product Designer</p>
+            </div>
+          </div>
+          <div class="mini-card">
+            <mat-icon>event_available</mat-icon>
+            <div>
+              <p class="mini-card__title">Entretien planifié</p>
+              <p class="mini-card__text">Jeudi · 10 h 30</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="preview__disclaimer">Aperçu illustratif — données fictives.</p>
+      </div>
+
+      <div class="floating-badge floating-badge--top">
+        <mat-icon>psychology</mat-icon>
+        <span>Matching IA</span>
+      </div>
+      <div class="floating-badge floating-badge--bottom">
+        <mat-icon>verified_user</mat-icon>
+        <span>JWT sécurisé</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fonctionnalites" class="section features">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow eyebrow--primary">Fonctionnalités</p>
+      <h2 class="section-title">Une plateforme pensée de bout en bout</h2>
+      <p class="section-subtitle">
+        Les modules métier viendront enrichir le socle actuel. Ils sont présentés
+        ici comme la vision du projet universitaire, sans être encore implémentés.
+      </p>
+    </div>
+
+    <div class="features__grid">
+      @for (feature of features; track feature.title) {
+        <article class="feature-card">
+          <span class="feature-card__icon" aria-hidden="true">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </span>
+          <h3 class="feature-card__title">{{ feature.title }}</h3>
+          <p class="feature-card__text">{{ feature.description }}</p>
+          <span class="badge badge--neutral feature-card__badge">Module à venir</span>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+<section id="espaces" class="section spaces">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow eyebrow--primary">Trois espaces</p>
+      <h2 class="section-title">Chaque utilisateur dispose du bon niveau d’accès</h2>
+      <p class="section-subtitle">
+        L’autorisation repose sur les rôles gérés par Spring Security et vérifiés
+        à chaque appel de l’API.
+      </p>
+    </div>
+
+    <div class="spaces__grid">
+      @for (space of spaces; track space.title) {
+        <article class="space-card space-card--{{ space.accent }}">
+          <span class="space-card__icon" aria-hidden="true">
+            <mat-icon>{{ space.icon }}</mat-icon>
+          </span>
+          <h3 class="space-card__title">{{ space.title }}</h3>
+          <p class="space-card__text">{{ space.description }}</p>
+          <ul class="space-card__list">
+            @for (point of space.points; track point) {
+              <li>
+                <mat-icon aria-hidden="true">check</mat-icon>
+                {{ point }}
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+
+    <p class="spaces__note">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      L’inscription publique crée toujours un compte <strong>Candidat</strong>.
+      Les rôles Recruteur et Administrateur sont attribués par un administrateur.
+    </p>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container cta__inner">
+    <div>
+      <h2 class="cta__title">Prêt à rejoindre SmartRecruit AI ?</h2>
+      <p class="cta__text">
+        Créez votre compte candidat en quelques secondes et accédez à votre espace personnel.
+      </p>
+    </div>
+    <div class="cta__actions">
+      <a mat-flat-button routerLink="/signup" class="cta__button">Créer un compte</a>
+      <a mat-stroked-button routerLink="/login" class="cta__button cta__button--ghost">
+        Se connecter
+      </a>
+    </div>
+  </div>
+</section>
