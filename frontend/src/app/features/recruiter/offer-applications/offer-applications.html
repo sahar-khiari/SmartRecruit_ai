@@ -1,0 +1,140 @@
+<div class="applications-container">
+  <header class="page-header">
+    <button mat-button class="btn-back" (click)="backToOffers()">
+      <mat-icon>arrow_back</mat-icon>
+      Retour à mes offres
+    </button>
+
+    @if (offre()) {
+      <div class="offer-summary-card">
+        <div class="badge-module">
+          <mat-icon>assessment</mat-icon>
+          <span>Évaluation technique IA</span>
+        </div>
+        <h1>Candidatures : {{ offre()?.titrePoste }}</h1>
+        <p class="subtitle">
+          {{ offre()?.niveauRequis }} &bull; {{ offre()?.typeContrat }} &bull; {{ offre()?.localisation }}
+          &bull; {{ candidatures().length }} candidature(s) reçue(s)
+        </p>
+      </div>
+    }
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <mat-icon>error_outline</mat-icon>
+      <div class="alert-content">
+        <strong>Erreur :</strong> {{ errorMessage() }}
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">Chargement des candidatures et des scores IA...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    @if (candidatures().length === 0 && !errorMessage()) {
+      <div class="empty-state">
+        <mat-icon>how_to_reg</mat-icon>
+        <h3>Aucune candidature reçue pour l'instant</h3>
+        <p>Les candidats qui postuleront passeront automatiquement le test technique IA et leurs scores apparaîtront ici.</p>
+      </div>
+    }
+
+    <div class="applications-list">
+      @for (cand of candidatures(); track cand.id) {
+        <mat-card class="cand-card">
+          <mat-card-header>
+            <div class="cand-info">
+              <mat-card-title>{{ cand.candidatNom }}</mat-card-title>
+              <mat-card-subtitle>{{ cand.candidatEmail }} &bull; Postulé le {{ cand.createdAt | date: 'dd/MM/yyyy HH:mm' }}</mat-card-subtitle>
+            </div>
+
+            <!-- Score IA Badge -->
+            <div class="cand-score-badge" [ngClass]="getScoreClass(cand.scoreIa)">
+              <span class="score-value">{{ cand.scoreIa !== null ? cand.scoreIa : 'N/A' }}</span>
+              <span class="score-label">/100</span>
+            </div>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="recommendation-bar">
+              <span class="rec-label">Diagnostic IA :</span>
+              @if (cand.recommandationIa === 'VALIDER') {
+                <span class="badge-rec badge-valider">
+                  <mat-icon>check_circle</mat-icon>
+                  Profil Recommandé (Valider)
+                </span>
+              } @else if (cand.recommandationIa === 'APPROFONDIR') {
+                <span class="badge-rec badge-approfondir">
+                  <mat-icon>warning</mat-icon>
+                  Potentiel à approfondir
+                </span>
+              } @else if (cand.recommandationIa === 'REJETER') {
+                <span class="badge-rec badge-rejeter">
+                  <mat-icon>cancel</mat-icon>
+                  Compétences insuffisantes
+                </span>
+              } @else {
+                <span class="badge-rec badge-unknown">En attente</span>
+              }
+            </div>
+
+            <!-- Accordion détails de l'évaluation -->
+            <mat-accordion class="details-accordion">
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <mat-icon>psychology</mat-icon>
+                    Rapport d'évaluation IA détaillé
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="eval-details">
+                  @if (cand.feedbackIa) {
+                    <div class="eval-block">
+                      <h4>Feedback général de l'IA :</h4>
+                      <p class="feedback-text">{{ cand.feedbackIa }}</p>
+                    </div>
+                  }
+
+                  <div class="eval-columns">
+                    @if (parseJsonList(cand.pointsForts).length > 0) {
+                      <div class="eval-col col-strengths">
+                        <h4><mat-icon>thumb_up</mat-icon> Points forts validés :</h4>
+                        <ul>
+                          @for (pf of parseJsonList(cand.pointsForts); track pf) {
+                            <li>{{ pf }}</li>
+                          }
+                        </ul>
+                      </div>
+                    }
+
+                    @if (parseJsonList(cand.pointsFaibles).length > 0) {
+                      <div class="eval-col col-weaknesses">
+                        <h4><mat-icon>thumb_down</mat-icon> Axes d'amélioration :</h4>
+                        <ul>
+                          @for (pf of parseJsonList(cand.pointsFaibles); track pf) {
+                            <li>{{ pf }}</li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                  </div>
+
+                  @if (cand.testId) {
+                    <p class="test-ref">Identifiant du test technique : <code>{{ cand.testId }}</code></p>
+                  }
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

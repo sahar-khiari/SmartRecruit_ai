@@ -210,6 +210,66 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'offres',
+        title: 'Offres d\'emploi | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['CANDIDATE', 'RECRUITER'] },
+        loadComponent: () =>
+          import('./features/job-offers/job-offer-list/job-offer-list').then(
+            (module) => module.JobOfferList,
+          ),
+      },
+      {
+        path: 'offres/:id/postuler',
+        title: 'Postuler & Test IA | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['CANDIDATE'] },
+        loadComponent: () =>
+          import('./features/job-offers/apply-with-test/apply-with-test').then(
+            (module) => module.ApplyWithTest,
+          ),
+      },
+      {
+        path: 'recruteur/offres',
+        title: 'Mes offres | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['RECRUITER', 'ADMIN'] },
+        loadComponent: () =>
+          import('./features/recruiter/my-offers/my-offers').then(
+            (module) => module.MyOffers,
+          ),
+      },
+      {
+        path: 'recruteur/offres/new',
+        title: 'Créer une offre | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['RECRUITER', 'ADMIN'] },
+        loadComponent: () =>
+          import('./features/recruiter/create-offer/create-offer').then(
+            (module) => module.CreateOffer,
+          ),
+      },
+      {
+        path: 'recruteur/offres/:id/edit',
+        title: 'Modifier une offre | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['RECRUITER', 'ADMIN'] },
+        loadComponent: () =>
+          import('./features/recruiter/create-offer/create-offer').then(
+            (module) => module.CreateOffer,
+          ),
+      },
+      {
+        path: 'recruteur/offres/:id/candidatures',
+        title: 'Candidatures reçues | SmartRecruit AI',
+        canActivate: [roleGuard],
+        data: { roles: ['RECRUITER', 'ADMIN'] },
+        loadComponent: () =>
+          import('./features/recruiter/offer-applications/offer-applications').then(
+            (module) => module.OfferApplications,
+          ),
+      },
+      {
         path: 'profile',
         title: 'Mon profil | SmartRecruit AI',
         loadComponent: () =>

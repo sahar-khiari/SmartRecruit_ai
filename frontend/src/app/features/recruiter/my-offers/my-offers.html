@@ -1,0 +1,156 @@
+<div class="my-offers-container">
+  <!-- En-tête -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="badge-module">
+        <mat-icon>business_center</mat-icon>
+        <span>Espace Recruteur</span>
+      </div>
+      <h1>Mes offres d'emploi</h1>
+      <p class="subtitle">
+        Gérez vos opportunités publiées et visualisez les résultats des tests techniques IA de vos candidats.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" class="btn-create" (click)="createOffer()">
+        <mat-icon>add</mat-icon>
+        Créer une offre
+      </button>
+    </div>
+  </header>
+
+  <!-- Erreur -->
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <mat-icon>error_outline</mat-icon>
+      <div class="alert-content">
+        <strong>Erreur :</strong> {{ errorMessage() }}
+      </div>
+    </div>
+  }
+
+  <!-- Chargement -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">Chargement de vos offres...</p>
+    </div>
+  }
+
+  <!-- Liste des offres -->
+  @if (!loading()) {
+    @if (offres().length === 0 && !errorMessage()) {
+      <div class="empty-state">
+        <mat-icon>post_add</mat-icon>
+        <h3>Aucune offre publiée pour le moment</h3>
+        <p>Commencez par créer votre première offre pour recevoir des candidatures qualifiées par l'IA.</p>
+        <button mat-raised-button color="primary" (click)="createOffer()">
+          <mat-icon>add</mat-icon>
+          Publier ma première offre
+        </button>
+      </div>
+    }
+
+    <div class="offers-grid">
+      @for (offre of offres(); track offre.id) {
+        <mat-card class="offer-card" [class.inactive]="!offre.active">
+          <mat-card-header>
+            <div class="card-status-chip" [class.active]="offre.active">
+              <mat-icon>{{ offre.active ? 'check_circle' : 'pause_circle' }}</mat-icon>
+              <span>{{ offre.active ? 'Active' : 'Désactivée' }}</span>
+            </div>
+            <mat-card-title>{{ offre.titrePoste }}</mat-card-title>
+            <mat-card-subtitle>
+              {{ offre.typeContrat }} &bull; {{ offre.localisation }} &bull; Test IA : {{ offre.dureeTestMinutes }} min
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <p class="offer-desc">{{ offre.description }}</p>
+
+            <div class="meta-row">
+              <span class="meta-item">
+                <mat-icon>school</mat-icon>
+                Niveau : <strong>{{ offre.niveauRequis }}</strong>
+              </span>
+              <span class="meta-item">
+                <mat-icon>calendar_today</mat-icon>
+                {{ offre.createdAt | date: 'dd/MM/yyyy' }}
+              </span>
+            </div>
+
+            <div class="competences-preview">
+              <span class="competence-tag" *ngFor="let comp of offre.competencesRequises.split(',')">
+                {{ comp.trim() }}
+              </span>
+            </div>
+          </mat-card-content>
+
+          <mat-divider></mat-divider>
+
+          <mat-card-actions class="card-actions">
+            <button
+              mat-raised-button
+              color="accent"
+              class="btn-applications"
+              (click)="viewApplications(offre)"
+            >
+              <mat-icon>people</mat-icon>
+              Voir candidatures &amp; Scores IA
+            </button>
+
+            <div class="actions-right">
+              <button
+                mat-icon-button
+                matTooltip="Modifier l'offre"
+                (click)="editOffer(offre)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                [matTooltip]="offre.active ? 'Désactiver' : 'Activer'"
+                (click)="toggleActive(offre, $event)"
+              >
+                <mat-icon>{{ offre.active ? 'pause' : 'play_arrow' }}</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                color="warn"
+                matTooltip="Supprimer l'offre"
+                (click)="deleteOffer(offre, $event)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-bar">
+        <button
+          mat-stroked-button
+          [disabled]="currentPage() === 0"
+          (click)="previousPage()"
+        >
+          <mat-icon>arrow_back</mat-icon> Précédent
+        </button>
+        <span class="page-info">
+          Page {{ currentPage() + 1 }} / {{ totalPages() }} ({{ totalElements() }} offres)
+        </span>
+        <button
+          mat-stroked-button
+          [disabled]="currentPage() >= totalPages() - 1"
+          (click)="nextPage()"
+        >
+          Suivant <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    }
+  }
+</div>

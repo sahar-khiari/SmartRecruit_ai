@@ -1,0 +1,134 @@
+<div class="job-offer-list-container">
+  <!-- En-tête -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="badge-module">
+        <mat-icon>work_outline</mat-icon>
+        <span>Offres d'emploi</span>
+      </div>
+      <h1>Offres disponibles</h1>
+      <p class="subtitle">
+        Parcourez les opportunités publiées et postulez en passant un test IA personnalisé.
+      </p>
+    </div>
+  </header>
+
+  <!-- Erreur -->
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <mat-icon>error_outline</mat-icon>
+      <div class="alert-content">
+        <strong>Erreur :</strong> {{ errorMessage() }}
+      </div>
+    </div>
+  }
+
+  <!-- Chargement -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">Chargement des offres...</p>
+    </div>
+  }
+
+  <!-- Liste des offres -->
+  @if (!loading()) {
+    @if (offres().length === 0 && !errorMessage()) {
+      <div class="empty-state">
+        <mat-icon>inbox</mat-icon>
+        <p>Aucune offre disponible pour le moment.</p>
+      </div>
+    }
+
+    <div class="offers-grid">
+      @for (offre of offres(); track offre.id) {
+        <mat-card class="offer-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="card-icon">business_center</mat-icon>
+            <mat-card-title>{{ offre.titrePoste }}</mat-card-title>
+            <mat-card-subtitle>{{ offre.recruteurNom }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <!-- Badges info -->
+            <div class="offer-badges">
+              <span class="badge badge-level">
+                <mat-icon>school</mat-icon> {{ offre.niveauRequis }}
+              </span>
+              <span class="badge badge-contract">
+                <mat-icon>description</mat-icon> {{ offre.typeContrat }}
+              </span>
+              <span class="badge badge-location">
+                <mat-icon>place</mat-icon> {{ offre.localisation }}
+              </span>
+              <span class="badge badge-duration">
+                <mat-icon>timer</mat-icon> Test : {{ offre.dureeTestMinutes }} min
+              </span>
+            </div>
+
+            <!-- Description -->
+            <p class="offer-description">{{ offre.description }}</p>
+
+            <!-- Compétences requises -->
+            <div class="competences-section">
+              <span class="competences-label">Compétences requises :</span>
+              <div class="competences-chips">
+                @for (comp of getCompetencesList(offre.competencesRequises); track comp) {
+                  <span class="competence-chip">{{ comp }}</span>
+                }
+              </div>
+            </div>
+
+            <!-- Date de publication -->
+            <p class="offer-date">
+              <mat-icon>calendar_today</mat-icon>
+              Publié le {{ offre.createdAt | date: 'dd/MM/yyyy' }}
+            </p>
+          </mat-card-content>
+
+          <mat-card-actions class="card-actions">
+            @if (isCandidate) {
+              <button
+                mat-raised-button
+                color="primary"
+                class="btn-apply"
+                (click)="applyToOffer(offre)"
+              >
+                <mat-icon>send</mat-icon>
+                Postuler &amp; Passer le test IA
+              </button>
+            }
+            <button mat-stroked-button (click)="viewDetail(offre)">
+              <mat-icon>visibility</mat-icon>
+              Voir détail
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination-bar">
+        <button
+          mat-stroked-button
+          [disabled]="currentPage() === 0"
+          (click)="previousPage()"
+        >
+          <mat-icon>arrow_back</mat-icon> Précédent
+        </button>
+        <span class="page-info">
+          Page {{ currentPage() + 1 }} / {{ totalPages() }}
+          ({{ totalElements() }} offres)
+        </span>
+        <button
+          mat-stroked-button
+          [disabled]="currentPage() >= totalPages() - 1"
+          (click)="nextPage()"
+        >
+          Suivant <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    }
+  }
+</div>

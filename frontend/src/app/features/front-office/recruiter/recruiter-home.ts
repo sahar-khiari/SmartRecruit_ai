@@ -36,16 +36,19 @@ export class RecruiterHome {
       icon: 'post_add',
       title: 'Créer une offre',
       description: 'Publiez une nouvelle opportunité de recrutement.',
+      path: '/app/recruteur/offres/new',
     },
     {
       icon: 'work_outline',
       title: 'Mes offres',
       description: 'Pilotez les offres publiées par votre organisation.',
+      path: '/app/recruteur/offres',
     },
     {
       icon: 'inbox',
       title: 'Candidatures reçues',
       description: 'Consultez les profils ayant postulé à vos offres.',
+      path: '/app/recruteur/offres',
     },
     {
       icon: 'video_call',

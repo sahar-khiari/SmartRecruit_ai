@@ -1,0 +1,277 @@
+<div class="apply-container">
+
+  <!-- Erreur globale -->
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <mat-icon>error_outline</mat-icon>
+      <div class="alert-content">
+        <strong>Erreur :</strong> {{ errorMessage() }}
+      </div>
+    </div>
+  }
+
+  <!-- Spinner de chargement -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">{{ loadingMessage() || 'Chargement...' }}</p>
+    </div>
+  }
+
+  <!-- ============================================================ -->
+  <!-- ÉTAPE 1 : Détails de l'offre                                -->
+  <!-- ============================================================ -->
+  @if ((currentStep() === 'detail') && !loading()) {
+    @if (offre(); as o) {
+      <div class="step-content">
+        <!-- En-tête -->
+        <header class="page-header">
+          <div class="badge-module">
+            <mat-icon>work_outline</mat-icon>
+            <span>Postuler à l'offre</span>
+          </div>
+          <h1>{{ o.titrePoste }}</h1>
+          <p class="subtitle">{{ o.recruteurNom }}</p>
+        </header>
+
+        <div class="detail-grid">
+          <!-- Fiche offre -->
+          <mat-card class="offer-detail-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar class="card-icon">business_center</mat-icon>
+              <mat-card-title>Détails du poste</mat-card-title>
+              <mat-card-subtitle>Informations sur l'offre</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="offer-badges">
+                <span class="badge badge-level"><mat-icon>school</mat-icon> {{ o.niveauRequis }}</span>
+                <span class="badge badge-contract"><mat-icon>description</mat-icon> {{ o.typeContrat }}</span>
+                <span class="badge badge-location"><mat-icon>place</mat-icon> {{ o.localisation }}</span>
+              </div>
+
+              <p class="description-text">{{ o.description }}</p>
+
+              <mat-divider></mat-divider>
+
+              <div class="competences-section">
+                <h3><mat-icon>star</mat-icon> Compétences requises</h3>
+                <div class="competences-chips">
+                  @for (comp of o.competencesRequises.split(','); track comp) {
+                    <span class="competence-chip">{{ comp.trim() }}</span>
+                  }
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Info test -->
+          <mat-card class="test-info-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar class="card-icon-test">psychology</mat-icon>
+              <mat-card-title>Test IA inclus</mat-card-title>
+              <mat-card-subtitle>Évaluation automatisée par l'IA</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <ul class="test-info-list">
+                <li>
+                  <mat-icon class="icon-ok">timer</mat-icon>
+                  <span>Durée estimée : <strong>{{ o.dureeTestMinutes }} minutes</strong></span>
+                </li>
+                <li>
+                  <mat-icon class="icon-ok">quiz</mat-icon>
+                  <span>5 questions ciblées + 1 exercice pratique</span>
+                </li>
+                <li>
+                  <mat-icon class="icon-ok">auto_awesome</mat-icon>
+                  <span>Correction automatique par LLM</span>
+                </li>
+                <li>
+                  <mat-icon class="icon-ok">check_circle</mat-icon>
+                  <span>Score et feedback instantanés</span>
+                </li>
+              </ul>
+            </mat-card-content>
+            <mat-card-actions class="card-actions">
+              <button mat-raised-button color="primary" class="btn-start" (click)="startTest()">
+                <mat-icon>play_arrow</mat-icon>
+                Commencer le test IA
+              </button>
+              <button mat-stroked-button (click)="backToOffers()">
+                <mat-icon>arrow_back</mat-icon>
+                Retour aux offres
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ============================================================ -->
+  <!-- ÉTAPE 2 : Passation du test                                 -->
+  <!-- ============================================================ -->
+  @if (currentStep() === 'test' && currentTest() && !loading()) {
+    <div class="step-content test-step">
+      <mat-card class="test-header-card">
+        <div class="test-meta">
+          <h2>{{ currentTest()?.titre }}</h2>
+          <div class="meta-badges">
+            <span class="badge"><mat-icon>timer</mat-icon> {{ currentTest()?.duree_minutes }} minutes</span>
+            <span class="badge"><mat-icon>quiz</mat-icon> 5 questions + 1 exercice</span>
+          </div>
+        </div>
+        <p class="instructions">{{ currentTest()?.instructions }}</p>
+      </mat-card>
+
+      <!-- Questions -->
+      @for (q of currentTest()?.questions; track q.numero) {
+        <mat-card class="question-card">
+          <div class="question-header">
+            <span class="q-badge">Question {{ q.numero }}</span>
+            <span class="q-points">{{ q.points }} pts</span>
+            <span class="q-target">Cible : {{ q.competence_ciblee }}</span>
+          </div>
+          <p class="q-enonce">{{ q.enonce }}</p>
+
+          @if (q.type === 'qcm' && q.choix) {
+            <mat-radio-group [(ngModel)]="answers[q.numero]" class="qcm-options">
+              @for (opt of q.choix; track opt.lettre) {
+                <mat-radio-button [value]="opt.lettre" class="qcm-choice">
+                  <strong>{{ opt.lettre }}.</strong> {{ opt.texte }}
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+          }
+
+          @if (q.type === 'ouverte') {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Votre réponse</mat-label>
+              <textarea
+                matInput
+                rows="3"
+                [(ngModel)]="answers[q.numero]"
+                placeholder="Rédigez votre explication..."
+              ></textarea>
+            </mat-form-field>
+          }
+        </mat-card>
+      }
+
+      <!-- Exercice pratique -->
+      @if (currentTest()?.exercice; as exo) {
+        <mat-card class="exercise-card">
+          <div class="question-header">
+            <span class="q-badge exercise-badge">Exercice Pratique</span>
+            <span class="q-points">{{ exo.points }} pts</span>
+            <span class="q-target">Cible : {{ exo.competence_ciblee }}</span>
+          </div>
+          <h3>{{ exo.titre }}</h3>
+          <p class="exo-consigne">{{ exo.consigne }}</p>
+          <div class="code-editor-box">
+            <div class="editor-bar">
+              <span>Éditeur de code</span>
+              <span>Code libre</span>
+            </div>
+            <textarea
+              class="code-textarea"
+              rows="8"
+              [(ngModel)]="exerciseCode"
+              spellcheck="false"
+            ></textarea>
+          </div>
+        </mat-card>
+      }
+
+      <!-- Actions -->
+      <div class="submit-action-bar">
+        <button mat-stroked-button (click)="backToOffers()">
+          <mat-icon>arrow_back</mat-icon> Retour aux offres
+        </button>
+        <button mat-raised-button color="primary" class="btn-submit" (click)="submitTest()">
+          <mat-icon>send</mat-icon> Soumettre mes réponses pour correction IA
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================ -->
+  <!-- ÉTAPE 3 : Résultats IA + Envoyer candidature               -->
+  <!-- ============================================================ -->
+  @if (currentStep() === 'result' && evaluationResult() && !loading()) {
+    <div class="step-content result-step">
+      <header class="page-header">
+        <h1>Résultats de l'évaluation IA</h1>
+        <p class="subtitle">Votre test a été corrigé automatiquement. Envoyez votre candidature !</p>
+      </header>
+
+      <mat-card class="result-summary-card">
+        <div class="score-container">
+          <div class="score-circle" [class]="'score-' + evaluationResult()?.recommandation?.toLowerCase()">
+            <span class="score-value">{{ evaluationResult()?.score }}</span>
+            <span class="score-max">/ 100</span>
+          </div>
+          <div class="result-details">
+            <div class="recommendation-badge" [class]="'badge-' + evaluationResult()?.recommandation?.toLowerCase()">
+              {{ evaluationResult()?.recommandation }}
+            </div>
+            <h2>Résultat de la correction IA</h2>
+            <div class="sub-scores">
+              <span>Score Questions : <strong>{{ evaluationResult()?.score_questions }} pts</strong></span>
+              <span>Score Exercice : <strong>{{ evaluationResult()?.score_exercice }} pts</strong></span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <div class="feedback-grid">
+        <mat-card class="feedback-card points-forts">
+          <h3><mat-icon>thumb_up</mat-icon> Points Forts</h3>
+          <ul>
+            @for (item of evaluationResult()?.points_forts; track $index) {
+              <li><mat-icon>check</mat-icon> {{ item }}</li>
+            }
+          </ul>
+        </mat-card>
+        <mat-card class="feedback-card points-faibles">
+          <h3><mat-icon>warning_amber</mat-icon> Points à Améliorer</h3>
+          <ul>
+            @for (item of evaluationResult()?.points_faibles; track $index) {
+              <li><mat-icon>close</mat-icon> {{ item }}</li>
+            }
+          </ul>
+        </mat-card>
+      </div>
+
+      <mat-card class="feedback-text-card">
+        <h3><mat-icon>comment</mat-icon> Feedback détaillé de l'IA</h3>
+        <p class="feedback-text">{{ evaluationResult()?.feedback }}</p>
+      </mat-card>
+
+      <div class="result-actions">
+        <button mat-stroked-button (click)="backToOffers()">
+          <mat-icon>arrow_back</mat-icon> Retour aux offres
+        </button>
+        <button mat-raised-button color="primary" class="btn-apply" (click)="sendApplication()">
+          <mat-icon>send</mat-icon> Envoyer ma candidature
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================ -->
+  <!-- ÉTAPE 4 : Confirmation candidature envoyée                  -->
+  <!-- ============================================================ -->
+  @if (currentStep() === 'done') {
+    <div class="done-container">
+      <div class="done-icon-wrapper">
+        <mat-icon class="done-icon">check_circle</mat-icon>
+      </div>
+      <h2>Candidature envoyée !</h2>
+      <p>Votre candidature a été transmise avec succès. Le recruteur recevra votre profil et les résultats de votre test IA.</p>
+      <button mat-raised-button color="primary" (click)="backToOffers()">
+        <mat-icon>arrow_back</mat-icon> Retour aux offres
+      </button>
+    </div>
+  }
+
+</div>

@@ -1,0 +1,343 @@
+.applications-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 16px;
+
+  .btn-back {
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  .offer-summary-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+
+    .badge-module {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      color: #64748b;
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .alert-error {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #b91c1c;
+    margin-bottom: 20px;
+  }
+
+  .loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    gap: 16px;
+    color: #64748b;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 64px 20px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+
+    mat-icon {
+      font-size: 56px;
+      width: 56px;
+      height: 56px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #334155;
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: #64748b;
+      margin: 0;
+    }
+  }
+
+  .applications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cand-card {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    mat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 16px 20px 12px;
+
+      .cand-info {
+        mat-card-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+        mat-card-subtitle {
+          color: #64748b;
+          font-size: 13px;
+          margin-top: 4px;
+        }
+      }
+
+      .cand-score-badge {
+        display: flex;
+        align-items: baseline;
+        gap: 2px;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-weight: 700;
+
+        .score-value {
+          font-size: 22px;
+        }
+
+        .score-label {
+          font-size: 13px;
+          opacity: 0.8;
+        }
+
+        &.score-high {
+          background: #ecfdf5;
+          color: #047857;
+        }
+
+        &.score-medium {
+          background: #fffbeb;
+          color: #b45309;
+        }
+
+        &.score-low {
+          background: #fef2f2;
+          color: #b91c1c;
+        }
+
+        &.score-na {
+          background: #f1f5f9;
+          color: #64748b;
+        }
+      }
+    }
+
+    mat-card-content {
+      padding: 8px 20px 20px;
+
+      .recommendation-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+
+        .rec-label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #475569;
+        }
+
+        .badge-rec {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+
+          &.badge-valider {
+            background: #dcfce7;
+            color: #15803d;
+          }
+
+          &.badge-approfondir {
+            background: #fef3c7;
+            color: #b45309;
+          }
+
+          &.badge-rejeter {
+            background: #fee2e2;
+            color: #b91c1c;
+          }
+
+          &.badge-unknown {
+            background: #f1f5f9;
+            color: #64748b;
+          }
+        }
+      }
+
+      .details-accordion {
+        mat-expansion-panel {
+          border-radius: 8px !important;
+          border: 1px solid #f1f5f9;
+          box-shadow: none;
+
+          mat-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+
+            mat-icon {
+              color: #2563eb;
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
+          }
+
+          .eval-details {
+            padding: 12px 0 0;
+
+            .eval-block {
+              margin-bottom: 16px;
+
+              h4 {
+                font-size: 13px;
+                font-weight: 600;
+                color: #475569;
+                margin: 0 0 6px;
+              }
+
+              .feedback-text {
+                font-size: 14px;
+                color: #334155;
+                line-height: 1.5;
+                background: #f8fafc;
+                padding: 12px;
+                border-radius: 8px;
+                margin: 0;
+              }
+            }
+
+            .eval-columns {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 12px;
+
+              @media (max-width: 640px) {
+                grid-template-columns: 1fr;
+              }
+
+              .eval-col {
+                padding: 12px;
+                border-radius: 8px;
+
+                h4 {
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  font-size: 13px;
+                  font-weight: 600;
+                  margin: 0 0 8px;
+
+                  mat-icon {
+                    font-size: 16px;
+                    width: 16px;
+                    height: 16px;
+                  }
+                }
+
+                ul {
+                  margin: 0;
+                  padding-left: 18px;
+                  font-size: 13px;
+                  li {
+                    margin-bottom: 4px;
+                  }
+                }
+
+                &.col-strengths {
+                  background: #f0fdf4;
+                  border: 1px solid #bbf7d0;
+                  h4 {
+                    color: #15803d;
+                  }
+                  color: #166534;
+                }
+
+                &.col-weaknesses {
+                  background: #fffbeb;
+                  border: 1px solid #fde68a;
+                  h4 {
+                    color: #b45309;
+                  }
+                  color: #92400e;
+                }
+              }
+            }
+
+            .test-ref {
+              font-size: 12px;
+              color: #94a3b8;
+              margin: 8px 0 0;
+
+              code {
+                background: #f1f5f9;
+                padding: 2px 6px;
+                border-radius: 4px;
+                color: #475569;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

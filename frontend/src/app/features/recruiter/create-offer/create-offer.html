@@ -1,0 +1,133 @@
+<div class="create-offer-container">
+  <header class="page-header">
+    <div class="badge-module">
+      <mat-icon>post_add</mat-icon>
+      <span>{{ isEditMode() ? 'Modification d\'offre' : 'Nouvelle offre' }}</span>
+    </div>
+    <h1>{{ isEditMode() ? 'Modifier l\'offre d\'emploi' : 'Publier une nouvelle offre' }}</h1>
+    <p class="subtitle">
+      Les compétences et la séniorité définies ici serviront de base à l'agent IA pour calibrer le test technique des candidats.
+    </p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <mat-icon>error_outline</mat-icon>
+      <div class="alert-content">
+        <strong>Erreur :</strong> {{ errorMessage() }}
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="loading-text">Chargement des données de l'offre...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    <mat-card class="form-card">
+      <form (ngSubmit)="save()" #offerForm="ngForm">
+        <mat-card-content class="form-grid">
+          <!-- Intitulé du poste -->
+          <mat-form-field appearance="outline" class="col-span-2">
+            <mat-label>Intitulé du poste *</mat-label>
+            <input
+              matInput
+              [(ngModel)]="titrePoste"
+              name="titrePoste"
+              required
+              placeholder="Ex: Développeur Fullstack Java / Angular"
+            />
+          </mat-form-field>
+
+          <!-- Niveau requis -->
+          <mat-form-field appearance="outline">
+            <mat-label>Niveau de séniorité *</mat-label>
+            <mat-select [(ngModel)]="niveauRequis" name="niveauRequis" required>
+              @for (niv of niveaux; track niv) {
+                <mat-option [value]="niv">{{ niv }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Type de contrat -->
+          <mat-form-field appearance="outline">
+            <mat-label>Type de contrat</mat-label>
+            <mat-select [(ngModel)]="typeContrat" name="typeContrat">
+              @for (contrat of contrats; track contrat) {
+                <mat-option [value]="contrat">{{ contrat }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Localisation -->
+          <mat-form-field appearance="outline">
+            <mat-label>Localisation</mat-label>
+            <input
+              matInput
+              [(ngModel)]="localisation"
+              name="localisation"
+              placeholder="Ex: Tunis / Télétravail"
+            />
+          </mat-form-field>
+
+          <!-- Durée du test IA -->
+          <mat-form-field appearance="outline">
+            <mat-label>Durée allouée au test IA (minutes)</mat-label>
+            <input
+              matInput
+              type="number"
+              min="10"
+              max="120"
+              [(ngModel)]="dureeTestMinutes"
+              name="dureeTestMinutes"
+            />
+          </mat-form-field>
+
+          <!-- Compétences cibles (séparées par virgules) -->
+          <mat-form-field appearance="outline" class="col-span-2">
+            <mat-label>Compétences cibles pour le test IA (séparées par des virgules) *</mat-label>
+            <input
+              matInput
+              [(ngModel)]="competencesRequises"
+              name="competencesRequises"
+              required
+              placeholder="Ex: Spring Boot, Angular, Docker, REST API"
+            />
+            <mat-hint>Ces technologies seront directement transmises au générateur de tests IA</mat-hint>
+          </mat-form-field>
+
+          <!-- Description de l'offre -->
+          <mat-form-field appearance="outline" class="col-span-2">
+            <mat-label>Description du poste et missions *</mat-label>
+            <textarea
+              matInput
+              rows="6"
+              [(ngModel)]="description"
+              name="description"
+              required
+              placeholder="Décrivez les responsabilités, le contexte de l'équipe et les exigences techniques..."
+            ></textarea>
+          </mat-form-field>
+        </mat-card-content>
+
+        <mat-card-actions class="form-actions">
+          <button mat-button type="button" (click)="cancel()">
+            Annuler
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="submitting()"
+          >
+            <mat-icon>{{ isEditMode() ? 'check' : 'publish' }}</mat-icon>
+            {{ isEditMode() ? 'Mettre à jour l\'offre' : 'Publier l\'offre' }}
+          </button>
+        </mat-card-actions>
+      </form>
+    </mat-card>
+  }
+</div>

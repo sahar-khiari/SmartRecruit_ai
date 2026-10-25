@@ -36,6 +36,7 @@ export class CandidateHome {
       icon: 'work_outline',
       title: 'Consulter les offres',
       description: 'Parcourez les opportunités publiées par les recruteurs.',
+      path: '/app/offres',
     },
     {
       icon: 'fact_check',
