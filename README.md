@@ -1,11 +1,12 @@
-# SmartRecruit AI — Backend Spring Boot, Angular et RAG local
+# SmartRecruit AI — Plateforme Intelligente de Recrutement & Évaluation Technique
 
-Application universitaire **SmartRecruit AI**. Ce dépôt contient les trois couches du projet :
+Application universitaire **SmartRecruit AI** développée dans le cadre du cours *« IA for Software Engineering »* (ESPRIT - 5SAE, 2026-2027). Ce projet regroupe une suite complète de microservices et d'agents IA pour assister les candidats et les recruteurs tout au long du cycle de recrutement et de montée en compétences :
 
 - un backend **Spring Boot / MariaDB** : utilisateurs, authentification JWT, rôles, profil, assistant RH, traçabilité des générations et base de connaissances ;
-- un frontend **Angular** : espaces candidat, recruteur et administration, avec affichage des réponses et de leurs sources ;
-- un microservice interne **FastAPI** : nettoyage, anonymisation, découpage, embeddings locaux, recherche sémantique dans **ChromaDB** et génération RAG locale via **Ollama** ;
-- un modèle local **qwen3:4b** exécuté par Ollama, sans service cloud ni clé API externe.
+- un frontend **Angular** : espaces candidat, recruteur et administration, assistant RH avec sources RAG, et espace interactif de tests techniques et feuille de route IA (`/app/tests-techniques`) ;
+- un microservice interne **FastAPI (`ai-service`)** intégrant deux modules majeurs :
+  - **Module 1 — Assistant RH & RAG Local (Sahar)** : nettoyage, anonymisation, découpage, embeddings locaux, recherche sémantique dans **ChromaDB** et génération RAG locale via **Ollama** (`qwen3:4b`), 100% local sans fuite de données ;
+  - **Module 4 — Tests techniques adaptatifs, Évaluation automatique & Feuille de route IA (Aziz)** : système multi-agents IA générant des tests sur-mesure (QCM + code), notation automatique avec feedback détaillé, et plan de formation sur 8 semaines via inférence accélérée LLM (**Groq API / Llama-3.3-70b-versatile** et fallback local Ollama).
 
 > **Périmètre actuel**
 >
@@ -24,29 +25,32 @@ Application universitaire **SmartRecruit AI**. Ce dépôt contient les trois cou
 ```text
 Navigateur
    │
-   ▼
-Angular (localhost:4200)
-   │  JWT, jamais de clé interne
-   ▼
-Spring Boot (localhost:8080)
-   ├── MariaDB (localhost:3306) : source de vérité
-   │      utilisateurs, conversations, messages, sources, AiRun, documents RH
-   │
-   └── client HTTP interne + X-AI-Service-Key
-          │
-          ▼
-      FastAPI (127.0.0.1:8001)
-          ├── nettoyage
-          ├── anonymisation
-          ├── découpage déterministe avec chevauchement
-          ├── embeddings multilingues locaux
-          ├── ChromaDB persistant
-          ├── retrieval filtré par seuil et topK
-          ├── prompt versionné hr-rag-v1
-          └── client Ollama local
-                 │
-                 ▼
-             Ollama (localhost:11434) → qwen3:4b
+   ├───────────────────────────────┐
+   ▼ (Port 4200)                   ▼ (Port 4200)
+Angular : Espace RH           Angular : Tests Techniques (/app/tests-techniques)
+   │  JWT                          │
+   ▼                               │ Requêtes Tests & Roadmap
+Spring Boot (localhost:8080)       │
+   ├── MariaDB (localhost:3306)    │
+   │      users, conversations,    │
+   │      messages, sources, AiRun │
+   └── client HTTP interne         │
+          │                        │
+          └───────────┬────────────┘
+                      ▼
+               FastAPI (127.0.0.1:8001)
+     ┌────────────────┴────────────────┐
+     ▼                                 ▼
+[MODULE 1 : RAG RH Local]     [MODULE 4 : Multi-Agents Tests Techniques]
+ ├── nettoyage & anonymisation ├── TestGeneratorAgent (génération adaptative)
+ ├── chunks déterministes      ├── EvaluationAgent (scoring de code)
+ ├── embeddings locaux MiniLM  ├── RoadmapAgent (formation sur 8 semaines)
+ ├── ChromaDB persistant       ├── Prompts versionnés (v1 / v2 / v3)
+ ├── retrieval filtré          ├── Persistance SQLite (techmatch.db)
+ └── client Ollama local       └── Moteur LLM Hybride (Groq API / Ollama)
+        │                             │
+        ▼                             ▼
+   Ollama (11434) → qwen3:4b     Groq Cloud / Ollama local
 ```
 
 Règles d'architecture :
@@ -78,6 +82,8 @@ Règles d'architecture :
 | PyTorch CPU | `2.7.1+cpu` |
 | Ollama | local, port `11434` |
 | Modèle LLM | `qwen3:4b` |
+| Groq API | clé API gratuite (recommandé pour Module 4) |
+| SQLite | inclus dans Python (base locale Module 4) |
 
 Le premier calcul d'embedding télécharge le modèle (environ 470 Mo) dans le cache Hugging Face. Cette étape peut prendre plusieurs minutes ; elle n'a lieu qu'une fois.
 
@@ -138,6 +144,8 @@ Variables `ai-service/.env` :
 | `DEFAULT_TOP_K` | `5` | Nombre de résultats par défaut |
 | `MAX_TOP_K` | `10` | Nombre maximal de résultats |
 | `MIN_RELEVANCE_SCORE` | `0.30` | Seuil minimal de similarité pour le diagnostic |
+| `GROQ_API_KEY` | *(clé Groq)* | Clé API pour évaluation et génération rapide (Module 4) |
+| `TECH_ASSESSMENT_MODEL` | `llama-3.3-70b-versatile` | Modèle LLM d'évaluation technique |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Serveur Ollama local |
 | `OLLAMA_MODEL` | `qwen3:4b` | Modèle local |
 | `OLLAMA_TIMEOUT_SECONDS` | `120` | Timeout de génération Ollama |
@@ -332,6 +340,39 @@ Réponse (champs principaux) :
 
 Le champ `sources` est reconstruit depuis les chunks du retrieval. Le LLM ne fournit que des `usedChunkIds` ; tout ID hors contexte est refusé. Le score affiché est une **similarité**, jamais une confiance.
 
+### 5.4 API Module 4 : Tests techniques et Feuille de route IA
+
+| Méthode | Chemin | Description |
+|---|---|---|
+| `POST` | `/api/v1/tests/generate` | Génère un test technique adaptatif personnalisé (3 QCM + 1 exercice de code) |
+| `POST` | `/api/v1/tests/{id}/submit` | Évalue la soumission du candidat (note sur 100, feedback, forces/faiblesses) |
+| `POST` | `/api/v1/roadmap` | Génère un plan de montée en compétences personnalisé sur 8 semaines |
+| `GET` | `/api/v1/tests/{id}` | Récupère le détail d'un test technique |
+
+Exemple de requête de génération de test :
+
+```json
+{
+  "titre_poste": "Développeur Fullstack Java / Angular",
+  "niveau": "Intermédiaire",
+  "duree_minutes": 30
+}
+```
+
+Exemple de soumission :
+
+```json
+{
+  "candidat_id": "candidat-123",
+  "reponses_questions": [
+    {"numero": 1, "reponse": "Option B"},
+    {"numero": 2, "reponse": "Option A"},
+    {"numero": 3, "reponse": "Option C"}
+  ],
+  "reponse_exercice": "public int findMax(int[] nums) { ... }"
+}
+```
+
 ---
 
 ## 6. Pipeline d'indexation
@@ -395,11 +436,39 @@ La base de connaissances ADMIN permet :
 - la réindexation globale avec confirmation et états de chargement séparés ;
 - une page **Recherche sémantique RH** (`/admin/knowledge-base/semantic-search`) qui montre la requête nettoyée, les chunks, les scores et les filtres, sans réponse générée.
 
-Le frontend utilise uniquement l'API Spring. Il n'a aucune URL FastAPI et aucune clé interne.
+Le frontend utilise uniquement l'API Spring pour les fonctionnalités RH. Il n'a aucune clé interne.
 
 ---
 
-## 8. Tests
+## 8. Module 4 : Tests techniques adaptatifs, évaluation automatique & feuille de route IA
+
+### 8.1 Parcours Candidat interactif (Angular `/app/tests-techniques`)
+
+Le module offre une expérience d'évaluation fluide et complète en 4 étapes intégrées :
+
+1. **Configuration** : Sélection du poste ciblé (ex: *Développeur Fullstack Java/Angular*, *Data Engineer Python*), du niveau de séniorité (*Junior*, *Intermédiaire*, *Senior*) et de la durée.
+2. **Passation du test** : Interface chronométrée comprenant 3 QCM techniques et 1 exercice de programmation avec éditeur de code intégré.
+3. **Évaluation automatique par IA** : Analyse rigoureuse du code soumis, attribution d'une note sur 100, décomposition par critères (syntaxe, algorithmique, robustesse) et bilan des forces et axes d'amélioration.
+4. **Feuille de route sur 8 semaines** : Programme hebdomadaire progressif généré sur-mesure pour combler les lacunes détectées, avec objectifs pédagogiques, notions clés, projets pratiques et ressources d'apprentissage.
+
+### 8.2 Architecture Multi-Agents & Prompts versionnés
+
+- **`TestGeneratorAgent`** : Calibre et génère les questions et l'exercice d'implémentation selon le poste et le niveau visé.
+- **`EvaluationAgent`** : Analyse la solution soumise selon une grille d'évaluation multicritères stricte sans hallucination.
+- **`RoadmapAgent`** : Conçoit la trajectoire d'apprentissage personnalisée étape par étape sur 8 semaines.
+- **Traçabilité des prompts** : Les prompts d'évaluation et de génération font l'objet d'un versionnage documenté (`v1`, `v2`, `v3`) consigné dans `ai-service/docs/prompts-aziz.md`.
+
+### 8.3 Persistance des données (SQLite)
+
+Les données du Module 4 sont persistées de manière autonome dans la base locale `techmatch.db` :
+- `tech_tests` : Métadonnées du test généré et énoncés.
+- `tech_submissions` : Réponses fournies et code saisi par le candidat.
+- `tech_evaluations` : Note finale, détail par critère et feedback IA.
+- `tech_roadmaps` : Programme de formation structuré sur 8 semaines.
+
+---
+
+## 9. Tests
 
 ### 8.1 Backend Spring Boot
 
@@ -426,7 +495,11 @@ cd ai-service
 .\.venv\Scripts\python.exe -m pytest
 ```
 
-Résultat de référence : **96 tests réussis, 2 ignorés** (test réel d'embedding et test réel Ollama). Les tests réels sont optionnels :
+Résultat de référence : **135 tests réussis** (96 tests Module 1 + 39 tests Module 4), 2 ignorés (tests réels optionnels) :
+- **96 tests RAG RH (Module 1)** : Anonymisation, chunking, ChromaDB, prompts et Ollama.
+- **39 tests Évaluation Technique (Module 4)** : Validation des schémas Pydantic, prompts adaptatifs, scoring d'évaluation, génération de roadmap et persistance SQLite (`tests/test_tech_assessment/`).
+
+Les tests réels sont optionnels :
 
 ```powershell
 $env:RUN_REAL_EMBEDDING_TEST='1'
@@ -440,7 +513,7 @@ Les tests unitaires utilisent des embeddings factices, un client Ollama simulé 
 
 ---
 
-## 9. Validation de bout en bout réalisée
+## 10. Validation de bout en bout réalisée
 
 ### 9.1 Socle documentaire sans LLM
 
@@ -494,7 +567,7 @@ Les données temporaires créées pour ces essais (utilisateurs, conversations, 
 
 ---
 
-## 10. Sécurité
+## 11. Sécurité
 
 - JWT pour l'API Spring ; autorisations par rôle et propriété des conversations.
 - Clé interne FastAPI uniquement côté Spring, jamais dans Angular.
@@ -511,7 +584,7 @@ Les données temporaires créées pour ces essais (utilisateurs, conversations, 
 
 ---
 
-## 11. Limites connues
+## 12. Limites connues
 
 - Le modèle local `qwen3:4b` peut produire des réponses incomplètes ou maladroites ; la validation structurelle ne garantit pas la perfection sémantique.
 - L'anonymisation est **heuristique** : les noms non étiquetés, adresses postales et identifiants de formats inhabituels peuvent ne pas être détectés.
@@ -524,7 +597,7 @@ Les données temporaires créées pour ces essais (utilisateurs, conversations, 
 
 ---
 
-## 12. Dépannage
+## 13. Dépannage
 
 | Symptôme | Cause probable | Action |
 |---|---|---|
@@ -542,7 +615,7 @@ Les données temporaires créées pour ces essais (utilisateurs, conversations, 
 
 ---
 
-## 13. Arborescence utile
+## 14. Arborescence utile
 
 ```text
 .
@@ -553,13 +626,28 @@ Les données temporaires créées pour ces essais (utilisateurs, conversations, 
 │   └── entity/, repository/, dto/         # persistance et contrats
 ├── src/test/                              # 68 tests Spring Boot
 ├── frontend/                              # Angular 22
-│   └── src/app/features/hr-assistant/     # chat, bulles et sources
-├── ai-service/                            # FastAPI + embeddings + ChromaDB + Ollama
-│   ├── app/api/                           # endpoints internes
-│   ├── app/services/                      # nettoyage, anonymisation, chunks, embeddings, index, RAG
-│   └── tests/                             # 96 tests + 2 tests réels optionnels
+│   ├── src/app/features/hr-assistant/     # chat, bulles et sources (Module 1)
+│   ├── src/app/features/tech-assessment/  # parcours complet tests techniques (Module 4)
+│   └── src/app/core/services/             # services API (Auth, HR, TechAssessment)
+├── ai-service/                            # FastAPI + embeddings + ChromaDB + Ollama + Groq
+│   ├── app/api/                           # endpoints internes (chat, knowledge, tech_assessment)
+│   ├── app/coreAgents/Agents/tech_assessment/ # agents Generator, Evaluator, Roadmap (Module 4)
+│   ├── app/coreAgents/llm_client.py       # client LLM hybride Groq / Ollama
+│   ├── app/db/models/tech_assessment.py   # modèles SQLite (tests, submissions, roadmaps)
+│   ├── app/services/                      # nettoyage, anonymisation, chunks, embeddings, index, RAG (Module 1)
+│   ├── docs/prompts-aziz.md               # versionnage et benchmarks des prompts (v1/v2/v3)
+│   └── tests/                             # 135 tests automatisés (96 Module 1 + 39 Module 4)
 ├── .env.example                           # configuration Spring
 └── ai-service/.env.example                # configuration FastAPI
 ```
 
 Les changements de cette phase restent **non commités** : aucun commit Git n'a été créé.
+
+
+---
+
+## 15. Auteurs & Contributeurs
+
+Projet réalisé dans le cadre du module *« IA for Software Engineering »* (ESPRIT - 5SAE, 2026-2027) :
+- **Sahar Khiari** : Conception et développement du **Module 1** (Assistant RH, Base documentaire vectorielle RAG locale Ollama/ChromaDB, intégration Spring Boot).
+- **Mohamed Aziz Guizani** : Conception et développement du **Module 4** (Tests techniques adaptatifs, Évaluation automatique par IA, Feuille de route d'apprentissage sur 8 semaines, architecture multi-agents LLM et intégration Angular).
