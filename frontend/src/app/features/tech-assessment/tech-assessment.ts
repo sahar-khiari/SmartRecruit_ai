@@ -19,6 +19,7 @@ import {
   EvaluationResult,
   GenerateTestRequest,
   NiveauCompetence,
+  ReponseQuestionItem,
   RoadmapResult,
   TechTestPublic,
 } from '../../core/models/tech-assessment.model';
@@ -146,7 +147,7 @@ export class TechAssessment {
       next: (test) => {
         this.currentTest.set(test);
         this.answers = {};
-        this.exerciseCode = `# Écrivez votre solution pour : ${test.exercice.titre}\n\n`;
+        this.exerciseCode = `# Solution pour : ${test.exercice.titre}\n\n`;
         this.currentStep.set('test');
         this.loading.set(false);
       },
@@ -163,6 +164,12 @@ export class TechAssessment {
     const test = this.currentTest();
     if (!test) return;
 
+    // Convertir les réponses au format attendu par le backend Pydantic: [{ numero: 1, reponse: '...' }]
+    const reponsesList: ReponseQuestionItem[] = (test.questions || []).map((q) => ({
+      numero: q.numero,
+      reponse: (this.answers[q.numero] ?? '').toString(),
+    }));
+
     this.loading.set(true);
     this.loadingMessage.set('L’IA évalue chaque réponse et analyse le code soumis...');
     this.errorMessage.set(null);
@@ -170,8 +177,8 @@ export class TechAssessment {
     this.assessmentService
       .submitTest(test.test_id, {
         candidate_id: this.candidateId,
-        reponses_questions: this.answers,
-        code_exercice: this.exerciseCode,
+        reponses_questions: reponsesList,
+        reponse_exercice: this.exerciseCode || '',
       })
       .subscribe({
         next: (response) => {
@@ -181,7 +188,9 @@ export class TechAssessment {
         },
         error: (err) => {
           this.loading.set(false);
-          const detail = err.error?.detail || 'Erreur lors de la correction par l’IA.';
+          const detail = typeof err.error?.detail === 'string'
+            ? err.error.detail
+            : (err.error?.detail ? JSON.stringify(err.error.detail) : 'Erreur lors de la correction par l’IA.');
           this.errorMessage.set(detail);
         },
       });

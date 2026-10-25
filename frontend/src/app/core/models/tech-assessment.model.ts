@@ -44,10 +44,15 @@ export interface TechTestPublic {
   instructions: string;
 }
 
+export interface ReponseQuestionItem {
+  numero: number;
+  reponse: string;
+}
+
 export interface SubmitAnswersRequest {
-  candidate_id?: string;
-  reponses_questions: Record<string, string>;
-  code_exercice: string;
+  candidate_id: string;
+  reponses_questions: ReponseQuestionItem[];
+  reponse_exercice: string;
 }
 
 export interface EvaluationResult {
