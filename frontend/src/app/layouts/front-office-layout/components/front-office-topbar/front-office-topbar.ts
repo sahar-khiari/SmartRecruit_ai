@@ -60,6 +60,8 @@ export class FrontOfficeTopbar {
     return [
       { icon: 'home', label: 'Accueil', path: '/app/candidate' },
       { icon: 'work_outline', label: 'Offres', path: '/app/offres' },
+      { icon: 'recommend', label: 'Recommandations IA', path: '/app/matching/recommandations' },
+      { icon: 'badge', label: 'Mon CV & Matching', path: '/app/matching/profile' },
       { icon: 'fact_check', label: 'Mes candidatures', soon: true },
       { icon: 'video_call', label: 'Mes entretiens', soon: true },
       { icon: 'quiz', label: 'Tests techniques', path: '/app/tests-techniques' },

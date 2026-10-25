@@ -105,6 +105,14 @@ export class MyOffers implements OnInit {
     void this.router.navigate(['/app/recruteur/offres', offre.id, 'candidatures']);
   }
 
+  protected viewCriteria(offre: OffreEmploi): void {
+    void this.router.navigate(['/app/recruteur/offres', offre.id, 'criteres']);
+  }
+
+  protected viewMatching(offre: OffreEmploi): void {
+    void this.router.navigate(['/app/recruteur/offres', offre.id, 'matching']);
+  }
+
   protected previousPage(): void {
     if (this.currentPage() > 0) {
       this.currentPage.set(this.currentPage() - 1);

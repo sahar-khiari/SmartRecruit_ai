@@ -70,6 +70,14 @@ def create_app() -> FastAPI:
     # Routes Module 4 (Tests techniques / Aziz)
     application.include_router(tech_assessment.router)
 
+    # Routes Module Matching (Module CV/Job Matching) — Enregistrement defensif
+    try:
+        from app.matching.router import router as matching_router
+        application.include_router(matching_router)
+        logger.info('Module Matching charge avec succes.')
+    except Exception as _matching_exc:
+        logger.warning('Module Matching non charge (non bloquant) : %s', _matching_exc)
+
     @application.exception_handler(ValueError)
     async def value_error_handler(_: Request, exc: ValueError) -> JSONResponse:
         return JSONResponse(status_code=422, content={"detail": str(exc)})
