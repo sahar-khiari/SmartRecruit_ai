@@ -557,3 +557,141 @@
     margin: 0 0 24px 0;
   }
 }
+
+/* Roadmap Styles */
+.btn-roadmap {
+  font-weight: 600;
+}
+
+.roadmap-header-card {
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0 0 8px 0;
+    color: #1e293b;
+    font-size: 1.4rem;
+  }
+
+  .roadmap-duree {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #0284c7;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .final-advice {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #0284c7;
+    color: #475569;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}
+
+.weeks-accordion {
+  margin-bottom: 24px;
+
+  .week-number {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #0284c7;
+    color: #ffffff;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-right: 12px;
+  }
+
+  .week-details {
+    padding: 12px 0;
+
+    .detail-block {
+      margin-bottom: 16px;
+
+      h4 {
+        margin: 0 0 6px 0;
+        font-size: 0.88rem;
+        color: #334155;
+      }
+
+      .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+
+        .tag-chip {
+          background: #e0f2fe;
+          color: #0369a1;
+          padding: 2px 8px;
+          border-radius: 12px;
+          font-size: 0.8rem;
+          font-weight: 500;
+        }
+      }
+
+      .resources-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #475569;
+          font-size: 0.88rem;
+          margin-bottom: 4px;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: #64748b;
+          }
+        }
+      }
+
+      &.project-block {
+        background: #f1f5f9;
+        padding: 12px;
+        border-radius: 8px;
+
+        p {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 0;
+          color: #1e293b;
+          font-size: 0.9rem;
+          font-weight: 500;
+
+          mat-icon {
+            color: #8b5cf6;
+          }
+        }
+      }
+    }
+  }
+}
+
+.roadmap-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.done-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}

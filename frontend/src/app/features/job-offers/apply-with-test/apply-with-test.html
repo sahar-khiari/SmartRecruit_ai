@@ -251,26 +251,126 @@
         <button mat-stroked-button (click)="backToOffers()">
           <mat-icon>arrow_back</mat-icon> Retour aux offres
         </button>
-        <button mat-raised-button color="primary" class="btn-apply" (click)="sendApplication()">
-          <mat-icon>send</mat-icon> Envoyer ma candidature
+
+        <button mat-raised-button color="accent" class="btn-roadmap" (click)="generateRoadmap()">
+          <mat-icon>explore</mat-icon> Voir ma Feuille de Route IA (8 semaines)
+        </button>
+
+        <button mat-raised-button color="primary" class="btn-apply" (click)="sendApplication()" [disabled]="applicationSent()">
+          <mat-icon>{{ applicationSent() ? 'check' : 'send' }}</mat-icon>
+          {{ applicationSent() ? 'Candidature déjà envoyée' : 'Envoyer ma candidature' }}
         </button>
       </div>
     </div>
   }
 
   <!-- ============================================================ -->
-  <!-- ÉTAPE 4 : Confirmation candidature envoyée                  -->
+  <!-- ÉTAPE 4 : FEUILLE DE ROUTE D'APPRENTISSAGE (ROADMAP)        -->
+  <!-- ============================================================ -->
+  @if (currentStep() === 'roadmap' && roadmapResult() && !loading()) {
+    <div class="step-content roadmap-step">
+      <header class="page-header">
+        <div class="badge-module">
+          <mat-icon>school</mat-icon>
+          <span>Formation Continue &amp; Progression</span>
+        </div>
+        <h1>{{ roadmapResult()?.titre }}</h1>
+        <p class="subtitle">
+          Plan d'apprentissage personnalisé sur <strong>{{ roadmapResult()?.duree_semaines }} semaines</strong> conçu par l'IA pour combler vos lacunes et réussir vos futurs entretiens.
+        </p>
+      </header>
+
+      <mat-card class="roadmap-header-card">
+        <p class="final-advice">
+          <mat-icon>lightbulb</mat-icon>
+          <span><strong>Conseil de l'évaluateur IA :</strong> {{ roadmapResult()?.conseil_final }}</span>
+        </p>
+      </mat-card>
+
+      <!-- Accordéon semaine par semaine -->
+      <mat-accordion class="weeks-accordion" multi>
+        @for (sem of roadmapResult()?.plan; track sem.semaine) {
+          <mat-expansion-panel [expanded]="sem.semaine === 1">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <span class="week-number">Semaine {{ sem.semaine }}</span>
+                <strong>{{ sem.objectif }}</strong>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="week-details">
+              <div class="detail-block">
+                <h4>Compétences travaillées :</h4>
+                <div class="tags-container">
+                  @for (comp of sem.competences; track comp) {
+                    <span class="tag-chip">{{ comp }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="detail-block">
+                <h4>Ressources recommandées :</h4>
+                <ul class="resources-list">
+                  @for (res of sem.ressources; track res) {
+                    <li><mat-icon>menu_book</mat-icon> {{ res }}</li>
+                  }
+                </ul>
+              </div>
+
+              <div class="detail-block project-block">
+                <h4>Mini-projet pratique :</h4>
+                <p><mat-icon>construction</mat-icon> {{ sem.mini_projet }}</p>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+
+      <!-- Actions de la Roadmap -->
+      <div class="roadmap-actions">
+        <button mat-stroked-button (click)="currentStep.set('result')">
+          <mat-icon>arrow_back</mat-icon> Revoir mes résultats
+        </button>
+
+        @if (!applicationSent()) {
+          <button mat-raised-button color="primary" class="btn-apply" (click)="sendApplication()">
+            <mat-icon>send</mat-icon> Confirmer &amp; Envoyer ma candidature
+          </button>
+        } @else {
+          <button mat-raised-button color="primary" (click)="backToOffers()">
+            <mat-icon>work_outline</mat-icon> Retour aux offres
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ============================================================ -->
+  <!-- ÉTAPE 5 : Confirmation candidature envoyée                  -->
   <!-- ============================================================ -->
   @if (currentStep() === 'done') {
     <div class="done-container">
       <div class="done-icon-wrapper">
         <mat-icon class="done-icon">check_circle</mat-icon>
       </div>
-      <h2>Candidature envoyée !</h2>
-      <p>Votre candidature a été transmise avec succès. Le recruteur recevra votre profil et les résultats de votre test IA.</p>
-      <button mat-raised-button color="primary" (click)="backToOffers()">
-        <mat-icon>arrow_back</mat-icon> Retour aux offres
-      </button>
+      <h2>Candidature envoyée avec succès !</h2>
+      <p>Votre candidature et votre note technique IA ont été transmises au recruteur.</p>
+
+      <div class="done-actions">
+        @if (!roadmapResult()) {
+          <button mat-raised-button color="accent" (click)="generateRoadmap()">
+            <mat-icon>explore</mat-icon> Découvrir ma Feuille de Route IA (8 semaines)
+          </button>
+        } @else {
+          <button mat-raised-button color="accent" (click)="currentStep.set('roadmap')">
+            <mat-icon>explore</mat-icon> Consulter ma Feuille de Route IA
+          </button>
+        }
+
+        <button mat-stroked-button (click)="backToOffers()">
+          <mat-icon>arrow_back</mat-icon> Retour aux offres
+        </button>
+      </div>
     </div>
   }
 

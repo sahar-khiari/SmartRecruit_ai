@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { JobOfferService } from '../../../core/services/job-offer.service';
 import { TechAssessmentService } from '../../../core/services/tech-assessment.service';
@@ -21,9 +22,10 @@ import {
   GenerateTestRequest,
   ReponseQuestionItem,
   TechTestPublic,
+  RoadmapResult,
 } from '../../../core/models/tech-assessment.model';
 
-type ApplyStep = 'detail' | 'generating' | 'test' | 'evaluating' | 'result' | 'done';
+type ApplyStep = 'detail' | 'generating' | 'test' | 'evaluating' | 'result' | 'roadmap' | 'done';
 
 @Component({
   selector: 'app-apply-with-test',
@@ -40,6 +42,7 @@ type ApplyStep = 'detail' | 'generating' | 'test' | 'evaluating' | 'result' | 'd
     MatProgressSpinnerModule,
     MatChipsModule,
     MatDividerModule,
+    MatExpansionModule,
   ],
   templateUrl: './apply-with-test.html',
   styleUrl: './apply-with-test.scss',
@@ -59,6 +62,8 @@ export class ApplyWithTest implements OnInit {
   protected readonly offre = signal<OffreEmploi | null>(null);
   protected readonly currentTest = signal<TechTestPublic | null>(null);
   protected readonly evaluationResult = signal<EvaluationResult | null>(null);
+  protected readonly roadmapResult = signal<RoadmapResult | null>(null);
+  protected readonly applicationSent = signal(false);
 
   protected answers: Record<string, string> = {};
   protected exerciseCode = '';
@@ -208,6 +213,7 @@ export class ApplyWithTest implements OnInit {
 
     this.jobOfferService.candidater(this.offreId, payload).subscribe({
       next: () => {
+        this.applicationSent.set(true);
         this.currentStep.set('done');
         this.loading.set(false);
       },
@@ -220,6 +226,43 @@ export class ApplyWithTest implements OnInit {
         this.errorMessage.set(detail);
       },
     });
+  }
+
+  protected generateRoadmap(): void {
+    const user = this.authService.currentUser();
+    const candidateId = user ? `cand-${user.id}` : 'cand-anonymous';
+
+    this.loading.set(true);
+    this.loadingMessage.set('L\'IA élabore une feuille de route d\'apprentissage sur mesure basée sur votre test...');
+    this.errorMessage.set(null);
+
+    let skillsToSend = this.skills;
+    if (!skillsToSend || skillsToSend.length === 0) {
+      skillsToSend = [{ skill: 'Génie Logiciel & Développement', level: 'intermédiaire' }];
+    }
+
+    this.assessmentService
+      .generateRoadmap({
+        candidate_id: candidateId,
+        competences_manquantes: skillsToSend,
+        evaluation: this.evaluationResult() || undefined,
+        duree_plan_semaines: 8,
+      })
+      .subscribe({
+        next: (response: any) => {
+          const roadmap: RoadmapResult = response.roadmap || response;
+          this.roadmapResult.set(roadmap);
+          this.currentStep.set('roadmap');
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.loading.set(false);
+          const detail =
+            err.error?.detail ||
+            'Erreur lors de la génération de la feuille de route.';
+          this.errorMessage.set(detail);
+        },
+      });
   }
 
   protected backToOffers(): void {
