@@ -124,3 +124,61 @@ class CvAnalysisResponse(BaseModel):
 class CvAnalysisError(BaseModel):
     code: str = Field(examples=["NOT_PDF"])
     detail: str
+
+
+# ---------------------------------------------------------------------------
+# Coach CV
+# ---------------------------------------------------------------------------
+
+class CoachImprovement(BaseModel):
+    title: str = Field(max_length=120)
+    detail: str = Field(max_length=500)
+
+    @field_validator("title", "detail")
+    @classmethod
+    def clean(cls, value: str) -> str:
+        return _clean_text(value, 500) or ""
+
+
+class CoachRewrite(BaseModel):
+    before: str = Field(max_length=400)
+    after: str = Field(max_length=400)
+    reason: str = Field(default="", max_length=300)
+
+
+class CvCoachLlmAdvice(BaseModel):
+    """Sortie attendue du LLM pour le Coach CV (validée, puis filtrée par coach.py)."""
+    strengths: list[str] = Field(default_factory=list)
+    improvements: list[CoachImprovement] = Field(default_factory=list)
+    rewrites: list[CoachRewrite] = Field(default_factory=list)
+
+    @field_validator("strengths")
+    @classmethod
+    def clean_strengths(cls, value: list[str]) -> list[str]:
+        return _clean_list(value, max_items=5, max_length=300)
+
+    @field_validator("improvements")
+    @classmethod
+    def limit_improvements(cls, value: list[CoachImprovement]) -> list[CoachImprovement]:
+        return [item for item in value if item.title and item.detail][:6]
+
+
+class CoachCriterionResponse(BaseModel):
+    id: str
+    label: str
+    points: int
+    max_points: int
+    passed: bool
+    advice: str | None
+
+
+class CvCoachResponse(BaseModel):
+    prompt_version: str = Field(examples=["cv-coach-v1"])
+    score: int = Field(ge=0, le=100, description="Calculé par règles (même CV = même score)")
+    criteria: list[CoachCriterionResponse]
+    strengths: list[str]
+    improvements: list[CoachImprovement]
+    rewrites: list[CoachRewrite] = Field(description="Uniquement des phrases présentes dans le CV, sans chiffre inventé")
+    rejected_rewrites: int = Field(ge=0, description="Reformulations écartées par le garde-fou anti-invention")
+    llm: LlmTrace
+    durations_ms: dict[str, int]

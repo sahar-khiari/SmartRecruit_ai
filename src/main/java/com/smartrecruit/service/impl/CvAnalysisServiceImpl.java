@@ -4,9 +4,11 @@ import com.smartrecruit.dto.ai.AiCvAnalysisResponse;
 import com.smartrecruit.dto.request.CvAnalysisApplyRequest;
 import com.smartrecruit.dto.response.CandidateProfileResponse;
 import com.smartrecruit.dto.response.CvAnalysisResponse;
+import com.smartrecruit.dto.response.CvCoachingResponse;
 import com.smartrecruit.entity.CandidateCv;
 import com.smartrecruit.entity.CvAnalysis;
 import com.smartrecruit.entity.CvAnalysisStatus;
+import com.smartrecruit.entity.CvAnalysisType;
 import com.smartrecruit.entity.User;
 import com.smartrecruit.exception.CvAnalysisException;
 import com.smartrecruit.exception.ResourceNotFoundException;
@@ -28,6 +30,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,27 +56,56 @@ public class CvAnalysisServiceImpl implements CvAnalysisService {
      */
     @Override
     public CvAnalysisResponse analyzeMyCv() {
+        CvAnalysis analysis = run(CvAnalysisType.EXTRACTION, client::analyze, (target, result) -> {
+            target.setPipelineVersion(result.pipelineVersion());
+            traceLlm(target, result.llm());
+        });
+        return mapper.toResponse(analysis);
+    }
+
+    @Override
+    public CvCoachingResponse coachMyCv() {
+        CvAnalysis coaching = run(CvAnalysisType.COACHING, client::coach,
+                (target, result) -> traceLlm(target, result.llm()));
+        return mapper.toCoachingResponse(coaching);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CvCoachingResponse getMyLatestCoaching() {
+        Long userId = currentUserService.getCurrentUser().getId();
+        return analysisRepository.findFirstByCv_Profile_User_IdAndTypeOrderByCreatedAtDescIdDesc(userId, CvAnalysisType.COACHING)
+                .map(mapper::toCoachingResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Aucun conseil du Coach CV pour le moment"));
+    }
+
+    /** Enregistre PENDING, appelle le service IA, puis COMPLETED (résultat + traçabilité) ou FAILED. */
+    private <T> CvAnalysis run(CvAnalysisType type, Function<byte[], T> call, BiConsumer<CvAnalysis, T> trace) {
         User user = currentUserService.getCurrentUser();
         CandidateCv cv = cvRepository.findFirstByProfile_User_IdOrderByUploadedAtDescIdDesc(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Déposez d'abord votre CV avant de lancer l'analyse"));
 
-        if (analysisRepository.existsByCv_Profile_User_IdAndStatusAndCreatedAtAfter(
-                user.getId(), CvAnalysisStatus.PENDING, LocalDateTime.now().minusMinutes(PENDING_TIMEOUT_MINUTES))) {
+        if (analysisRepository.existsByCv_Profile_User_IdAndTypeAndStatusAndCreatedAtAfter(user.getId(), type,
+                CvAnalysisStatus.PENDING, LocalDateTime.now().minusMinutes(PENDING_TIMEOUT_MINUTES))) {
             throw new CvAnalysisException(HttpStatus.CONFLICT, "ANALYSIS_IN_PROGRESS",
                     "Une analyse de votre CV est déjà en cours");
         }
 
         byte[] pdf = cvService.readContent(cv);
         CvAnalysis analysis = analysisRepository.save(
-                CvAnalysis.builder().cv(cv).status(CvAnalysisStatus.PENDING).build());
+                CvAnalysis.builder().cv(cv).type(type).status(CvAnalysisStatus.PENDING).build());
         long started = System.nanoTime();
 
         try {
-            AiCvAnalysisResponse result = client.analyze(pdf);
-            complete(analysis, result, elapsedMs(started));
-            log.info("Analyse de CV terminée | analysisId={} model={} secours={} durationMs={}",
-                    analysis.getId(), analysis.getModel(), analysis.getFallbackUsed(), analysis.getDurationMs());
-            return mapper.toResponse(analysisRepository.save(analysis));
+            T result = call.apply(pdf);
+            analysis.setStatus(CvAnalysisStatus.COMPLETED);
+            analysis.setResultJson(mapper.toJson(result));
+            trace.accept(analysis, result);
+            analysis.setDurationMs(elapsedMs(started));
+            analysis.setCompletedAt(LocalDateTime.now());
+            log.info("Analyse de CV terminée | analysisId={} type={} model={} secours={} durationMs={}",
+                    analysis.getId(), type, analysis.getModel(), analysis.getFallbackUsed(), analysis.getDurationMs());
+            return analysisRepository.save(analysis);
         } catch (CvAnalysisException ex) {
             fail(analysis, ex.getCode(), ex.getMessage(), elapsedMs(started));
             throw ex;
@@ -86,7 +119,7 @@ public class CvAnalysisServiceImpl implements CvAnalysisService {
     @Transactional(readOnly = true)
     public CvAnalysisResponse getMyLatestAnalysis() {
         Long userId = currentUserService.getCurrentUser().getId();
-        return analysisRepository.findFirstByCv_Profile_User_IdOrderByCreatedAtDescIdDesc(userId)
+        return analysisRepository.findFirstByCv_Profile_User_IdAndTypeOrderByCreatedAtDescIdDesc(userId, CvAnalysisType.EXTRACTION)
                 .map(mapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Aucune analyse de CV pour le moment"));
     }
@@ -96,7 +129,8 @@ public class CvAnalysisServiceImpl implements CvAnalysisService {
     public CandidateProfileResponse applyMyAnalysis(CvAnalysisApplyRequest request) {
         Long userId = currentUserService.getCurrentUser().getId();
         // Même 404 si l'analyse n'existe pas ou appartient à un autre candidat.
-        CvAnalysis analysis = analysisRepository.findByIdAndCv_Profile_User_Id(request.analysisId(), userId)
+        CvAnalysis analysis = analysisRepository.findByIdAndCv_Profile_User_IdAndType(
+                        request.analysisId(), userId, CvAnalysisType.EXTRACTION)
                 .orElseThrow(() -> new ResourceNotFoundException("Analyse", "id", request.analysisId()));
         if (analysis.getStatus() != CvAnalysisStatus.COMPLETED) {
             throw new CvAnalysisException(HttpStatus.CONFLICT, "ANALYSIS_NOT_COMPLETED",
@@ -116,19 +150,14 @@ public class CvAnalysisServiceImpl implements CvAnalysisService {
         return profile;
     }
 
-    private void complete(CvAnalysis analysis, AiCvAnalysisResponse result, long durationMs) {
-        analysis.setStatus(CvAnalysisStatus.COMPLETED);
-        analysis.setResultJson(mapper.toJson(result));
-        analysis.setPipelineVersion(result.pipelineVersion());
-        if (result.llm() != null) {
-            analysis.setModel(result.llm().model());
-            analysis.setFallbackUsed(result.llm().fallbackUsed());
-            analysis.setPromptVersion(result.llm().promptVersion());
-            analysis.setInputTokens(result.llm().inputTokens());
-            analysis.setOutputTokens(result.llm().outputTokens());
+    private static void traceLlm(CvAnalysis analysis, AiCvAnalysisResponse.Llm llm) {
+        if (llm != null) {
+            analysis.setModel(llm.model());
+            analysis.setFallbackUsed(llm.fallbackUsed());
+            analysis.setPromptVersion(llm.promptVersion());
+            analysis.setInputTokens(llm.inputTokens());
+            analysis.setOutputTokens(llm.outputTokens());
         }
-        analysis.setDurationMs(durationMs);
-        analysis.setCompletedAt(LocalDateTime.now());
     }
 
     private void fail(CvAnalysis analysis, String code, String message, long durationMs) {

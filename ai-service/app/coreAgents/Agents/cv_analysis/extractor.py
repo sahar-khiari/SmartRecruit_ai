@@ -1,19 +1,16 @@
-"""Étape 3 du pipeline : extraction structurée du CV anonymisé par LLM, avec gestion des erreurs d'API.
+"""Étape 3 du pipeline : extraction structurée du CV anonymisé par LLM.
 
-Stratégie, pour chaque modèle dans l'ordre (principal puis secours) :
-- erreur passagère (réseau, 503, délai dépassé) ou JSON invalide : nouvel essai sur le même modèle ;
-- quota dépassé, requête refusée, essais épuisés : bascule sur le modèle suivant ;
-- clé absente ou refusée : arrêt immédiat (le secours utilise la même clé).
-Chaque tentative est tracée (modèle, code d'erreur, durée) pour la traçabilité de l'analyse.
+La gestion des erreurs d'API (nouvel essai, modèle de secours, traçabilité) est dans llm/runner.py,
+partagée avec le Coach CV.
 """
 
 import json
-import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from pydantic import ValidationError
 
-from app.coreAgents.Agents.cv_analysis.llm.base import LlmClient, LlmError, LlmOutputError
+from app.coreAgents.Agents.cv_analysis.llm.base import LlmClient, LlmOutputError
+from app.coreAgents.Agents.cv_analysis.llm.runner import LlmAttempt, LlmRunError, run_json
 from app.coreAgents.Agents.cv_analysis.prompts import (
     ACTIVE_PROMPT_VERSION,
     RESPONSE_SCHEMA,
@@ -22,14 +19,9 @@ from app.coreAgents.Agents.cv_analysis.prompts import (
 )
 from app.v1.schemas.cv_analysis import CvLlmExtraction
 
-logger = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True)
-class LlmAttempt:
-    model: str
-    error_code: str | None
-    latency_ms: int | None = None
+# Noms historiques conservés (utilisés par l'endpoint et les tests).
+CvExtractionError = LlmRunError
+__all__ = ["CvExtractionError", "CvExtractor", "ExtractionOutcome", "LlmAttempt"]
 
 
 @dataclass(frozen=True)
@@ -43,16 +35,6 @@ class ExtractionOutcome:
     prompt_version: str = ACTIVE_PROMPT_VERSION
 
 
-@dataclass
-class CvExtractionError(Exception):
-    code: str
-    message: str
-    attempts: tuple[LlmAttempt, ...] = field(default_factory=tuple)
-
-    def __str__(self) -> str:
-        return self.message
-
-
 class CvExtractor:
 
     def __init__(self, clients: list[LlmClient], max_retries: int = 1,
@@ -63,42 +45,22 @@ class CvExtractor:
         self._max_retries = max_retries
         self._prompt = get_prompt(prompt_version)
 
+    @property
+    def clients(self) -> list[LlmClient]:
+        return self._clients
+
+    @property
+    def max_retries(self) -> int:
+        return self._max_retries
+
     def extract(self, anonymized_text: str) -> ExtractionOutcome:
-        prompt = build_user_prompt(anonymized_text, self._prompt.version)
-        attempts: list[LlmAttempt] = []
-        last_error: LlmError | None = None
-
-        for index, client in enumerate(self._clients):
-            for _ in range(1 + self._max_retries):
-                try:
-                    result = client.generate_json(self._prompt.system, prompt, RESPONSE_SCHEMA)
-                    data = self._parse(result.text, client.model)
-                except LlmError as error:
-                    last_error = error
-                    attempts.append(LlmAttempt(client.model, error.code))
-                    logger.warning("Extraction en échec | model=%s code=%s", client.model, error.code)
-                    if not error.fallback_allowed:
-                        raise CvExtractionError(error.code, str(error), tuple(attempts)) from error
-                    if not error.retryable:
-                        break
-                    continue
-
-                attempts.append(LlmAttempt(client.model, None, result.latency_ms))
-                return ExtractionOutcome(
-                    data=data,
-                    model=client.model,
-                    fallback_used=index > 0,
-                    attempts=tuple(attempts),
-                    input_tokens=result.input_tokens,
-                    output_tokens=result.output_tokens,
-                    prompt_version=self._prompt.version,
-                )
-
-        raise CvExtractionError(
-            "LLM_UNAVAILABLE",
-            "Aucun modèle n'a pu analyser le CV. Veuillez réessayer plus tard.",
-            tuple(attempts),
-        ) from last_error
+        outcome = run_json(
+            self._clients, self._max_retries, self._prompt.system,
+            build_user_prompt(anonymized_text, self._prompt.version),
+            RESPONSE_SCHEMA, self._parse, task="Extraction",
+        )
+        return ExtractionOutcome(outcome.data, outcome.model, outcome.fallback_used, outcome.attempts,
+                                 outcome.input_tokens, outcome.output_tokens, self._prompt.version)
 
     @staticmethod
     def _parse(text: str, model: str) -> CvLlmExtraction:

@@ -3,6 +3,7 @@ package com.smartrecruit.integration.ai;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartrecruit.dto.ai.AiCvAnalysisResponse;
+import com.smartrecruit.dto.ai.AiCvCoachResponse;
 import com.smartrecruit.exception.CvAnalysisException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,15 @@ public class RestCvAnalysisClient implements CvAnalysisClient {
 
     @Override
     public AiCvAnalysisResponse analyze(byte[] pdf) {
+        return post("/api/v1/cv/analyze", pdf, AiCvAnalysisResponse.class);
+    }
+
+    @Override
+    public AiCvCoachResponse coach(byte[] pdf) {
+        return post("/api/v1/cv/coach", pdf, AiCvCoachResponse.class);
+    }
+
+    private <T> T post(String path, byte[] pdf, Class<T> responseType) {
         if (!enabled) {
             throw new CvAnalysisException(HttpStatus.SERVICE_UNAVAILABLE, "AI_SERVICE_DISABLED",
                     "Le service d'analyse IA est désactivé");
@@ -82,14 +92,14 @@ public class RestCvAnalysisClient implements CvAnalysisClient {
 
         try {
             return restClient.post()
-                    .uri("/api/v1/cv/analyze")
+                    .uri(path)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(body)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, (request, response) -> {
                         throw toException(response.getStatusCode(), response.getBody().readAllBytes());
                     })
-                    .body(AiCvAnalysisResponse.class);
+                    .body(responseType);
         } catch (ResourceAccessException ex) {
             log.warn("Service IA injoignable pour l'analyse de CV : {}", ex.getMessage());
             throw new CvAnalysisException(HttpStatus.SERVICE_UNAVAILABLE, "AI_SERVICE_UNAVAILABLE",

@@ -3,6 +3,7 @@ package com.smartrecruit.controller;
 import com.smartrecruit.dto.request.CvAnalysisApplyRequest;
 import com.smartrecruit.dto.response.CandidateProfileResponse;
 import com.smartrecruit.dto.response.CvAnalysisResponse;
+import com.smartrecruit.dto.response.CvCoachingResponse;
 import com.smartrecruit.dto.response.ErrorResponse;
 import com.smartrecruit.service.CvAnalysisService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -85,5 +86,38 @@ public class CvAnalysisController {
     @PostMapping(value = "/analysis/apply", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CandidateProfileResponse applyMyAnalysis(@Valid @RequestBody CvAnalysisApplyRequest request) {
         return analysisService.applyMyAnalysis(request);
+    }
+
+    @Operation(summary = "Coach CV : score et conseils pour améliorer son CV",
+            description = "Score /100 calculé par règles (rubriques, dates, réalisations chiffrées...) et conseils "
+                    + "rédigés par l'IA sur le CV anonymisé. Les reformulations proposées citent le CV et n'inventent "
+                    + "aucun chiffre. Le CV et le profil ne sont pas modifiés.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Conseils du Coach CV"),
+            @ApiResponse(responseCode = "404", description = "Aucun CV déposé",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "Une analyse est déjà en cours",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "503", description = "Service IA ou modèles indisponibles",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/coach")
+    public CvCoachingResponse coachMyCv() {
+        return analysisService.coachMyCv();
+    }
+
+    @Operation(summary = "Derniers conseils du Coach CV")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Derniers conseils (terminés ou en échec)"),
+            @ApiResponse(responseCode = "404", description = "Aucun conseil",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/coach")
+    public CvCoachingResponse getMyLatestCoaching() {
+        return analysisService.getMyLatestCoaching();
     }
 }

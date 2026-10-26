@@ -1,6 +1,7 @@
 package com.smartrecruit;
 
 import com.smartrecruit.dto.ai.AiCvAnalysisResponse;
+import com.smartrecruit.dto.ai.AiCvCoachResponse;
 import com.smartrecruit.dto.request.CvAnalysisApplyRequest;
 import com.smartrecruit.entity.CvAnalysis;
 import com.smartrecruit.entity.CvAnalysisStatus;
@@ -170,6 +171,62 @@ class CvAnalysisIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Un administrateur ne peut pas lancer d'analyse pour lui-même (403)")
     void admin_cannotAnalyze() throws Exception {
         perform(adminToken(), post("/api/candidates/me/cv/analyze")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Coach CV : score et conseils enregistrés (type COACHING), sans toucher à l'extraction ni au profil")
+    void coach_success_isTracedSeparately() throws Exception {
+        String token = candidateWithCv("coach@test.local");
+        when(cvAnalysisClient.coach(any())).thenReturn(coachResponse());
+
+        perform(token, post("/api/candidates/me/cv/coach"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.score").value(65))
+                .andExpect(jsonPath("$.criteria[0].label").value("Rubrique Formation"))
+                .andExpect(jsonPath("$.criteria[0].advice").exists())
+                .andExpect(jsonPath("$.improvements[0].title").value("Ajoutez une rubrique Formation"))
+                .andExpect(jsonPath("$.rewrites[0].after").value("Conception de [nombre] API REST"))
+                .andExpect(jsonPath("$.rejectedRewrites").value(1))
+                .andExpect(jsonPath("$.trace.promptVersion").value("cv-coach-v1"));
+
+        perform(token, get("/api/candidates/me/cv/coach"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.score").value(65));
+
+        // Le coaching n'est pas une analyse d'extraction : rien à valider dans le profil.
+        perform(token, get("/api/candidates/me/cv/analysis")).andExpect(status().isNotFound());
+        verify(cvAnalysisClient, never()).analyze(any());
+    }
+
+    @Test
+    @DisplayName("Coach CV : un échec du service IA est enregistré FAILED et renvoie 503")
+    void coach_failure_isRecorded() throws Exception {
+        String token = candidateWithCv("coach.echec@test.local");
+        when(cvAnalysisClient.coach(any())).thenThrow(new CvAnalysisException(
+                HttpStatus.SERVICE_UNAVAILABLE, "LLM_QUOTA", "L'analyse IA est momentanément indisponible"));
+
+        perform(token, post("/api/candidates/me/cv/coach")).andExpect(status().isServiceUnavailable());
+
+        perform(token, get("/api/candidates/me/cv/coach"))
+                .andExpect(jsonPath("$.status").value("FAILED"))
+                .andExpect(jsonPath("$.errorCode").value("LLM_QUOTA"))
+                .andExpect(jsonPath("$.score").doesNotExist());
+    }
+
+    private static AiCvCoachResponse coachResponse() {
+        return new AiCvCoachResponse(
+                "cv-coach-v1", 65,
+                List.of(new AiCvCoachResponse.Criterion("education", "Rubrique Formation", 0, 10, false,
+                        "Ajoutez une rubrique « Formation »."),
+                        new AiCvCoachResponse.Criterion("experience", "Rubrique Expérience", 15, 15, true, null)),
+                List.of("Expérience solide sur Spring Boot"),
+                List.of(new AiCvCoachResponse.Improvement("Ajoutez une rubrique Formation", "Indiquez votre diplôme.")),
+                List.of(new AiCvCoachResponse.Rewrite("Développement d'API", "Conception de [nombre] API REST",
+                        "Résultat mesurable")),
+                1,
+                new AiCvAnalysisResponse.Llm("gemini-3.5-flash-lite", true, "cv-coach-v1", List.of(), 600, 300),
+                Map.of("advice", 1200));
     }
 
     private String candidateWithCv(String email) throws Exception {

@@ -16,6 +16,7 @@ import { CandidateService } from '../../../core/services/candidate.service';
 import {
   CandidateCv,
   CvAnalysis,
+  CvCoaching,
   EXPERIENCE_LEVEL_LABELS,
   ExperienceLevel,
 } from '../../../core/models/candidate.model';
@@ -78,6 +79,10 @@ export class MyCv implements OnInit {
   protected readonly analysisError = signal<string | null>(null);
 
   protected readonly applying = signal(false);
+
+  protected readonly coaching = signal<CvCoaching | null>(null);
+  protected readonly coachingRunning = signal(false);
+  protected readonly coachingError = signal<string | null>(null);
   protected readonly applied = signal(false);
 
   // Proposition modifiable par le candidat avant validation.
@@ -106,9 +111,11 @@ export class MyCv implements OnInit {
     forkJoin({
       cv: this.candidateService.getMyCv().pipe(catchError(notFound)),
       analysis: this.candidateService.getMyLatestAnalysis().pipe(catchError(notFound)),
-    }).subscribe(({ cv, analysis }) => {
+      coaching: this.candidateService.getMyLatestCoaching().pipe(catchError(notFound)),
+    }).subscribe(({ cv, analysis, coaching }) => {
       this.cv.set(cv ?? null);
       this.setAnalysis(analysis ?? null);
+      this.coaching.set(coaching ?? null);
       this.loading.set(false);
     });
   }
@@ -246,6 +253,26 @@ export class MyCv implements OnInit {
         this.snackBar.open(getApiErrorMessage(error, 'La validation a échoué.'), 'OK', { duration: 6000 });
       },
     });
+  }
+
+  protected coach(): void {
+    this.coachingError.set(null);
+    this.coachingRunning.set(true);
+    this.candidateService.coachMyCv().subscribe({
+      next: (coaching) => {
+        this.coaching.set(coaching);
+        this.coachingRunning.set(false);
+      },
+      error: (error) => {
+        this.coachingError.set(getApiErrorMessage(error, 'Le Coach CV est indisponible. Veuillez réessayer.'));
+        this.coachingRunning.set(false);
+      },
+    });
+  }
+
+  /** Couleur de la jauge : rouge < 50, orange < 75, vert sinon. */
+  protected scoreTone(score: number): 'low' | 'medium' | 'high' {
+    return score < 50 ? 'low' : score < 75 ? 'medium' : 'high';
   }
 
   protected formatSize(bytes: number): number {

@@ -9,6 +9,7 @@ export const CANDIDATE_ENDPOINTS = {
   analyze: '/candidates/me/cv/analyze',
   analysis: '/candidates/me/cv/analysis',
   applyAnalysis: '/candidates/me/cv/analysis/apply',
+  coach: '/candidates/me/cv/coach',
   list: '/candidates',
   byId: (id: number | string) => `/candidates/${id}`,
   cvFile: (id: number | string) => `/candidates/${id}/cv/file`,

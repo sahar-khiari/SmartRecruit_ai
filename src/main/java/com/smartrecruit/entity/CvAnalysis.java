@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -47,6 +48,13 @@ public class CvAnalysis {
     @JoinColumn(name = "cv_id", nullable = false, foreignKey = @ForeignKey(name = "fk_cv_analyses_cv"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private CandidateCv cv;
+
+    /** Les analyses enregistrées avant le Coach CV n'avaient pas de type : EXTRACTION par défaut. */
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'EXTRACTION'")
+    @Column(name = "type", nullable = false, length = 20)
+    private CvAnalysisType type = CvAnalysisType.EXTRACTION;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)

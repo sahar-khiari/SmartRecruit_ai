@@ -64,6 +64,28 @@ class RestCvAnalysisClientTest {
     }
 
     @Test
+    @DisplayName("Coach CV : appelle /api/v1/cv/coach et lit le score et les conseils")
+    void coach_success() {
+        server.expect(requestTo("http://ai.test/api/v1/cv/coach"))
+                .andExpect(header("X-AI-Service-Key", "cle-interne"))
+                .andRespond(withSuccess("""
+                        {"prompt_version": "cv-coach-v1", "score": 65,
+                         "criteria": [{"id": "education", "label": "Rubrique Formation", "points": 0,
+                                       "max_points": 10, "passed": false, "advice": "Ajoutez une rubrique"}],
+                         "strengths": ["Spring Boot"], "improvements": [{"title": "Formation", "detail": "..."}],
+                         "rewrites": [], "rejected_rewrites": 0,
+                         "llm": {"model": "gemini-3.5-flash", "fallback_used": false, "prompt_version": "cv-coach-v1"}}
+                        """, MediaType.APPLICATION_JSON));
+
+        var response = client.coach(PDF);
+
+        assertThat(response.score()).isEqualTo(65);
+        assertThat(response.criteria().get(0).maxPoints()).isEqualTo(10);
+        assertThat(response.llm().promptVersion()).isEqualTo("cv-coach-v1");
+        server.verify();
+    }
+
+    @Test
     @DisplayName("Un CV refusé par FastAPI (422) garde son code et son message")
     void analyze_invalidCv_returns422WithCode() {
         server.expect(requestTo("http://ai.test/api/v1/cv/analyze"))

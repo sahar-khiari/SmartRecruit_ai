@@ -120,3 +120,29 @@ export interface CvAnalysisApplyRequest {
   yearsOfExperience: number | null;
   skills: string[];
 }
+
+/** Coach CV : score par règles + conseils de l'IA. */
+export interface CvCoachingCriterion {
+  id: string;
+  label: string;
+  points: number;
+  maxPoints: number;
+  passed: boolean;
+  advice: string | null;
+}
+
+export interface CvCoaching {
+  id: number;
+  cvId: number;
+  status: CvAnalysisStatus;
+  score: number | null;
+  criteria: CvCoachingCriterion[];
+  strengths: string[];
+  improvements: { title: string; detail: string }[];
+  rewrites: { before: string; after: string; reason: string }[];
+  rejectedRewrites: number | null;
+  trace: CvAnalysisTrace;
+  errorCode: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+}
