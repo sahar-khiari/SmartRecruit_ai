@@ -1,0 +1,43 @@
+@if (comparaison.nombre() > 0) {
+  <aside class="compare-bar" aria-label="Comparaison d’offres">
+    <div class="compare-bar__inner">
+      <div class="compare-bar__info">
+        <strong>{{ comparaison.nombre() }} offre{{ comparaison.nombre() > 1 ? 's' : '' }} sélectionnée{{ comparaison.nombre() > 1 ? 's' : '' }}</strong>
+        <span class="compare-bar__titles">
+          @for (offre of comparaison.selectionnees(); track offre.id) {
+            <span class="compare-bar__chip">
+              {{ offre.titrePoste }}
+              <button type="button" (click)="comparaison.basculer(offre)" [attr.aria-label]="'Retirer ' + offre.titrePoste">
+                <mat-icon>close</mat-icon>
+              </button>
+            </span>
+          }
+        </span>
+      </div>
+
+      @if (profilOuvert()) {
+        <mat-form-field appearance="outline" class="compare-bar__profil" subscriptSizing="dynamic">
+          <mat-label>Votre profil en 2 lignes (facultatif)</mat-label>
+          <textarea matInput rows="2" maxlength="500" [(ngModel)]="profil"
+                    placeholder="Junior, je connais Java et Spring, un peu d’Angular"></textarea>
+          <mat-hint>Email et téléphone sont masqués avant l’envoi à l’IA.</mat-hint>
+        </mat-form-field>
+      } @else {
+        <button mat-button type="button" (click)="profilOuvert.set(true)">
+          <mat-icon aria-hidden="true">person</mat-icon> Ajouter mon profil
+        </button>
+      }
+
+      <div class="compare-bar__actions">
+        <button mat-button type="button" (click)="comparaison.vider()">Vider</button>
+        <button mat-flat-button type="button" [disabled]="comparaison.nombre() < 2" (click)="comparer()">
+          <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+          Comparer avec l’IA
+        </button>
+      </div>
+    </div>
+    @if (comparaison.nombre() < 2) {
+      <p class="compare-bar__hint">Sélectionnez au moins une autre offre (2 ou 3 offres).</p>
+    }
+  </aside>
+}

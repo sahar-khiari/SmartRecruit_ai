@@ -1,0 +1,100 @@
+<h2 mat-dialog-title class="cmp-title">
+  <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+  Comparaison des offres par l’IA
+</h2>
+
+<mat-dialog-content class="cmp-content">
+  @if (chargement()) {
+    <div class="cmp-loading" role="status">
+      <mat-spinner diameter="40" />
+      <p>L’IA compare les offres… cela peut prendre jusqu’à une minute.</p>
+    </div>
+  } @else if (erreur()) {
+    <div class="cmp-error" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <span>{{ erreur() }}</span>
+      <button mat-stroked-button type="button" (click)="lancer()">Réessayer</button>
+    </div>
+  } @else if (resultat(); as r) {
+    <div class="cmp-table-wrap">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th scope="col">Critère</th>
+            @for (offre of r.offres; track offre.offreId; let i = $index) {
+              <th scope="col" [class.cmp-table__reco]="offre.offreId === r.recommandation.offreId">
+                <span class="cmp-letter">Offre {{ lettres[i] }}</span>
+                {{ offre.titrePoste }}
+                @if (offre.offreId === r.recommandation.offreId) {
+                  <span class="cmp-badge"><mat-icon aria-hidden="true">star</mat-icon> Recommandée</span>
+                }
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (ligne of lignes(); track ligne.critere) {
+            <tr>
+              <th scope="row">{{ ligne.critere }}</th>
+              @for (valeur of ligne.valeurs; track $index) {
+                <td>{{ valeur }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cmp-strengths">
+      @for (offre of r.offres; track offre.offreId; let i = $index) {
+        <section class="cmp-strength">
+          <h3>Points forts {{ lettres[i] }}</h3>
+          <ul>
+            @for (point of offre.pointsForts; track point) { <li>{{ point }}</li> }
+          </ul>
+        </section>
+      }
+    </div>
+
+    <section class="cmp-reco" [class.cmp-reco--neutral]="r.recommandation.offreId === null">
+      <mat-icon aria-hidden="true">{{ r.recommandation.offreId === null ? 'info' : 'recommend' }}</mat-icon>
+      <div>
+        <strong>
+          @if (r.recommandation.offreId !== null) {
+            Recommandation : offre {{ lettre(r.recommandation.offreId) }}
+          } @else {
+            À retenir
+          }
+        </strong>
+        <p>{{ r.recommandation.justification }}</p>
+        @if (!r.profilUtilise) {
+          <small>Ajoutez votre profil dans la barre de comparaison pour obtenir une recommandation personnalisée.</small>
+        }
+      </div>
+    </section>
+
+    <p class="cmp-disclaimer">
+      Proposé par l’IA ({{ r.modele }}) à partir des offres. Niveau, contrat et lieu proviennent directement des
+      offres. La décision vous appartient.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions class="cmp-actions">
+  <button mat-button mat-dialog-close type="button">Fermer</button>
+  @if (resultat(); as r) {
+    @for (offre of r.offres; track offre.offreId; let i = $index) {
+      @if (offre.offreId === r.recommandation.offreId) {
+        <button mat-flat-button type="button" (click)="postuler(offre.offreId)">
+          <mat-icon aria-hidden="true">send</mat-icon>
+          Postuler à l’offre {{ lettres[i] }}
+        </button>
+      } @else {
+        <button mat-stroked-button type="button" (click)="postuler(offre.offreId)">
+          <mat-icon aria-hidden="true">send</mat-icon>
+          Postuler à l’offre {{ lettres[i] }}
+        </button>
+      }
+    }
+  }
+</mat-dialog-actions>

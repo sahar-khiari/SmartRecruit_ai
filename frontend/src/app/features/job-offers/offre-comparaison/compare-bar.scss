@@ -1,0 +1,87 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.compare-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  z-index: 900;
+  width: min(1100px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  padding: 12px 16px;
+  border: 1px solid v.$color-primary-soft;
+  border-radius: v.$radius-lg;
+  background: v.$color-surface;
+  box-shadow: v.$shadow-lg;
+
+  &__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__info {
+    display: grid;
+    flex: 1;
+    gap: 6px;
+    min-width: 220px;
+
+    strong {
+      color: v.$color-primary;
+    }
+  }
+
+  &__titles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 260px;
+    padding: 2px 4px 2px 10px;
+    border-radius: v.$radius-pill;
+    background: v.$color-primary-soft;
+    color: v.$color-primary-strong;
+    font-size: 0.82rem;
+
+    button {
+      display: inline-flex;
+      padding: 1px;
+      border: 0;
+      border-radius: v.$radius-pill;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+
+      &:focus-visible {
+        @include m.focus-ring;
+      }
+    }
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+
+  &__profil {
+    flex: 1 1 320px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__hint {
+    margin: 6px 0 0;
+    color: v.$color-text-subtle;
+    font-size: 0.85rem;
+  }
+}

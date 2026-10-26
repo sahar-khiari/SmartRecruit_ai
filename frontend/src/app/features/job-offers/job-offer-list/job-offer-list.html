@@ -122,6 +122,8 @@
 
           <mat-card-actions class="card-actions">
             @if (isCandidate) {
+              <!-- Module 2 : comparaison IA (ajout) -->
+              <app-compare-toggle [offre]="offre" />
               @if (getCandidatureForOffer(offre.id); as cand) {
                 <button
                   mat-raised-button
@@ -177,5 +179,10 @@
         </button>
       </div>
     }
+  }
+
+  <!-- Module 2 : comparaison IA (ajout) -->
+  @if (isCandidate) {
+    <app-compare-bar />
   }
 </div>

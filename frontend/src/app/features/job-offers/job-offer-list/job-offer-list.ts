@@ -18,6 +18,8 @@ import {
   OffreRechercheFiltres,
 } from '../../../core/models/offre-gestion.model';
 import { OffreGestionService } from '../../../core/services/offre-gestion.service';
+import { CompareBar } from '../offre-comparaison/compare-bar';
+import { CompareToggle } from '../offre-comparaison/compare-toggle';
 
 @Component({
   selector: 'app-job-offer-list',
@@ -33,6 +35,8 @@ import { OffreGestionService } from '../../../core/services/offre-gestion.servic
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    CompareToggle,
+    CompareBar,
   ],
   templateUrl: './job-offer-list.html',
   styleUrl: './job-offer-list.scss',

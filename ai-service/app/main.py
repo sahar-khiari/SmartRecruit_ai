@@ -75,6 +75,9 @@ def create_app() -> FastAPI:
 
     # Routes Module 2 (IA des offres / Cohere)
     application.include_router(offres_router.router)
+    # Module 2 : comparaison IA d'offres pour le candidat (ajout)
+    from app.offres.comparaison_router import router as comparaison_router
+    application.include_router(comparaison_router)
 
     # Routes Module Matching (Module CV/Job Matching) — Enregistrement defensif
     try:
