@@ -74,4 +74,5 @@ def test_missing_file_is_rejected(client):
 
 
 def test_health_is_public(client):
-    assert client.get("/health").json() == {"status": "UP"}
+    # Le contenu de /health dépend du projet (commun ou indépendant) : on vérifie seulement l'accès sans clé.
+    assert client.get("/health").status_code == 200
