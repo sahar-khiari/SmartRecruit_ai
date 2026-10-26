@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, File, UploadFile, status
 from fastapi.responses import JSONResponse
 
 from app.core.security import require_internal_api_key
+from app.coreAgents.Agents.cv_analysis.coach import COACH_PROMPT_VERSION, CvCoach
 from app.coreAgents.Agents.cv_analysis.constants import MAX_PDF_BYTES
 from app.coreAgents.Agents.cv_analysis.extractor import CvExtractionError, CvExtractor
 from app.coreAgents.Agents.cv_analysis.llm.gemini_client import GeminiClient
@@ -14,9 +15,11 @@ from app.coreAgents.Agents.cv_analysis.pdf_reader import PdfReadError
 from app.coreAgents.Agents.cv_analysis.pipeline import PIPELINE_VERSION, CvAnalysisPipeline
 from app.coreAgents.Agents.cv_analysis.settings import get_cv_settings
 from app.v1.schemas.cv_analysis import (
+    CoachCriterionResponse,
     CvAnalysisError,
     CvAnalysisResponse,
     CvAnonymizationReport,
+    CvCoachResponse,
     CvProfileProposal,
     LlmAttemptTrace,
     LlmTrace,
@@ -30,15 +33,23 @@ router = APIRouter(
 )
 
 
-@lru_cache
-def get_cv_pipeline() -> CvAnalysisPipeline:
+def _gemini_clients() -> list[GeminiClient]:
     settings = get_cv_settings()
-    clients = [
+    return [
         GeminiClient(settings.gemini_key_value, model, settings.gemini_base_url,
                      settings.gemini_timeout_seconds, settings.gemini_temperature)
         for model in (settings.gemini_model, settings.gemini_fallback_model)
     ]
-    return CvAnalysisPipeline(CvExtractor(clients, settings.llm_max_retries))
+
+
+@lru_cache
+def get_cv_pipeline() -> CvAnalysisPipeline:
+    return CvAnalysisPipeline(CvExtractor(_gemini_clients(), get_cv_settings().llm_max_retries))
+
+
+@lru_cache
+def get_cv_coach() -> CvCoach:
+    return CvCoach(_gemini_clients(), get_cv_settings().llm_max_retries)
 
 
 def _error(status_code: int, code: str, detail: str) -> JSONResponse:
@@ -104,6 +115,55 @@ def analyze_cv(
                       for a in extraction.attempts],
             input_tokens=extraction.input_tokens,
             output_tokens=extraction.output_tokens,
+        ),
+        durations_ms=result.durations_ms,
+    )
+
+
+@router.post(
+    "/coach",
+    response_model=CvCoachResponse,
+    responses={
+        401: {"description": "Clé interne manquante"},
+        403: {"description": "Clé interne invalide"},
+        413: {"model": CvAnalysisError, "description": "PDF de plus de 5 Mo"},
+        422: {"model": CvAnalysisError, "description": "Fichier vide, pas un PDF, illisible ou sans texte"},
+        503: {"model": CvAnalysisError, "description": "Aucun modèle disponible ou clé Gemini absente/refusée"},
+    },
+)
+def coach_cv(
+    file: Annotated[UploadFile, File(description="CV au format PDF")],
+    coach: Annotated[CvCoach, Depends(get_cv_coach)],
+) -> CvCoachResponse | JSONResponse:
+    """Coach CV : score /100 par règles + conseils et reformulations par le LLM (CV anonymisé)."""
+    content = file.file.read(MAX_PDF_BYTES + 1)
+    try:
+        result = coach.run(content)
+    except PdfReadError as exc:
+        status_code = (status.HTTP_413_REQUEST_ENTITY_TOO_LARGE if exc.code == "TOO_LARGE"
+                       else status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return _error(status_code, exc.code, str(exc))
+    except CvExtractionError as exc:
+        return _error(status.HTTP_503_SERVICE_UNAVAILABLE, exc.code, exc.message)
+
+    llm = result.llm
+    return CvCoachResponse(
+        prompt_version=COACH_PROMPT_VERSION,
+        score=result.score,
+        criteria=[CoachCriterionResponse(id=c.id, label=c.label, points=c.points, max_points=c.max_points,
+                                         passed=c.passed, advice=c.advice) for c in result.criteria],
+        strengths=result.advice.strengths,
+        improvements=result.advice.improvements,
+        rewrites=result.advice.rewrites,
+        rejected_rewrites=result.rejected_rewrites,
+        llm=LlmTrace(
+            model=llm.model,
+            fallback_used=llm.fallback_used,
+            prompt_version=COACH_PROMPT_VERSION,
+            attempts=[LlmAttemptTrace(model=a.model, error_code=a.error_code, latency_ms=a.latency_ms)
+                      for a in llm.attempts],
+            input_tokens=llm.input_tokens,
+            output_tokens=llm.output_tokens,
         ),
         durations_ms=result.durations_ms,
     )

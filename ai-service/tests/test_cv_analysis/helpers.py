@@ -58,3 +58,20 @@ FICTIONAL_CV = [
 ]
 
 
+
+# Conseils du Coach CV : la 2e reformulation invente un chiffre (« 30 % ») et doit être écartée.
+VALID_COACH_ADVICE = {
+    "strengths": ["Expérience récente sur Spring Boot", "Compétences techniques variées"],
+    "improvements": [
+        {"title": "Ajoutez une rubrique Formation", "detail": "Indiquez votre diplôme et votre école."},
+        {"title": "Chiffrez vos résultats", "detail": "Précisez le nombre d'API ou d'utilisateurs."},
+    ],
+    "rewrites": [
+        {"before": "a développé des API REST avec Spring Boot",
+         "after": "Conception de [nombre] API REST Spring Boot utilisées en production",
+         "reason": "Verbe d'action et résultat mesurable"},
+        {"before": "a développé des API REST avec Spring Boot",
+         "after": "Développement d'API REST ayant amélioré les performances de 30 %",
+         "reason": "Chiffre inventé : doit être rejeté"},
+    ],
+}

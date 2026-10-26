@@ -3,7 +3,9 @@ package com.smartrecruit.mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartrecruit.dto.ai.AiCvAnalysisResponse;
+import com.smartrecruit.dto.ai.AiCvCoachResponse;
 import com.smartrecruit.dto.response.CvAnalysisResponse;
+import com.smartrecruit.dto.response.CvCoachingResponse;
 import com.smartrecruit.entity.CvAnalysis;
 import com.smartrecruit.entity.ExperienceLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ public class CvAnalysisMapper {
 
     private final ObjectMapper objectMapper;
 
-    public String toJson(AiCvAnalysisResponse result) {
+    public String toJson(Object result) {
         try {
             return objectMapper.writeValueAsString(result);
         } catch (JsonProcessingException ex) {
@@ -32,15 +34,43 @@ public class CvAnalysisMapper {
     }
 
     public Optional<AiCvAnalysisResponse> readResult(CvAnalysis analysis) {
+        return read(analysis, AiCvAnalysisResponse.class);
+    }
+
+    private <T> Optional<T> read(CvAnalysis analysis, Class<T> type) {
         if (analysis.getResultJson() == null) {
             return Optional.empty();
         }
         try {
-            return Optional.of(objectMapper.readValue(analysis.getResultJson(), AiCvAnalysisResponse.class));
+            return Optional.of(objectMapper.readValue(analysis.getResultJson(), type));
         } catch (JsonProcessingException ex) {
             log.warn("Résultat d'analyse illisible | analysisId={}", analysis.getId());
             return Optional.empty();
         }
+    }
+
+    public CvCoachingResponse toCoachingResponse(CvAnalysis coaching) {
+        AiCvCoachResponse result = read(coaching, AiCvCoachResponse.class).orElse(null);
+        return new CvCoachingResponse(
+                coaching.getId(),
+                coaching.getCv().getId(),
+                coaching.getStatus(),
+                result != null ? result.score() : null,
+                result == null || result.criteria() == null ? List.of() : result.criteria().stream()
+                        .map(c -> new CvCoachingResponse.Criterion(c.id(), c.label(), c.points(), c.maxPoints(),
+                                c.passed(), c.advice()))
+                        .toList(),
+                result != null ? nullToEmpty(result.strengths()) : List.of(),
+                result == null || result.improvements() == null ? List.of() : result.improvements().stream()
+                        .map(i -> new CvCoachingResponse.Improvement(i.title(), i.detail())).toList(),
+                result == null || result.rewrites() == null ? List.of() : result.rewrites().stream()
+                        .map(r -> new CvCoachingResponse.Rewrite(r.before(), r.after(), r.reason())).toList(),
+                result != null ? result.rejectedRewrites() : null,
+                trace(coaching),
+                coaching.getErrorCode(),
+                coaching.getErrorMessage(),
+                coaching.getCreatedAt()
+        );
     }
 
     public CvAnalysisResponse toResponse(CvAnalysis analysis) {
@@ -54,20 +84,24 @@ public class CvAnalysisMapper {
                 analysis.getCv().getId(),
                 analysis.getStatus(),
                 proposal,
-                new CvAnalysisResponse.Trace(
-                        analysis.getModel(),
-                        analysis.getFallbackUsed(),
-                        analysis.getPromptVersion(),
-                        analysis.getPipelineVersion(),
-                        analysis.getInputTokens(),
-                        analysis.getOutputTokens(),
-                        analysis.getDurationMs()),
+                trace(analysis),
                 analysis.getErrorCode(),
                 analysis.getErrorMessage(),
                 analysis.getCreatedAt(),
                 analysis.getCompletedAt(),
                 analysis.getAppliedAt()
         );
+    }
+
+    private static CvAnalysisResponse.Trace trace(CvAnalysis analysis) {
+        return new CvAnalysisResponse.Trace(
+                analysis.getModel(),
+                analysis.getFallbackUsed(),
+                analysis.getPromptVersion(),
+                analysis.getPipelineVersion(),
+                analysis.getInputTokens(),
+                analysis.getOutputTokens(),
+                analysis.getDurationMs());
     }
 
     private CvAnalysisResponse.Proposal toProposal(AiCvAnalysisResponse.Profile profile) {

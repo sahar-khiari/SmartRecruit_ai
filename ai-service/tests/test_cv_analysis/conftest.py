@@ -8,12 +8,13 @@ from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
 from app.core.config import Settings, get_settings
+from app.coreAgents.Agents.cv_analysis.coach import CvCoach
 from app.coreAgents.Agents.cv_analysis.extractor import CvExtractor
 from app.coreAgents.Agents.cv_analysis.pipeline import CvAnalysisPipeline
 from app.main import create_app
-from app.v1.endpoints.cv_analysis import get_cv_pipeline
+from app.v1.endpoints.cv_analysis import get_cv_coach, get_cv_pipeline
 
-from .helpers import TEST_API_KEY, VALID_EXTRACTION, FakeLlmClient, build_pdf
+from .helpers import TEST_API_KEY, VALID_COACH_ADVICE, VALID_EXTRACTION, FakeLlmClient, build_pdf
 
 
 @pytest.fixture
@@ -29,9 +30,16 @@ def llm_clients() -> list[FakeLlmClient]:
 
 
 @pytest.fixture
-def client(llm_clients) -> TestClient:
+def coach_clients() -> list[FakeLlmClient]:
+    return [FakeLlmClient("fake-principal", [VALID_COACH_ADVICE]),
+            FakeLlmClient("fake-secours", [VALID_COACH_ADVICE])]
+
+
+@pytest.fixture
+def client(llm_clients, coach_clients) -> TestClient:
     app = create_app()
     app.dependency_overrides[get_settings] = lambda: Settings(ai_service_api_key=SecretStr(TEST_API_KEY))
     app.dependency_overrides[get_cv_pipeline] = lambda: CvAnalysisPipeline(CvExtractor(llm_clients))
+    app.dependency_overrides[get_cv_coach] = lambda: CvCoach(coach_clients)
     with TestClient(app) as test_client:
         yield test_client

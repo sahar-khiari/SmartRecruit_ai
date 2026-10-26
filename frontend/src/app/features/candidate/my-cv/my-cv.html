@@ -120,6 +120,106 @@
       }
     </section>
 
+    <!-- Coach CV -->
+    <section class="cv-card cv-card--coach" aria-labelledby="cv-coach-title">
+      <header class="cv-card__head">
+        <span class="cv-card__step"><mat-icon aria-hidden="true">tips_and_updates</mat-icon></span>
+        <h2 id="cv-coach-title" class="cv-card__title">Coach CV : améliorez votre CV</h2>
+        @if (coaching()?.status === 'COMPLETED') {
+          <span class="cv-badge">
+            <mat-icon aria-hidden="true">smart_toy</mat-icon>
+            {{ coaching()?.trace?.model }}
+            @if (coaching()?.trace?.fallbackUsed) { (modèle de secours) }
+          </span>
+        }
+      </header>
+      <p class="cv-card__text">
+        Un score sur 100 calculé par des critères vérifiables, et des conseils rédigés par l’IA
+        sur votre CV anonymisé. Votre CV et votre profil ne sont pas modifiés.
+      </p>
+
+      @if (coachingRunning()) {
+        <div class="cv-coach-wait" role="status">
+          <mat-spinner diameter="28" />
+          <span>Le coach lit votre CV… (environ 15 secondes)</span>
+        </div>
+      } @else {
+        <button mat-stroked-button type="button" (click)="coach()" [disabled]="!cv() || uploading()">
+          <mat-icon aria-hidden="true">tips_and_updates</mat-icon>
+          {{ coaching()?.status === 'COMPLETED' ? 'Relancer le coach' : 'Obtenir des conseils' }}
+        </button>
+      }
+
+      @if (coachingError()) {
+        <p class="cv-alert cv-alert--error" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>{{ coachingError() }}
+        </p>
+      }
+
+      @if (coaching(); as result) {
+        @if (result.status === 'COMPLETED' && result.score !== null && !coachingRunning()) {
+          <div class="cv-score">
+            <div class="cv-score__value cv-score__value--{{ scoreTone(result.score) }}">
+              {{ result.score }}<small>/100</small>
+            </div>
+            <div class="cv-score__bar" role="progressbar" [attr.aria-valuenow]="result.score"
+                 aria-valuemin="0" aria-valuemax="100" aria-label="Score du CV">
+              <span class="cv-score__fill cv-score__fill--{{ scoreTone(result.score) }}"
+                    [style.width.%]="result.score"></span>
+            </div>
+          </div>
+
+          <ul class="cv-criteria">
+            @for (criterion of result.criteria; track criterion.id) {
+              <li class="cv-criteria__item" [class.cv-criteria__item--ok]="criterion.passed">
+                <mat-icon aria-hidden="true">{{ criterion.passed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span class="cv-criteria__label">{{ criterion.label }}</span>
+                <span class="cv-criteria__points">{{ criterion.points }}/{{ criterion.maxPoints }}</span>
+                @if (criterion.advice) { <small class="cv-criteria__advice">{{ criterion.advice }}</small> }
+              </li>
+            }
+          </ul>
+
+          <div class="cv-coach-grid">
+            @if (result.strengths.length) {
+              <div>
+                <h3 class="cv-subtitle"><mat-icon aria-hidden="true">thumb_up</mat-icon> Points forts</h3>
+                <ul class="cv-list">
+                  @for (strength of result.strengths; track strength) { <li>{{ strength }}</li> }
+                </ul>
+              </div>
+            }
+            @if (result.improvements.length) {
+              <div>
+                <h3 class="cv-subtitle"><mat-icon aria-hidden="true">trending_up</mat-icon> À améliorer</h3>
+                <ul class="cv-list">
+                  @for (item of result.improvements; track item.title) {
+                    <li><strong>{{ item.title }}</strong> : {{ item.detail }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+
+          @if (result.rewrites.length) {
+            <h3 class="cv-subtitle"><mat-icon aria-hidden="true">edit_note</mat-icon> Reformulations proposées</h3>
+            @for (rewrite of result.rewrites; track rewrite.before) {
+              <div class="cv-rewrite">
+                <p class="cv-rewrite__before"><span>Avant</span>{{ rewrite.before }}</p>
+                <p class="cv-rewrite__after"><span>Après</span>{{ rewrite.after }}</p>
+                @if (rewrite.reason) { <small>{{ rewrite.reason }}</small> }
+              </div>
+            }
+            <p class="cv-card__hint">Remplacez « [nombre] » par vos vrais chiffres : l’IA n’en invente pas.</p>
+          }
+        } @else if (result.status === 'FAILED' && !coachingRunning() && !coachingError()) {
+          <p class="cv-alert cv-alert--error" role="alert">
+            <mat-icon aria-hidden="true">error_outline</mat-icon>Le dernier passage du coach a échoué : {{ result.errorMessage }}
+          </p>
+        }
+      }
+    </section>
+
     <!-- 3. Vérification et validation -->
     @if (proposal() && !analyzing()) {
       <section class="cv-card cv-card--review" aria-labelledby="cv-review-title">

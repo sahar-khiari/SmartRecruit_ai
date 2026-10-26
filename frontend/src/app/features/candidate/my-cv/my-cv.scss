@@ -359,3 +359,147 @@
     margin-right: 6px;
   }
 }
+
+// Coach CV
+.cv-coach-wait {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: v.$color-text-muted;
+}
+
+.cv-score {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  &__value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+
+    small {
+      font-size: 1rem;
+      font-weight: 600;
+      color: v.$color-text-subtle;
+    }
+
+    &--low { color: v.$color-danger; }
+    &--medium { color: v.$color-warning; }
+    &--high { color: v.$color-success; }
+  }
+
+  &__bar {
+    flex: 1;
+    height: 12px;
+    border-radius: v.$radius-pill;
+    background: v.$color-border;
+    overflow: hidden;
+  }
+
+  &__fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    transition: width v.$transition-base;
+
+    &--low { background: v.$color-danger; }
+    &--medium { background: v.$color-warning; }
+    &--high { background: v.$color-success; }
+  }
+}
+
+.cv-criteria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 10px 12px;
+    border-radius: v.$radius-sm;
+    background: v.$color-warning-soft;
+
+    mat-icon { color: v.$color-warning; }
+
+    &--ok {
+      background: v.$color-success-soft;
+
+      mat-icon { color: v.$color-success; }
+    }
+  }
+
+  &__label { font-weight: 500; }
+
+  &__points {
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  &__advice {
+    grid-column: 2 / -1;
+    color: v.$color-text-muted;
+  }
+}
+
+.cv-coach-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @include m.respond-sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cv-subtitle mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  vertical-align: text-bottom;
+  color: v.$color-secondary;
+}
+
+.cv-list {
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: v.$color-text-muted;
+}
+
+.cv-rewrite {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+
+  p {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+  }
+
+  span {
+    flex: 0 0 52px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  &__before {
+    color: v.$color-text-subtle;
+
+    span { color: v.$color-danger; }
+  }
+
+  &__after span { color: v.$color-success; }
+
+  small { color: v.$color-text-subtle; }
+}

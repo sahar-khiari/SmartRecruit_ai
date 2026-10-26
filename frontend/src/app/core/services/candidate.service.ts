@@ -13,6 +13,7 @@ import {
   CandidateSummary,
   CvAnalysis,
   CvAnalysisApplyRequest,
+  CvCoaching,
   ExperienceLevel,
 } from '../models/candidate.model';
 
@@ -60,6 +61,15 @@ export class CandidateService {
 
   applyAnalysis(request: CvAnalysisApplyRequest): Observable<CandidateProfile> {
     return this.http.post<CandidateProfile>(`${this.api}${CANDIDATE_ENDPOINTS.applyAnalysis}`, request, this.silent);
+  }
+
+  /** Coach CV : score /100 et conseils d'amélioration (environ 15 s). */
+  coachMyCv(): Observable<CvCoaching> {
+    return this.http.post<CvCoaching>(`${this.api}${CANDIDATE_ENDPOINTS.coach}`, null, this.silent);
+  }
+
+  getMyLatestCoaching(): Observable<CvCoaching> {
+    return this.http.get<CvCoaching>(`${this.api}${CANDIDATE_ENDPOINTS.coach}`, this.silent);
   }
 
   searchCandidates(search: string, level: ExperienceLevel | null, page: number, size: number):
